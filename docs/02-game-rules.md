@@ -12,7 +12,7 @@ This is the single source of truth for rules. Any code written later must implem
 
 1. Choose **Single player** or **Multiplayer**.
 2. Single player only: choose difficulty (**Easy / Medium / Hard**).
-3. The computer **secretly picks the flip pattern** at random. Nobody knows it, not even in multiplayer; the GUI only shows "???" and the list of possible patterns. This keeps every flip a surprise.
+3. Choose the **flip pattern** (or press "Random"). It stays **visible on screen for the whole game**, so everyone knows what to aim for.
 4. Press **Start**. The board drops any old coins out of the bottom and closes.
 
 ## A normal turn
@@ -39,26 +39,29 @@ A normal win beats a flip: if one coin makes both 4-in-a-row and the pattern, th
 
 ## The flip
 
-### Possible patterns (one is picked in secret)
+### Patterns to choose from
 
-Each pattern must be made of **one player's colour only**, and must include the coin that was just dropped.
+Every pattern is made of **exactly 4 coins** and is **never a straight line** (a straight line of 4 is already a normal win). The pattern counts in **any rotation or mirror image**, so players have many ways to build it. It must be made of **one player's colour only** and must include the coin that was just dropped.
 
 | Name | Shape | Feel |
 |---|---|---|
 | **BOX** | 2×2 square | Medium, the default |
-| **PYRAMID** | three in a row with one on top of the middle | Harder, rarer |
-| **DIAGONAL3** | three on a diagonal | Easy, chaotic, many flips |
+| **T** | three in a row with one sticking out from the middle | Medium |
+| **L** | three in a row with one sticking out from an end | Easier, many ways to make it |
+| **ZIGZAG** | two pairs side by side, shifted by one | Harder |
 
 ```
-BOX        PYRAMID      DIAGONAL3
- X X         . X .        . . X
- X X         X X X        . X .
-                          X . .
+BOX       T           L           ZIGZAG
+X X       X X X       X . .       . X X
+X X       . X .       X . .       X X .
+                      X X .
 ```
+
+(Each shape can also be turned or flipped; for example an upside-down T, or an L lying on its side.)
 
 Limits: at most **3 flips per game**. An old pattern can't trigger again; only a new coin that completes one does.
 
-**Reveal:** when a flip triggers, the GUI reveals the pattern and highlights the coins that made it. Then the computer secretly picks a **new** pattern for the next flip (it may be the same one again), so the surprise never wears off.
+**Always visible:** the chosen pattern stays on screen for the whole game, so both players know what to build and what to block. Setting up the pattern on purpose is part of the strategy.
 
 ### What physically happens
 
@@ -87,7 +90,7 @@ After the coins settle, count for each player the number of **separate lines of 
 2. **Only one player has lines, or one player has more lines** → that player wins.
 3. **Both have the same number of lines** → **the player who triggered the flip wins** ("the flipper's reward": you took the risk and made it happen).
 
-Why this rule: it is short enough to explain in one sentence at the demo, it always produces a result, and because the pattern is secret, a flip is a surprise that can save a losing player or ruin a winning one. Alternatives we considered are in [DECISIONS.md](../DECISIONS.md).
+Why this rule: it is short enough to explain in one sentence at the demo, it always produces a result, and because the pattern is visible, players are encouraged to build it on purpose and must think about what the flip will do to the board. Alternatives we considered are in [DECISIONS.md](../DECISIONS.md).
 
 ## Scoring (kept across games in a session)
 

@@ -20,7 +20,7 @@ No code yet. When the team starts coding, this is what the Arduino program must 
 1. **Board memory:** a 6×7 grid of numbers (0 empty, 1 red, 2 yellow), row 0 = bottom.
 2. **Drop:** when column `c` gets a coin, find the lowest empty row and store the player there. Full column = error.
 3. **Normal win check:** from the new coin, count matching coins in 4 directions (horizontal, vertical, two diagonals), looking both ways. 4 or more = win.
-4. **Pattern check:** the Arduino picks the secret pattern at random at game start (and again after each flip). Does the new coin complete it (BOX / PYRAMID / DIAGONAL3) in its own colour? Try the new coin as each part of the shape.
+4. **Pattern check:** does the new coin complete the chosen pattern (BOX / T / L / ZIGZAG, in any rotation or mirror image) in its own colour? Simplest method: store every rotated and mirrored version of the shape as a list of 4 positions, and try the new coin as each of the 4 coins of each version.
 5. **Flip:** for each column, reverse the order of its coins (the bottom one becomes the top one). Columns stay where they are.
 6. **Winner after flip:** count each player's separate lines of 4+ on the whole board (a line of 5–7 counts once). More lines wins; equal → the flipper; none → keep playing.
 7. **Computer move:** win if possible, else block, else (by level) random / prefer centre / look ahead a few moves (the "minimax" technique; ask your agent when you get there).
@@ -43,7 +43,6 @@ ProtoPie Connect reads and writes **one line per message** in the form `MESSAGE|
 | `SUGGEST` | `0`–`6` | Single player: the computer wants this column |
 | `CHEAT` | `0`–`6` | Wrong column for the computer's coin → show CHEATER |
 | `FLIP_START` | player who triggered | Start the flip animation |
-| `PATTERN_REVEAL` | `0` box, `1` pyramid, `2` diagonal3 | Sent with `FLIP_START`: which secret pattern triggered |
 | `FLIP_DONE` | 42 digits | Board after the flip |
 | `WIN` / `FLIP_WIN` | `1` or `2` | Game over, normal win / win after a flip |
 | `DRAW` | `1` | Board full |
@@ -56,6 +55,7 @@ ProtoPie Connect reads and writes **one line per message** in the form `MESSAGE|
 |---|---|---|
 | `MODE` | `SINGLE` / `MULTI` | Choose mode |
 | `LEVEL` | `0` easy, `1` medium, `2` hard | Computer difficulty |
+| `PATTERN` | `0` box, `1` T, `2` L, `3` zigzag | Chosen flip pattern (the GUI picks one at random for "Random") |
 | `NEWGAME` | `1` | Release old coins and start |
 | `RESET_SCORE` | `1` | Scores back to 0 |
 | `SIMDROP` | `0`–`6` | **Testing:** pretend a coin was dropped, no sensors needed |
@@ -79,8 +79,8 @@ It does not plan for flips. That is fine for a course demo and can be a stretch 
 ## GUI screens to design in ProtoPie
 
 1. Home: Single player / Multiplayer
-2. Setup: difficulty (single only), the list of possible flip patterns with a "???" for the secret one, Start
-3. Game: 7×6 grid mirroring `STATE`, whose turn, the computer's suggested column, scoreboard, flip counter
+2. Setup: difficulty (single only), flip pattern (pictures of the 4 shapes + Random), Start
+3. Game: 7×6 grid mirroring `STATE`, the chosen pattern always visible, whose turn, the computer's suggested column, scoreboard, flip counter
 4. CHEATER overlay (big, red, funny)
 5. Flip animation (triggered by `FLIP_START`, ended by `FLIP_DONE`)
 6. Game over: winner, how they won (normal or flip), points earned, Play again

@@ -21,7 +21,7 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [x] Board size: standard 7×6 (Danny)
 - [x] GUI: ProtoPie (Danny)
 - [x] Budget: as cheap as possible (Danny)
-- [x] Flip pattern: secret (Danny)
+- [x] Flip pattern: visible, 4 coins, not a straight line (Danny)
 
 ## Stage 1 · Setup and learning
 

@@ -1,6 +1,6 @@
 # Connect Four Flip
 
-A physical Connect Four board with an Arduino, motors and a ProtoPie GUI. Play against a friend or the computer; the computer tells you where to drop its coin and calls you a **CHEATER** if you don't. Make the secret-ish pattern and the **whole board flips over**, the coins fall the other way, and surprise lines decide the winner.
+A physical Connect Four board with an Arduino, motors and a ProtoPie GUI. Play against a friend or the computer; the computer tells you where to drop its coin and calls you a **CHEATER** if you don't. Build the 4-coin pattern shown on screen and the **whole board flips over**, the coins fall the other way, and surprise lines decide the winner.
 
 University project · Hardware and Software Technologies for Design · team of 3.
 
