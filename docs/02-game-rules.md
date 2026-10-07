@@ -41,23 +41,24 @@ A normal win beats a flip: if one coin makes both 4-in-a-row and the pattern, th
 
 ### Patterns to choose from
 
-Every pattern is made of **exactly 4 coins** and is **never a straight line** (a straight line of 4 is already a normal win). The pattern counts in **any rotation or mirror image**, so players have many ways to build it. It must be made of **one player's colour only** and must include the coin that was just dropped.
+Every pattern is made of **exactly 4 coins** and is **never a straight line** (a straight line of 4 is already a normal win). The shape must match **exactly as drawn**, the right way up. A **left-right mirror image also counts**, but a turned or upside-down version does not. It must be made of **one player's colour only** and must include the coin that was just dropped.
 
 | Name | Shape | Feel |
 |---|---|---|
 | **BOX** | 2×2 square | Medium, the default |
 | **T** | three in a row with one sticking out from the middle | Medium |
-| **L** | three in a row with one sticking out from an end | Easier, many ways to make it |
+| **L** | a column of three with one to the side at the bottom | Medium |
+| **FLAT L** | a row of three with one on top at an end | Easier |
 | **ZIGZAG** | two pairs side by side, shifted by one | Harder |
 
 ```
-BOX       T           L           ZIGZAG
-X X       X X X       X . .       . X X
-X X       . X .       X . .       X X .
-                      X X .
+BOX       T           L         FLAT L      ZIGZAG
+X X       X X X       X .       X . .       . X X
+X X       . X .       X .       X X X       X X .
+                      X X
 ```
 
-(Each shape can also be turned or flipped; for example an upside-down T, or an L lying on its side.)
+**Mirrors count, turns don't.** For example, the mirrored L (`. X / . X / X X`) and the mirrored ZIGZAG (`X X . / . X X`) both trigger the flip. An upside-down T or an upside-down L does not.
 
 Limits: at most **3 flips per game**. An old pattern can't trigger again; only a new coin that completes one does.
 

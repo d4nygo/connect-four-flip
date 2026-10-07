@@ -21,11 +21,11 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [x] Board size: standard 7×6 (Danny)
 - [x] GUI: ProtoPie (Danny)
 - [x] Budget: as cheap as possible (Danny)
-- [x] Flip pattern: visible, 4 coins, not a straight line (Danny)
+- [x] Flip pattern: visible, 4 coins, not a straight line, exact shape (mirror OK, no rotation) (Danny)
 
 ## Stage 1 · Setup and learning
 
-- [ ] todo · Danny: add `rikosyaa` and `Gilgamesh-Plan` as collaborators (repo Settings → Collaborators)
+- [x] done (Danny, 2026-10-07) · Added `rikosyaa` and `Gilgamesh-Plan` as collaborators
 - [ ] todo · Ask Polimi labs / course staff about borrowing parts and fab access
 - [ ] todo · Everyone: Arduino IDE installed, Blink uploaded
 - [ ] todo · Everyone: read docs/02-game-rules.md
