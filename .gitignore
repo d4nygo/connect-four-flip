@@ -1,0 +1,3 @@
+test_logic
+*.o
+.DS_Store
