@@ -2,16 +2,24 @@
 
 ## Who does what
 
+The players use a **phone app** (made in ProtoPie), not a laptop (team decision, 2026-10-27).
+
 ```
- ┌──────────────┐   USB cable    ┌──────────────────┐   local network   ┌──────────────┐
- │   Arduino    │ ─────────────► │ ProtoPie Connect │ ────────────────► │ ProtoPie GUI │
- │ (the brain)  │ ◄───────────── │ (on the laptop)  │ ◄──────────────── │ (the screen) │
- └──────────────┘   serial text  └──────────────────┘                   └──────────────┘
+Prototype (what we build for the course):
+ ┌──────────────┐   USB cable    ┌──────────────────┐   same Wi-Fi     ┌──────────────────┐
+ │   Arduino    │ ─────────────► │ ProtoPie Connect │ ───────────────► │ ProtoPie Player  │
+ │ (the brain)  │ ◄───────────── │ (on a PC, hidden │ ◄─────────────── │ on the phone     │
+ └──────────────┘   serial text  │  bridge only)    │                  │ (the screen)     │
+                                 └──────────────────┘                  └──────────────────┘
+Final product idea:
+ Arduino ◄── serial ──► Bluetooth module (HC-05 / HM-10) ◄── Bluetooth ──► phone app
 ```
 
+Why a PC is still in the prototype: as far as we know, a ProtoPie prototype can't talk to Bluetooth or the Arduino directly; it talks to ProtoPie Connect, which runs on a computer. The course template's own example does the same ("for the prototype Arduino will be connected to the pc"). The PC sits out of sight; players only touch the phone. **Check with the professor** whether a phone-only setup is possible; if it is, update this section.
+
 - **Arduino = the brain and the referee.** It owns the board state, the rules, the computer player, cheater detection, the flip and the score. One source of truth means the screen can never disagree with the physical board.
-- **ProtoPie = the face.** Menus (mode, pattern), showing the grid, the computer's suggestion, the CHEATER screen, the flip animation, the winner and the scoreboard. It mostly reacts to messages.
-- **ProtoPie Connect** (free desktop app from ProtoPie) passes messages between the Arduino's USB serial port and the ProtoPie prototype.
+- **ProtoPie (on the phone) = the face.** Menus (mode, pattern), showing the grid, the computer's suggestion, the CHEATER screen, the flip animation, the winner and the scoreboard. It mostly reacts to messages.
+- **ProtoPie Connect** (free desktop app from ProtoPie) passes messages between the Arduino's USB serial port and the ProtoPie prototype running on the phone. The messages stay the same if we later switch to a Bluetooth module, because it is also a serial text link.
 
 ## Logic the code will need (plain-language spec)
 

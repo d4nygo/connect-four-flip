@@ -4,10 +4,26 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-10-27 · Phone app instead of laptop (Danny)
+
+- **The players use a phone app** (ProtoPie) as the screen, not a laptop.
+- **Prototype (default):** ProtoPie Player on the phone, connected over Wi-Fi to ProtoPie Connect on a hidden PC, which talks to the Arduino by USB. Why: as far as we know ProtoPie can't reach Bluetooth or the Arduino directly, and the course template's own example does it this way.
+- **Final-product idea:** a Bluetooth module on the board (HM-10 BLE works with iPhone and Android; HC-05 is Android only). Same `MESSAGE||VALUE` messages.
+- Open: ask the professor whether a phone-only setup (no PC) is possible with ProtoPie.
+
 ### 2026-10-27 · Proposal, not decided: coin sensing and actuators (Claude, for the team)
 
 - Options compared in `docs/03-hardware.md` → "Coin sensing and motion: options". Recommended: keep sensors on a **fixed entry bar** above the board (one set of 7 covers both orientations, since coins always enter from the top of the room), using **IR break-beams** (backup: TCRT5000 reflective modules); gates driven by **MG90S servos with printed rack-and-pinion** instead of real linear actuators; flip by a **270° high-torque servo** (or MG996R if its range is tested OK).
 - Waiting for the team to pick. Until then the earlier defaults below still stand.
+
+### 2026-10-27 · From the team chat (WhatsApp, 7–27 Oct)
+
+- **New winner-after-flip rule (Danny, Airika agreed with the logic):** only the flipper has a line → flipper wins; only the other player → they win; **both → the player who did NOT flip wins**; nobody → play on with **no more flips**. Replaces "most lines wins, tie → flipper" and "max 3 flips". Why: a flip becomes a real risk you have to think through, and the rule is short for the demo.
+- **After a flip the coins rearrange inside the board, they don't fall out.** The pull bars (gates) at both ends hold them. Same as before, now stated explicitly.
+- **Cheating ends the game (Danny + Yujia, 2026-10-07):** a wrong coin can't be taken out without emptying the column, so the cheater loses straight away. Replaces "−1 point, 3 cheats = loss".
+- **No difficulty levels for now (Danny + Yujia, 2026-10-08):** "might make it complicated". One computer level; minimax is a stretch goal.
+- **Presentation split (2026-10-17):** block diagram + strategy-fan persona = Danny, flow chart + solo-player persona = Yujia, storyboard = Airika, polish = anyone. Two personas, not three. See [docs/07-presentation.md](docs/07-presentation.md).
+- **Open:** when the pattern is made, does the board flip automatically or does the player choose on the app? How do we warn players during the flip (lights)? To decide when development starts.
 
 ### 2026-10-07 · Patterns must match exactly (Danny)
 
@@ -36,7 +52,7 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 - **Game:** Connect Four with GUI, motors, single/multiplayer, cheater detection, scoring and a board flip. Assigned by the professors.
 - **Board size: standard 7×6** (default). Easiest to buy and the standard computer-player techniques assume it.
 - **Build on a bought Connect Four game** (default). Grid and coins are already precise; saves weeks.
-- **GUI: ProtoPie + ProtoPie Connect** (from the course brief).
+- **GUI: ProtoPie + ProtoPie Connect** (from the course brief). Screen is now a phone, see 2026-10-27.
 - **Arduino is the brain** (rules, AI, score); ProtoPie displays. One source of truth.
 - ~~Microcontroller: Arduino Uno R4 Minima~~ → replaced by a cheap Uno R3-compatible board (see answers above).
 - **Coin detection:** 7 IR break-beam sensors on a fixed bar above the columns. Colour comes from turn order; a colour sensor is optional.

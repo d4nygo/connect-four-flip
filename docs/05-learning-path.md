@@ -7,7 +7,7 @@ Free tools to start **today, before buying anything**:
 - **Wokwi** (wokwi.com): an Arduino simulator in the browser with LEDs, servos, buttons and NeoPixels. Later you can test the game code there with buttons instead of IR sensors.
 - **Tinkercad Circuits** (tinkercad.com): drag-and-drop circuits plus beginner lessons.
 - **Arduino IDE 2** (arduino.cc): the app that uploads code to the real board.
-- **ProtoPie** + **ProtoPie Connect**: check your student licence.
+- **ProtoPie** + **ProtoPie Connect** (on a PC) + **ProtoPie Player** (on the phone): check your student licence.
 
 ## Stage 1 · Everyone (first week)
 
@@ -29,7 +29,7 @@ Free tools to start **today, before buying anything**:
 
 **GUI / ProtoPie**
 - ProtoPie basics: scenes, variables, triggers, "Receive" and "Send" responses.
-- Connect ProtoPie Connect to the Arduino and make one rectangle change colour on `DROP`.
+- Connect ProtoPie Connect to the Arduino, open the prototype on your phone with ProtoPie Player (same Wi-Fi), and make one rectangle change colour on `DROP`.
 - Build the screens listed in `docs/04-software.md`.
 
 ## Stage 3 · Integration milestones
