@@ -4,14 +4,10 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
-### 2026-10-27 · From the team chat (WhatsApp, 7–27 Oct)
+### 2026-10-27 · Proposal, not decided: coin sensing and actuators (Claude, for the team)
 
-- **New winner-after-flip rule (Danny, Airika agreed with the logic):** only the flipper has a line → flipper wins; only the other player → they win; **both → the player who did NOT flip wins**; nobody → play on with **no more flips**. Replaces "most lines wins, tie → flipper" and "max 3 flips". Why: a flip becomes a real risk you have to think through, and the rule is short for the demo.
-- **After a flip the coins rearrange inside the board, they don't fall out.** The pull bars (gates) at both ends hold them. Same as before, now stated explicitly.
-- **Cheating ends the game (Danny + Yujia, 2026-10-07):** a wrong coin can't be taken out without emptying the column, so the cheater loses straight away. Replaces "−1 point, 3 cheats = loss".
-- **No difficulty levels for now (Danny + Yujia, 2026-10-08):** "might make it complicated". One computer level; minimax is a stretch goal.
-- **Presentation split (2026-10-17):** block diagram + strategy-fan persona = Danny, flow chart + solo-player persona = Yujia, storyboard = Airika, polish = anyone. Two personas, not three. See [docs/07-presentation.md](docs/07-presentation.md).
-- **Open:** when the pattern is made, does the board flip automatically or does the player choose on the app? How do we warn players during the flip (lights)? To decide when development starts.
+- Options compared in `docs/03-hardware.md` → "Coin sensing and motion: options". Recommended: keep sensors on a **fixed entry bar** above the board (one set of 7 covers both orientations, since coins always enter from the top of the room), using **IR break-beams** (backup: TCRT5000 reflective modules); gates driven by **MG90S servos with printed rack-and-pinion** instead of real linear actuators; flip by a **270° high-torque servo** (or MG996R if its range is tested OK).
+- Waiting for the team to pick. Until then the earlier defaults below still stand.
 
 ### 2026-10-07 · Patterns must match exactly (Danny)
 
