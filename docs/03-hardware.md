@@ -132,6 +132,7 @@ This is close to the shopping list below (it upgrades the gate servos to MG90S a
 | 1 | Connect Four game (second-hand or a cheap generic one) | The grid and coins | €5–15 | — |
 | opt. | TCS34725 colour sensor | Upgrade: also check the coin colour | €8 | — |
 | opt. | Limit switch | Upgrade: confirm the flip finished | €1 | — |
+| later | **Bluetooth module**: HC-05 (Android only, ~€4) or HM-10 BLE (iPhone and Android, ~€5) | Final-product idea: the phone app talks to the board without a PC. Not needed for the course prototype (see [04-software.md](04-software.md)). | €4–5 | — |
 
 Total: roughly **€60–90** with the cheapest options, less if the lab lends parts. Split three ways that's €20–30 each.
 
@@ -146,6 +147,8 @@ Total: roughly **€60–90** with the cheapest options, less if the lab lends p
 | D12, D13, A1–A5 | Column LEDs: 7 plain LEDs, each through a 220 Ω resistor. (With a WS2812B strip instead, only D12 is needed, through a 330 Ω resistor.) |
 | A0 | Buzzer (+) |
 | 5V / GND | IR sensors and LED strip (7 LEDs at low brightness is fine) |
+
+**Bluetooth module (only if we add one later):** the Uno has no free pins with plain LEDs. Switch the column LEDs to a WS2812B strip (D12 only), then use A1 (Arduino RX ← module TX) and A2 (Arduino TX → module RX) with `SoftwareSerial`. The module's RX pin takes 3.3 V, so put a voltage divider (1 kΩ + 2 kΩ) between A2 and RX. Module VCC → 5 V, GND → GND. Untested on hardware.
 
 **Servo power:** servo red wires go to the **+6 V supply**, servo brown/black wires go to the **supply GND**, and **the supply GND must also connect to an Arduino GND pin** (common ground). Put the 1000 µF capacitor across the supply + and − (long leg to +). Never power the big servo from the Arduino 5 V pin.
 

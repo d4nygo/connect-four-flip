@@ -44,9 +44,9 @@ Text version of the slide, so it can be edited and reviewed in the repo:
 ```mermaid
 flowchart LR
   P([Player]) -- drops a coin --> IR[7 IR break-beam sensors<br/>INPUT: which column]
-  P <-- chooses / sees --> GUI[ProtoPie GUI<br/>laptop screen]
-  GUI <--> PC[ProtoPie Connect<br/>laptop app]
-  PC <-- "USB serial, MESSAGE||VALUE" --> A[[Arduino Uno<br/>THE BRAIN: board memory, rules,<br/>win + pattern check, computer player, score]]
+  P <-- chooses / sees --> GUI[ProtoPie app<br/>phone]
+  GUI <--> PC[Wireless link<br/>Bluetooth module on the board<br/>prototype: ProtoPie Connect on a PC, Wi-Fi + USB]
+  PC <-- "serial, MESSAGE||VALUE" --> A[[Arduino Uno<br/>THE BRAIN: board memory, rules,<br/>win + pattern check, computer player, score]]
   IR --> A
   A --> FS[Flip servo MG996R<br/>turns the board 180°]
   A --> GS[2 gate servos SG90<br/>pull bars at both ends]
@@ -55,5 +55,7 @@ flowchart LR
   PWR[5 V external supply<br/>shared GND] -.-> FS
   PWR -.-> GS
 ```
+
+The GUI is a **phone app**, not a laptop (2026-10-27). For the prototype a hidden PC running ProtoPie Connect bridges the phone (Wi-Fi) and the Arduino (USB), like the course template's example; see [04-software.md](04-software.md).
 
 Colour code on the slide: blue = input, black = brain, orange = output, white = interface / power. Parts and pins are in [03-hardware.md](03-hardware.md); messages in [04-software.md](04-software.md). If the hardware changes, update the slide and this diagram together.

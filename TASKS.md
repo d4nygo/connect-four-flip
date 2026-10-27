@@ -19,6 +19,7 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [ ] Final deadline date and later review dates (known: EX2 presentation on 2026-10-28, 3 minutes)
 - [ ] Flip: automatic when the pattern is made, or the player chooses on the app? How do we warn players during the flip (lights)?
 - [ ] ProtoPie licence: no student plan found; ask the professor
+- [ ] Phone app: can ProtoPie on a phone talk to the Arduino without a PC (Bluetooth)? Ask the professor
 - [ ] Polimi lab access: how to book laser cutter / 3D printer, and can we borrow Arduinos, servos, power supplies?
 - [x] Board size: standard 7×6 (Danny)
 - [x] GUI: ProtoPie (Danny)
@@ -42,7 +43,7 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [ ] todo · Everyone: read docs/02-game-rules.md
 - [ ] todo · Buy the Connect Four game and parts (docs/03-hardware.md)
 - [ ] todo · Code: Wokwi tutorials (button + LED + servo in the simulator)
-- [ ] todo · GUI: ProtoPie Connect talking to the Arduino (one `DROP` message works)
+- [ ] todo · GUI: phone (ProtoPie Player) ↔ ProtoPie Connect ↔ Arduino (one `DROP` message works)
 
 ## Stage 2 · Milestones (see docs/05-learning-path.md)
 
