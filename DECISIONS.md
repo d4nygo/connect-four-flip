@@ -4,6 +4,15 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-10-27 · From the team chat (WhatsApp, 7–27 Oct)
+
+- **New winner-after-flip rule (Danny, Airika agreed with the logic):** only the flipper has a line → flipper wins; only the other player → they win; **both → the player who did NOT flip wins**; nobody → play on with **no more flips**. Replaces "most lines wins, tie → flipper" and "max 3 flips". Why: a flip becomes a real risk you have to think through, and the rule is short for the demo.
+- **After a flip the coins rearrange inside the board, they don't fall out.** The pull bars (gates) at both ends hold them. Same as before, now stated explicitly.
+- **Cheating ends the game (Danny + Yujia, 2026-10-07):** a wrong coin can't be taken out without emptying the column, so the cheater loses straight away. Replaces "−1 point, 3 cheats = loss".
+- **No difficulty levels for now (Danny + Yujia, 2026-10-08):** "might make it complicated". One computer level; minimax is a stretch goal.
+- **Presentation split (2026-10-17):** block diagram + strategy-fan persona = Danny, flow chart + solo-player persona = Yujia, storyboard = Airika, polish = anyone. Two personas, not three. See [docs/07-presentation.md](docs/07-presentation.md).
+- **Open:** when the pattern is made, does the board flip automatically or does the player choose on the app? How do we warn players during the flip (lights)? To decide when development starts.
+
 ### 2026-10-07 · Patterns must match exactly (Danny)
 
 - **A pattern must be built exactly as drawn.** A left-right mirror counts; a rotated or upside-down version does not.
@@ -35,13 +44,13 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 - **Arduino is the brain** (rules, AI, score); ProtoPie displays. One source of truth.
 - ~~Microcontroller: Arduino Uno R4 Minima~~ → replaced by a cheap Uno R3-compatible board (see answers above).
 - **Coin detection:** 7 IR break-beam sensors on a fixed bar above the columns. Colour comes from turn order; a colour sensor is optional.
-- **Computer's coin is dropped by the human**; dropping it elsewhere = CHEAT (−1 point, coin stays, 3 cheats = loss).
+- **Computer's coin is dropped by the human**; dropping it elsewhere = CHEAT ~~(−1 point, coin stays, 3 cheats = loss)~~ → cheating loses the game (see 2026-10-27).
 - **Flip = 180° turn on a horizontal left-right axle** with a gate at each end. Each column keeps its coins in reverse order; columns don't swap. Chosen because it's the simplest mechanism that really "reverses the layout".
   - Considered: turning in the board's own plane (also mirrors columns left/right; needs a bigger, harder mechanism); flipping around a vertical axis (changes nothing for gravity, so no surprise lines).
 - **Flip motor: one strong 180° servo** (MG996R on budget), not a stepper. A servo goes to an exact angle by itself; no extra sensors or driver.
-- ~~Patterns: BOX, PYRAMID, DIAGONAL3~~ → BOX, T, L, FLAT L, ZIGZAG (see top). Must be one colour and include the new coin. Max 3 flips per game.
-- **Winner after a flip:** most separate lines of 4+ wins; tie → the player who triggered the flip wins; no lines → keep playing.
+- ~~Patterns: BOX, PYRAMID, DIAGONAL3~~ → BOX, T, L, FLAT L, ZIGZAG (see top). Must be one colour and include the new coin. ~~Max 3 flips per game~~ → one flip per game (see 2026-10-27).
+- ~~**Winner after a flip:** most separate lines of 4+ wins; tie → the player who triggered the flip wins; no lines → keep playing.~~ → replaced, see 2026-10-27.
   - Considered: tie = draw (anticlimactic at a demo); tie → the *other* player wins (makes flips purely a penalty); longest line wins (harder to explain).
 - **Normal win beats flip** when one coin does both.
-- **Scoring:** win +3, flip win +5, draw +1 each, cheat −1.
+- **Scoring:** win +3, flip win +5, draw +1 each, ~~cheat −1~~ (cheating now loses the game).
 - **Message format:** `MESSAGE||VALUE` lines (ProtoPie Connect), table in `docs/04-software.md`.

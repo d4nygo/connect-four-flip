@@ -24,6 +24,8 @@ Key design choices (and why):
 - **A gate at each end of the grid.** Whichever end is on top is open (coins go in); the end at the bottom is closed (coins sit on it). Before a flip the top gate closes, so nothing falls out. After the flip the gates have swapped roles. The bottom gate also opens to release all coins at the start of a new game.
 - **The axle goes through the centre of the board.** A balanced board needs much less motor force.
 
+The presentation's block diagram (all inputs, the brain and outputs on one page) is in [07-presentation.md](07-presentation.md#block-diagram-slide-6).
+
 ## Shopping list
 
 **Budget goal: as cheap as possible.** The "Cheapest" column is the plan; the "Nicer" column is only if something cheap turns out unreliable. Prices are rough (EUR, AliExpress/Amazon-class; AliExpress is cheapest but takes 2–4 weeks, so order early). Buy 1–2 spares of anything under €3.
@@ -32,7 +34,7 @@ Key design choices (and why):
 
 | # | Part (cheapest option) | Why | Cheapest | Nicer option |
 |---|---|---|---|---|
-| 1 | **Arduino Uno R3-compatible starter kit** (Elegoo-type: board, breadboard, wires, resistors, buttons, buzzer, a micro servo) | The brain + everything to learn with. The "Hard" computer level just thinks fewer moves ahead on this board. | €30–35 | Uno R4 Minima (faster, more memory) +€20 |
+| 1 | **Arduino Uno R3-compatible starter kit** (Elegoo-type: board, breadboard, wires, resistors, buttons, buzzer, a micro servo) | The brain + everything to learn with. | €30–35 | Uno R4 Minima (faster, more memory) +€20 |
 | 9 | **IR LED + IR phototransistor pairs** (bags of 10–20) + resistors | One per column (+2 spare): a coin passing breaks the beam | €3–5 total | Ready-made IR break-beam modules, €2–6 each |
 | 1 | **MG996R servo** (~10 kg·cm), check it reaches 180° | Flips the board. Servos go to an angle by themselves, so no position sensors needed. Works if the board is well balanced on its axle. | €6–8 | DS3218 20 kg·cm, €15 |
 | 2 | **SG90 micro servo** (one may come in the kit) | The two gates | €2 each | MG90S metal gear, €4 each |
