@@ -4,6 +4,11 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-10-27 · Proposal, not decided: coin sensing and actuators (Claude, for the team)
+
+- Options compared in `docs/03-hardware.md` → "Coin sensing and motion: options". Recommended: keep sensors on a **fixed entry bar** above the board (one set of 7 covers both orientations, since coins always enter from the top of the room), using **IR break-beams** (backup: TCRT5000 reflective modules); gates driven by **MG90S servos with printed rack-and-pinion** instead of real linear actuators; flip by a **270° high-torque servo** (or MG996R if its range is tested OK).
+- Waiting for the team to pick. Until then the earlier defaults below still stand.
+
 ### 2026-10-07 · Patterns must match exactly (Danny)
 
 - **A pattern must be built exactly as drawn.** A left-right mirror counts; a rotated or upside-down version does not.
