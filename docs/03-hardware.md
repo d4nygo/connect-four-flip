@@ -120,7 +120,7 @@ This is close to the shopping list below (it upgrades the gate servos to MG90S a
 
 | # | Part (cheapest option) | Why | Cheapest | Nicer option |
 |---|---|---|---|---|
-| 1 | **Arduino Uno R3-compatible starter kit** (Elegoo-type: board, breadboard, wires, resistors, buttons, buzzer, a micro servo) | The brain + everything to learn with. The "Hard" computer level just thinks fewer moves ahead on this board. | €30–35 | Uno R4 Minima (faster, more memory) +€20 |
+| 1 | **Arduino Uno R3-compatible starter kit** (Elegoo-type: board, breadboard, wires, resistors, buttons, buzzer, a micro servo) | The brain + everything to learn with. | €30–35 | Uno R4 Minima (faster, more memory) +€20 |
 | 9 | **IR LED + IR phototransistor pairs** (bags of 10–20) + resistors | One per column (+2 spare): a coin passing breaks the beam | €3–5 total | Ready-made IR break-beam modules, €2–6 each |
 | 1 | **MG996R servo** (~10 kg·cm), check it reaches 180° | Flips the board. Servos go to an angle by themselves, so no position sensors needed. Works if the board is well balanced on its axle. | €6–8 | DS3218 20 kg·cm, €15 |
 | 2 | **SG90 micro servo** (one may come in the kit) | The two gates | €2 each | MG90S metal gear, €4 each |

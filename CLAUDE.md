@@ -13,14 +13,14 @@ You are helping a 3-person university team build **Connect Four Flip**: a physic
 2. `docs/02-game-rules.md`: **the rules are the source of truth**
 3. `DECISIONS.md`: what's already decided; don't re-open decisions without saying so
 4. `TASKS.md`: what's being done and by whom
-5. Then the area doc you need: `docs/03-hardware.md`, `docs/04-software.md`, `docs/05-learning-path.md`
+5. Then the area doc you need: `docs/03-hardware.md`, `docs/04-software.md`, `docs/05-learning-path.md`, `docs/07-presentation.md`
 
 ## Facts that must stay consistent
 
 - Board 7 columns × 6 rows; row 0 = bottom, column 0 = left; red = P1 (human in single player), yellow = P2 (computer).
 - Arduino owns the game state, rules, AI and score; ProtoPie only displays and sends choices.
 - Messages are `MESSAGE||VALUE` lines; the full table is in `docs/04-software.md`. If you add or change one, update that table and both sides.
-- The flip reverses each column's coin order; columns don't swap. Winner after a flip: most lines of 4+; tie → the flipper; none → keep playing.
+- The flip reverses each column's coin order; columns don't swap. Winner after a flip: only one player has a line of 4+ → they win; both → the player who did NOT flip wins; none → keep playing, no more flips. Cheating in single player = the game is lost.
 
 ## When you change things
 

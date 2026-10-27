@@ -40,13 +40,13 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 - **Arduino is the brain** (rules, AI, score); ProtoPie displays. One source of truth.
 - ~~Microcontroller: Arduino Uno R4 Minima~~ → replaced by a cheap Uno R3-compatible board (see answers above).
 - **Coin detection:** 7 IR break-beam sensors on a fixed bar above the columns. Colour comes from turn order; a colour sensor is optional.
-- **Computer's coin is dropped by the human**; dropping it elsewhere = CHEAT (−1 point, coin stays, 3 cheats = loss).
+- **Computer's coin is dropped by the human**; dropping it elsewhere = CHEAT ~~(−1 point, coin stays, 3 cheats = loss)~~ → cheating loses the game (see 2026-10-27).
 - **Flip = 180° turn on a horizontal left-right axle** with a gate at each end. Each column keeps its coins in reverse order; columns don't swap. Chosen because it's the simplest mechanism that really "reverses the layout".
   - Considered: turning in the board's own plane (also mirrors columns left/right; needs a bigger, harder mechanism); flipping around a vertical axis (changes nothing for gravity, so no surprise lines).
 - **Flip motor: one strong 180° servo** (MG996R on budget), not a stepper. A servo goes to an exact angle by itself; no extra sensors or driver.
-- ~~Patterns: BOX, PYRAMID, DIAGONAL3~~ → BOX, T, L, FLAT L, ZIGZAG (see top). Must be one colour and include the new coin. Max 3 flips per game.
-- **Winner after a flip:** most separate lines of 4+ wins; tie → the player who triggered the flip wins; no lines → keep playing.
+- ~~Patterns: BOX, PYRAMID, DIAGONAL3~~ → BOX, T, L, FLAT L, ZIGZAG (see top). Must be one colour and include the new coin. ~~Max 3 flips per game~~ → one flip per game (see 2026-10-27).
+- ~~**Winner after a flip:** most separate lines of 4+ wins; tie → the player who triggered the flip wins; no lines → keep playing.~~ → replaced, see 2026-10-27.
   - Considered: tie = draw (anticlimactic at a demo); tie → the *other* player wins (makes flips purely a penalty); longest line wins (harder to explain).
 - **Normal win beats flip** when one coin does both.
-- **Scoring:** win +3, flip win +5, draw +1 each, cheat −1.
+- **Scoring:** win +3, flip win +5, draw +1 each, ~~cheat −1~~ (cheating now loses the game).
 - **Message format:** `MESSAGE||VALUE` lines (ProtoPie Connect), table in `docs/04-software.md`.
