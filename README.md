@@ -14,6 +14,7 @@ University project · Hardware and Software Technologies for Design · team of 3
 | understand the code and the Arduino ↔ ProtoPie messages | [docs/04-software.md](docs/04-software.md) |
 | learn from zero, step by step | [docs/05-learning-path.md](docs/05-learning-path.md) |
 | work together and keep the context updated | [docs/06-collaboration.md](docs/06-collaboration.md) |
+| see the presentation plan, personas and block diagram | [docs/07-presentation.md](docs/07-presentation.md) |
 | see what's decided / what's next | [DECISIONS.md](DECISIONS.md) · [TASKS.md](TASKS.md) |
 | set up your AI agent | [CLAUDE.md](CLAUDE.md) (agents read it automatically) |
 

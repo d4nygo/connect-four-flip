@@ -6,22 +6,33 @@ Status: `todo` · `doing (name)` · `done (name, date)` · `blocked (why)`. Put 
 
 | Role | Owns | Who |
 |---|---|---|
-| Hardware & mechanics | stand, axle, gates, sensor bar, wiring, `docs/03-hardware.md` | ? |
+| Hardware & mechanics | stand, axle, gates, sensor bar, wiring, `docs/03-hardware.md` | ? (Danny is researching components) |
 | Arduino code | `arduino/` (later), `docs/04-software.md` (code part) | ? |
 | GUI & experience | ProtoPie file, screens, sounds, presentation, `docs/04-software.md` (GUI part) | ? |
 
-Team on GitHub: `d4nygo` (Danny), `rikosyaa`, `Gilgamesh-Plan`. Decide roles together and fill in the names.
+Team: Danny George Oommen (`d4nygo`), Airika Jaldybayeva (`rikosyaa`), Yujia Ren (`Gilgamesh-Plan`). Decide roles together and fill in the names.
 
 Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all three.
 
 ## Open questions (answer and move to DECISIONS.md)
 
-- [ ] Exact deadline date ("end of the X": which month/date?) and intermediate review dates
+- [ ] Final deadline date and later review dates (known: EX2 presentation on 2026-10-28, 3 minutes)
+- [ ] Flip: automatic when the pattern is made, or the player chooses on the app? How do we warn players during the flip (lights)?
+- [ ] ProtoPie licence: no student plan found; ask the professor
 - [ ] Polimi lab access: how to book laser cutter / 3D printer, and can we borrow Arduinos, servos, power supplies?
 - [x] Board size: standard 7×6 (Danny)
 - [x] GUI: ProtoPie (Danny)
 - [x] Budget: as cheap as possible (Danny)
 - [x] Flip pattern: visible, 4 coins, not a straight line, exact shape (mirror OK, no rotation) (Danny)
+
+## EX2 presentation (due 2026-10-28, see docs/07-presentation.md)
+
+- [x] done (Danny, 2026-10-27) · Block diagram on slide 6
+- [x] done (Danny, 2026-10-27) · Persona "Marco, the strategy seeker" on slide 3
+- [ ] doing (Yujia) · Solo-player persona on slide 3
+- [ ] doing (Yujia) · Flow chart on slide 5
+- [ ] doing (Airika) · Storyboard on slide 4, title and description style
+- [ ] todo · Polish all slides in one style
 
 ## Stage 1 · Setup and learning
 

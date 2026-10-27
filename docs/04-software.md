@@ -10,7 +10,7 @@
 ```
 
 - **Arduino = the brain and the referee.** It owns the board state, the rules, the computer player, cheater detection, the flip and the score. One source of truth means the screen can never disagree with the physical board.
-- **ProtoPie = the face.** Menus (mode, difficulty, pattern), showing the grid, the computer's suggestion, the CHEATER screen, the flip animation, the winner and the scoreboard. It mostly reacts to messages.
+- **ProtoPie = the face.** Menus (mode, pattern), showing the grid, the computer's suggestion, the CHEATER screen, the flip animation, the winner and the scoreboard. It mostly reacts to messages.
 - **ProtoPie Connect** (free desktop app from ProtoPie) passes messages between the Arduino's USB serial port and the ProtoPie prototype.
 
 ## Logic the code will need (plain-language spec)
@@ -22,9 +22,9 @@ No code yet. When the team starts coding, this is what the Arduino program must 
 3. **Normal win check:** from the new coin, count matching coins in 4 directions (horizontal, vertical, two diagonals), looking both ways. 4 or more = win.
 4. **Pattern check:** does the new coin complete the chosen pattern (BOX / T / L / FLAT L / ZIGZAG, as drawn or left-right mirrored, never rotated) in its own colour? Simplest method: store each shape and its mirror as a list of 4 positions, and try the new coin as each of the 4 coins of each version.
 5. **Flip:** for each column, reverse the order of its coins (the bottom one becomes the top one). Columns stay where they are.
-6. **Winner after flip:** count each player's separate lines of 4+ on the whole board (a line of 5–7 counts once). More lines wins; equal → the flipper; none → keep playing.
-7. **Computer move:** win if possible, else block, else (by level) random / prefer centre / look ahead a few moves (the "minimax" technique; ask your agent when you get there).
-8. **Cheater check:** in single player, if the computer's coin lands in a column other than the one suggested → CHEAT.
+6. **Winner after flip:** check whether each player has at least one line of 4+ on the whole board. Only one has a line → they win; both → the player who did NOT flip wins; none → keep playing, and no more flips this game.
+7. **Computer move:** win if possible, else block, else prefer the centre and avoid moves that let the human win on top. (One level only, no difficulty choice.)
+8. **Cheater check:** in single player, if the computer's coin lands in a column other than the one suggested → CHEAT, and the human loses the game.
 
 Tip for later: write steps 1–6 so they can be tested on a laptop without hardware.
 
@@ -41,7 +41,7 @@ ProtoPie Connect reads and writes **one line per message** in the form `MESSAGE|
 | `TURN` | `1` or `2` | Whose turn |
 | `DROP` | `col,row,player` | A coin was detected |
 | `SUGGEST` | `0`–`6` | Single player: the computer wants this column |
-| `CHEAT` | `0`–`6` | Wrong column for the computer's coin → show CHEATER |
+| `CHEAT` | `0`–`6` | Wrong column for the computer's coin → show CHEATER; the game is over (computer wins) |
 | `FLIP_START` | player who triggered | Start the flip animation |
 | `FLIP_DONE` | 42 digits | Board after the flip |
 | `WIN` / `FLIP_WIN` | `1` or `2` | Game over, normal win / win after a flip |
@@ -54,7 +54,6 @@ ProtoPie Connect reads and writes **one line per message** in the form `MESSAGE|
 | Message | Value | Meaning |
 |---|---|---|
 | `MODE` | `SINGLE` / `MULTI` | Choose mode |
-| `LEVEL` | `0` easy, `1` medium, `2` hard | Computer difficulty |
 | `PATTERN` | `0` box, `1` T, `2` L, `3` flat L, `4` zigzag | Chosen flip pattern (the GUI picks one at random for "Random") |
 | `NEWGAME` | `1` | Release old coins and start |
 | `RESET_SCORE` | `1` | Scores back to 0 |
@@ -66,7 +65,9 @@ ProtoPie Connect reads and writes **one line per message** in the form `MESSAGE|
 
 1. If it can win right now, it plays there.
 2. If you could win next move, it blocks you.
-3. **Easy:** otherwise random. **Medium:** prefers the centre and avoids moves that let you win on top. **Hard:** imagines the next 5 moves for both sides (minimax with alpha-beta pruning) and scores positions by how many open 2s and 3s each side has.
+3. Otherwise it prefers the centre and avoids moves that let you win on top.
+
+There are no difficulty levels for now (team decision, 2026-10-08). Looking further ahead ("minimax") is a stretch goal.
 
 It does not plan for flips. That is fine for a course demo and can be a stretch goal.
 
@@ -79,7 +80,7 @@ It does not plan for flips. That is fine for a course demo and can be a stretch 
 ## GUI screens to design in ProtoPie
 
 1. Home: Single player / Multiplayer
-2. Setup: difficulty (single only), flip pattern (pictures of the 5 shapes + Random), Start
+2. Setup: flip pattern (pictures of the 5 shapes + Random), Start
 3. Game: 7×6 grid mirroring `STATE`, the chosen pattern always visible, whose turn, the computer's suggested column, scoreboard, flip counter
 4. CHEATER overlay (big, red, funny)
 5. Flip animation (triggered by `FLIP_START`, ended by `FLIP_DONE`)

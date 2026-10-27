@@ -10,10 +10,9 @@ This is the single source of truth for rules. Any code written later must implem
 
 ## Game setup (on the GUI)
 
-1. Choose **Single player** or **Multiplayer**.
-2. Single player only: choose difficulty (**Easy / Medium / Hard**).
-3. Choose the **flip pattern** (or press "Random"). It stays **visible on screen for the whole game**, so everyone knows what to aim for.
-4. Press **Start**. The board drops any old coins out of the bottom and closes.
+1. Choose **Single player** or **Multiplayer**. (No difficulty levels for now: the computer has one level.)
+2. Choose the **flip pattern** (or press "Random"). It stays **visible on screen for the whole game**, so everyone knows what to aim for.
+3. Press **Start**. The board drops any old coins out of the bottom and closes.
 
 ## A normal turn
 
@@ -33,9 +32,7 @@ A normal win beats a flip: if one coin makes both 4-in-a-row and the pattern, th
 2. **You drop the yellow coin into that column for the computer.**
 3. If the coin lands in **a different column**:
    - the GUI shows **"CHEATER!"**, the board flashes red and buzzes
-   - you lose **1 point**
-   - the coin stays where it fell (the board must always match reality; we can't pull coins back out)
-   - **3 cheats in one game = you lose that game automatically**
+   - **you lose the game** straight away (the computer wins). We can't pull a wrong coin back out without emptying the whole column, so the game can't continue fairly.
 
 ## The flip
 
@@ -60,7 +57,9 @@ X X       . X .       X .       X X X       X X .
 
 **Mirrors count, turns don't.** For example, the mirrored L (`. X / . X / X X`) and the mirrored ZIGZAG (`X X . / . X X`) both trigger the flip. An upside-down T or an upside-down L does not.
 
-Limits: at most **3 flips per game**. An old pattern can't trigger again; only a new coin that completes one does.
+Limits: **one flip per game**. If a flip produces no line, the game continues with **no more chances to flip**.
+
+**Open question:** when the pattern is made, does the board flip automatically, or does the player choose "Flip" / "Don't flip" on the app? Also: how to warn players (lights on the board?) so nobody drops a coin during the flip. Not decided yet (team chat, 2026-10-27).
 
 **Always visible:** the chosen pattern stays on screen for the whole game, so both players know what to build and what to block. Setting up the pattern on purpose is part of the strategy.
 
@@ -79,19 +78,20 @@ row 1:  Y Y Y R . . .     row 1:  Y Y Y Y . . .   <- yellow line!
 row 0:  Y Y R Y . . .     row 0:  R R R R . . .   <- red line!
 ```
 
-Column 0 read Y,Y,R from the bottom up and now reads R,Y,Y; column 3 read Y,R and now reads R,Y. Nobody had four before the flip; afterwards **both** players have one line, so the tie-break below decides.
+Column 0 read Y,Y,R from the bottom up and now reads R,Y,Y; column 3 read Y,R and now reads R,Y. Nobody had four before the flip; afterwards **both** players have a line, so (rule 4 below) the player who did **not** cause the flip wins.
 
 The Arduino doesn't need to "see" the result: it computes the new grid itself from the old one , which is exact because the coins have nowhere else to go.
 
 ### Who wins after a flip (THE RULE)
 
-After the coins settle, count for each player the number of **separate lines of 4 or more** on the whole board (a line of 5, 6 or 7 still counts as one line).
+After the coins settle, check whether each player has **at least one line of 4 or more** anywhere on the board.
 
-1. **Nobody has a line** → the game continues. It is the *other* player's turn (the flipper's move was their turn).
-2. **Only one player has lines, or one player has more lines** → that player wins.
-3. **Both have the same number of lines** → **the player who triggered the flip wins** ("the flipper's reward": you took the risk and made it happen).
+1. **Only the flipper has a line** → the flipper wins.
+2. **Only the other player has a line** → the other player wins.
+3. **Both players have a line** → **the player who did NOT cause the flip wins** (flipping is a risk: if you hand your opponent a line too, you lose).
+4. **Nobody has a line** → the game continues. It is the *other* player's turn (the flipper's move was their turn), and there are no more flips this game.
 
-Why this rule: it is short enough to explain in one sentence at the demo, it always produces a result, and because the pattern is visible, players are encouraged to build it on purpose and must think about what the flip will do to the board. Alternatives we considered are in [DECISIONS.md](../DECISIONS.md).
+Why this rule: it is short to explain, it always produces a result, and because the pattern is visible, the flipper must think about what the flip will do for *both* players before building it. Decided by Danny on 2026-10-27, see [DECISIONS.md](../DECISIONS.md).
 
 ## Scoring (kept across games in a session)
 
@@ -100,6 +100,6 @@ Why this rule: it is short enough to explain in one sentence at the demo, it alw
 | Normal win | +3 |
 | Win caused by a flip | +5 |
 | Draw | +1 each |
-| Cheating (single player) | −1 |
+| Cheating (single player) | game lost (the computer gets the win) |
 
 The score resets when the GUI sends "reset score" (e.g. a new pair of players).
