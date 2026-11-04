@@ -2,16 +2,24 @@
 
 ## Who does what
 
+The players use a **phone app** (made in ProtoPie), not a laptop (team decision, 2026-10-27).
+
 ```
- ┌──────────────┐   USB cable    ┌──────────────────┐   local network   ┌──────────────┐
- │   Arduino    │ ─────────────► │ ProtoPie Connect │ ────────────────► │ ProtoPie GUI │
- │ (the brain)  │ ◄───────────── │ (on the laptop)  │ ◄──────────────── │ (the screen) │
- └──────────────┘   serial text  └──────────────────┘                   └──────────────┘
+Prototype (what we build for the course):
+ ┌──────────────┐   USB cable    ┌──────────────────┐   same Wi-Fi     ┌──────────────────┐
+ │   Arduino    │ ─────────────► │ ProtoPie Connect │ ───────────────► │ ProtoPie Player  │
+ │ (the brain)  │ ◄───────────── │ (on a PC, hidden │ ◄─────────────── │ on the phone     │
+ └──────────────┘   serial text  │  bridge only)    │                  │ (the screen)     │
+                                 └──────────────────┘                  └──────────────────┘
+Final product idea:
+ Arduino ◄── serial ──► Bluetooth module (HC-05 / HM-10) ◄── Bluetooth ──► phone app
 ```
 
-- **Arduino = the brain and the referee.** It owns the board state, the rules, the computer player, cheater detection, the flip and the score. One source of truth means the screen can never disagree with the physical board.
-- **ProtoPie = the face.** Menus (mode, pattern), showing the grid, the computer's suggestion, the CHEATER screen, the flip animation, the winner and the scoreboard. It mostly reacts to messages.
-- **ProtoPie Connect** (free desktop app from ProtoPie) passes messages between the Arduino's USB serial port and the ProtoPie prototype.
+Why a PC is still in the prototype: as far as we know, a ProtoPie prototype can't talk to Bluetooth or the Arduino directly; it talks to ProtoPie Connect, which runs on a computer. The course template's own example does the same ("for the prototype Arduino will be connected to the pc"). The PC sits out of sight; players only touch the phone. **Check with the professor** whether a phone-only setup is possible; if it is, update this section.
+
+- **Arduino = the brain and the referee.** It owns the board state, the rules, the pattern check, the flip and the score. One source of truth means the screen can never disagree with the physical board.
+- **ProtoPie (on the phone) = the face.** Showing the random pattern, the grid live, whose turn, the Flip / Skip choice, the flip animation, the winner and the scoreboard. It mostly reacts to messages.
+- **ProtoPie Connect** (free desktop app from ProtoPie) passes messages between the Arduino's USB serial port and the ProtoPie prototype running on the phone. The messages stay the same if we later switch to a Bluetooth module, because it is also a serial text link.
 
 ## Logic the code will need (plain-language spec)
 
@@ -23,8 +31,7 @@ No code yet. When the team starts coding, this is what the Arduino program must 
 4. **Pattern check:** does the new coin complete the chosen pattern (BOX / T / L / FLAT L / ZIGZAG, as drawn or left-right mirrored, never rotated) in its own colour? Simplest method: store each shape and its mirror as a list of 4 positions, and try the new coin as each of the 4 coins of each version.
 5. **Flip:** for each column, reverse the order of its coins (the bottom one becomes the top one). Columns stay where they are.
 6. **Winner after flip:** check whether each player has at least one line of 4+ on the whole board. Only one has a line → they win; both → the player who did NOT flip wins; none → keep playing, and no more flips this game.
-7. **Computer move:** win if possible, else block, else prefer the centre and avoid moves that let the human win on top. (One level only, no difficulty choice.)
-8. **Cheater check:** in single player, if the computer's coin lands in a column other than the one suggested → CHEAT, and the human loses the game.
+7. **Flip control:** when the pattern is made, close the top gate, flash the LEDs, send `FLIP_READY`, ignore the sensors, and wait for `FLIP` from the app. `FLIP||1`: warn (lights + beep), turn slowly, wait for the coins to settle, open the new top gate, send `FLIP_DONE` and the result. `FLIP||0` (skip): reopen the top gate, stop the LEDs, next player's turn; the flip stays available for a later pattern.
 
 Tip for later: write steps 1–6 so they can be tested on a laptop without hardware.
 
@@ -40,8 +47,8 @@ ProtoPie Connect reads and writes **one line per message** in the form `MESSAGE|
 | `STATE` | 42 digits, top row first, `0` empty, `1` red, `2` yellow | Full board, redraw the grid |
 | `TURN` | `1` or `2` | Whose turn |
 | `DROP` | `col,row,player` | A coin was detected |
-| `SUGGEST` | `0`–`6` | Single player: the computer wants this column |
-| `CHEAT` | `0`–`6` | Wrong column for the computer's coin → show CHEATER; the game is over (computer wins) |
+| `PATTERN` | `0` box, `1` T, `2` L, `3` flat L, `4` zigzag | The pattern the Arduino picked at random for this game: show it |
+| `FLIP_READY` | player who made the pattern | Pattern made: play the animation, show Flip and Skip |
 | `FLIP_START` | player who triggered | Start the flip animation |
 | `FLIP_DONE` | 42 digits | Board after the flip |
 | `WIN` / `FLIP_WIN` | `1` or `2` | Game over, normal win / win after a flip |
@@ -53,23 +60,12 @@ ProtoPie Connect reads and writes **one line per message** in the form `MESSAGE|
 
 | Message | Value | Meaning |
 |---|---|---|
-| `MODE` | `SINGLE` / `MULTI` | Choose mode |
-| `PATTERN` | `0` box, `1` T, `2` L, `3` flat L, `4` zigzag | Chosen flip pattern (the GUI picks one at random for "Random") |
+| `FLIP` | `1` flip / `0` skip | The player's choice after `FLIP_READY` |
 | `NEWGAME` | `1` | Release old coins and start |
 | `RESET_SCORE` | `1` | Scores back to 0 |
 | `SIMDROP` | `0`–`6` | **Testing:** pretend a coin was dropped, no sensors needed |
 
 `SIMDROP` lets the GUI person build and test the entire game from the Arduino Serial Monitor or ProtoPie before the hardware exists.
-
-## How the computer decides
-
-1. If it can win right now, it plays there.
-2. If you could win next move, it blocks you.
-3. Otherwise it prefers the centre and avoids moves that let you win on top.
-
-There are no difficulty levels for now (team decision, 2026-10-08). Looking further ahead ("minimax") is a stretch goal.
-
-It does not plan for flips. That is fine for a course demo and can be a stretch goal.
 
 ## Coin detection details
 
@@ -79,9 +75,8 @@ It does not plan for flips. That is fine for a course demo and can be a stretch 
 
 ## GUI screens to design in ProtoPie
 
-1. Home: Single player / Multiplayer
-2. Setup: flip pattern (pictures of the 5 shapes + Random), Start
-3. Game: 7×6 grid mirroring `STATE`, the chosen pattern always visible, whose turn, the computer's suggested column, scoreboard, flip counter
-4. CHEATER overlay (big, red, funny)
-5. Flip animation (triggered by `FLIP_START`, ended by `FLIP_DONE`)
-6. Game over: winner, how they won (normal or flip), points earned, Play again
+1. Setup: Start button; then show the pattern the Arduino picked (`PATTERN`), e.g. with a short "rolling" animation
+2. Game: 7×6 grid mirroring `STATE` live, the chosen pattern always visible, whose turn (big, in that colour), scoreboard
+3. Flip / Skip: hidden until `FLIP_READY`, then a celebratory animation with two big buttons; Flip sends `FLIP||1`, Skip sends `FLIP||0`
+4. Flip animation (triggered by `FLIP_START`, ended by `FLIP_DONE` with the new grid)
+5. Game over: winner, how they won (normal, or after the flip and why), points earned, Play again

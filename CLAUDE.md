@@ -13,20 +13,27 @@ You are helping a 3-person university team build **Connect Four Flip**: a physic
 2. `docs/02-game-rules.md`: **the rules are the source of truth**
 3. `DECISIONS.md`: what's already decided; don't re-open decisions without saying so
 4. `TASKS.md`: what's being done and by whom
-5. Then the area doc you need: `docs/03-hardware.md`, `docs/04-software.md`, `docs/05-learning-path.md`, `docs/07-presentation.md`
+5. Then the area doc you need: `docs/03-hardware.md`, `docs/04-software.md`, `docs/05-learning-path.md`, `docs/07-presentation.md`, `docs/08-timeline.md` (dated history, open questions, links to the FigJam boards)
 
 ## Facts that must stay consistent
 
-- Board 7 columns × 6 rows; row 0 = bottom, column 0 = left; red = P1 (human in single player), yellow = P2 (computer).
-- Arduino owns the game state, rules, AI and score; ProtoPie only displays and sends choices.
+- Board 7 columns × 6 rows; row 0 = bottom, column 0 = left; red = P1, yellow = P2. Two players only: single player vs the computer was removed at the 28 Oct 2026 class review.
+- Arduino owns the game state, rules, pattern check and score; ProtoPie only displays and sends choices.
 - Messages are `MESSAGE||VALUE` lines; the full table is in `docs/04-software.md`. If you add or change one, update that table and both sides.
-- The flip reverses each column's coin order; columns don't swap. Winner after a flip: only one player has a line of 4+ → they win; both → the player who did NOT flip wins; none → keep playing, no more flips. Cheating in single player = the game is lost.
+- The flip reverses each column's coin order; columns don't swap. Winner after a flip: only one player has a line of 4+ → they win; both → the player who did NOT flip wins; none → keep playing, no more flips. The pattern is picked at random by the system at game start. When it's made, the player chooses Flip or Skip on the app.
+
+## Working with the team (Danny's standing preferences)
+
+- **Answers go out as a readable page**, not as "go read the repo". The repo is the team's memory bank: keep it updated in the background.
+- **FigJam:** agents edit only the **some-information** board (its "Project timeline" section). Never edit the **Group-06** board; Danny maintains it. Read Group-06 before updating some-information, to pick up Danny's changes.
+- **Both boards are shared with the professors:** team voice only (discussions, decisions, open questions), no mention of AI, threads or pull requests. The timeline is living: one column per date, oldest left, open questions as red stickies under the date they were raised, struck through when answered.
 
 ## When you change things
 
 - Rule change → update `docs/02-game-rules.md` (and, once code exists, the code and its tests in the same commit).
 - Any decision → add an entry at the top of `DECISIONS.md`.
 - Finished or started work → update `TASKS.md`.
+- A class, review or team discussion → add a dated section to `docs/08-timeline.md` (and the FigJam timeline).
 - Follow `docs/06-collaboration.md` for the update rules. At the end of a session, offer to update the context files and write the commit message.
 
 ## Don't
