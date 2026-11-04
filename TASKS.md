@@ -6,11 +6,12 @@ Status: `todo` · `doing (name)` · `done (name, date)` · `blocked (why)`. Put 
 
 | Role | Owns | Who |
 |---|---|---|
-| Hardware & mechanics | stand, axle, gates, sensor bar, wiring, `docs/03-hardware.md` | ? (Danny is researching components) |
-| Arduino code | `arduino/` (later), `docs/04-software.md` (code part) | ? |
-| GUI & experience | ProtoPie file, screens, sounds, presentation, `docs/04-software.md` (GUI part) | ? |
+| Hardware & mechanics | stand, axle, gates, sensor bar, wiring, `docs/03-hardware.md` | Yujia (3D models, servo research) |
+| Arduino code | `arduino/` (later), `docs/04-software.md` (code part) | Danny (Arduino research) |
+| GUI & experience | ProtoPie app UI, flows and interactions, `docs/04-software.md` (GUI part) | Airika |
+| Presentation & boards | review presentation, FigJam timeline | Danny |
 
-Team: Danny George Oommen (`d4nygo`), Airika Jaldybayeva (`rikosyaa`), Yujia Ren (`Gilgamesh-Plan`). Decide roles together and fill in the names.
+Team: Danny George Oommen (`d4nygo`), Airika Jaldybayeva (`rikosyaa`), Yujia Ren (`Gilgamesh-Plan`). Roles from the team discussion of 4 Nov 2026; swap freely.
 
 Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all three.
 
@@ -18,10 +19,13 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 
 - [ ] Final deadline date and later review dates (known: EX2 presentation on 2026-10-28, 3 minutes)
 - [ ] ProtoPie licence: no student plan found; ask the professor
+- [ ] Phone app: can ProtoPie on a phone talk to the Arduino without a PC (Bluetooth)? Ask the professor
 - [ ] Polimi lab access: how to book laser cutter / 3D printer, and can we borrow Arduinos, servos, power supplies?
-- [ ] Hardware proposal (docs/03-hardware.md, "Hardware questions answered"): agree on sensors, gates, own laser-cut grid, colour sensing as an upgrade
+- [ ] Hardware proposal (docs/03-hardware.md, "Hardware questions answered"): agree on sensors, gates, own laser-cut grid, colour sensing as an upgrade (4 Nov review)
+- [ ] After a Skip, is the one flip used up? (default: no, raised 4 Nov)
+- [ ] Add the professor's 4 Nov feedback to docs/08-timeline.md
 - [x] Pattern made → board LEDs flash, app shows Flip or Skip; pattern picked at random by the system (Danny, 2026-11-04)
-- [x] Single player removed; two players + flip only (Danny, after the professor, 2026-11-04)
+- [x] Single player removed; two players + flip only (professor, class review 2026-10-28)
 - [x] Board size: standard 7×6 (Danny)
 - [x] GUI: ProtoPie (Danny)
 - [x] Budget: as cheap as possible (Danny)
@@ -46,7 +50,7 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [ ] todo · Measure the coins (diameter, thickness) and the column pitch; they size the grid and gates
 - [ ] todo · Breadboard test: one IR beam, and one green LED + phototransistor with red vs yellow coins
 - [ ] todo · Code: Wokwi tutorials (button + LED + servo in the simulator)
-- [ ] todo · GUI: ProtoPie Connect talking to the Arduino (one `DROP` message works)
+- [ ] todo · GUI: phone (ProtoPie Player) ↔ ProtoPie Connect ↔ Arduino (one `DROP` message works)
 
 ## Stage 2 · Milestones (see docs/05-learning-path.md)
 

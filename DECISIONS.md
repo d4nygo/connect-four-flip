@@ -11,12 +11,21 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 - **Skip keeps the game's one flip available** (Claude's default): the next coin that completes the pattern offers the choice again. Change if the team prefers "skip = flip used up".
 - **LEDs:** a WS2812B strip on D12, already in the pin plan, mounted on the fixed stand (not the turning board), so no pin or wiring change. See docs/03-hardware.md.
 
-### 2026-11-04 · Two players + flip only (Danny, after talking to the professor)
+### 2026-10-28 · Class review: two players + flip only (professor; logged 2026-11-04)
 
 - **Single player vs the computer is removed**: the computer player, suggested move, cheater detection and their messages (`SUGGEST`, `CHEAT`, `MODE`) are gone. Why: the professor said it is mostly coding and too complicated for our use case; the flip is the core of the project.
+- **Professor's hardware feedback:** go ahead with the rotating version; detect coins with light / infrared presence sensors; keep 7 fixed sensors and rotate the board underneath them. This matches the fixed entry bar proposal.
+- **New game flow (from the class):** pattern set before the game, live coin positions in the app, Flip button enabled when the pattern is made, board flips, app shows the new positions and the winner/condition.
 - **The flip starts with a Flip button on the app.** When the pattern is made the board closes its top, the app enables Flip, and the flipper presses it. Lights + beep warn for ~2 s before turning. New messages `FLIP_READY` (Arduino → app) and `FLIP` (app → Arduino). Answers the open question from 2026-10-27. ~~Our reading: the flip is not optional.~~ → Flip or Skip, see entry above.
 - **Coin colour:** still from turn order; a per-column colour sensor is proposed as an upgrade (see below).
-- **Hardware questions answered (proposal, not decided):** see `docs/03-hardware.md` → "Hardware questions answered". In short: 7 entry sensors are enough (no sensor per hole); an Uno has enough pins (14 of 18 used); sliding tab gates at both ends driven by MG90S + push rod; slow 180° turn with both gates closed; colour via green LED + phototransistor per column as an upgrade; **laser-cut our own grid (clear acrylic sandwich) and reuse the bought coins**, which would replace the 2026-10-07 default "build on a bought game". Waiting for the team.
+- **Hardware doubts raised in class**, answered as a proposal for the 4 Nov review: see `docs/03-hardware.md` → "Hardware questions answered". In short: 7 entry sensors are enough (no sensor per hole); an Uno has enough pins (14 of 18 used); sliding tab gates at both ends driven by MG90S + push rod; slow 180° turn with both gates closed; colour via green LED + phototransistor per column as an upgrade; **laser-cut our own grid (clear acrylic sandwich) and reuse the bought coins**, which would replace the 2026-10-07 default "build on a bought game". Waiting for the team.
+
+### 2026-10-27 · Phone app instead of laptop (Danny)
+
+- **The players use a phone app** (ProtoPie) as the screen, not a laptop.
+- **Prototype (default):** ProtoPie Player on the phone, connected over Wi-Fi to ProtoPie Connect on a hidden PC, which talks to the Arduino by USB. Why: as far as we know ProtoPie can't reach Bluetooth or the Arduino directly, and the course template's own example does it this way.
+- **Final-product idea:** a Bluetooth module on the board (HM-10 BLE works with iPhone and Android; HC-05 is Android only). Same `MESSAGE||VALUE` messages.
+- Open: ask the professor whether a phone-only setup (no PC) is possible with ProtoPie.
 
 ### 2026-10-27 · Proposal, not decided: coin sensing and actuators (Claude, for the team)
 
@@ -58,7 +67,7 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 - **Game:** Connect Four with GUI, motors, ~~single/~~multiplayer, ~~cheater detection,~~ scoring and a board flip. Assigned by the professors.
 - **Board size: standard 7×6** (default). Easiest to buy and the standard computer-player techniques assume it.
 - **Build on a bought Connect Four game** (default). Grid and coins are already precise; saves weeks.
-- **GUI: ProtoPie + ProtoPie Connect** (from the course brief).
+- **GUI: ProtoPie + ProtoPie Connect** (from the course brief). Screen is now a phone, see 2026-10-27.
 - **Arduino is the brain** (rules, AI, score); ProtoPie displays. One source of truth.
 - ~~Microcontroller: Arduino Uno R4 Minima~~ → replaced by a cheap Uno R3-compatible board (see answers above).
 - **Coin detection:** 7 IR break-beam sensors on a fixed bar above the columns. Colour comes from turn order; a colour sensor is optional.

@@ -1,6 +1,6 @@
 # 03 · Hardware (beginner edition)
 
-The game is two players + the flip (single player was removed on 2026-11-04). The board needs to: sense which column each coin enters, hold coins at both ends, turn 180°, and release coins at the end. **Buy a cheap Connect Four game (~€10–15) for its coins and measurements**; the proposal below is to laser-cut our own grid around them (see "Hardware questions answered", question 6).
+The game is two players + the flip (single player was removed at the 28 Oct class review). The board needs to: sense which column each coin enters, hold coins at both ends, turn 180°, and release coins at the end. **Buy a cheap Connect Four game (~€10–15) for its coins and measurements**; the proposal below is to laser-cut our own grid around them (see "Hardware questions answered", question 6).
 
 ## The big idea in one picture
 
@@ -112,7 +112,7 @@ This is close to the shopping list below (it upgrades the gate servos to MG90S a
 3. Cardboard board on a dowel + cardboard entry bar: turn it by hand and check the gap; drop coins through the gap.
 4. Flip servo on the cardboard board with 21 coins inside, slow sweep.
 
-## Hardware questions answered (2026-11-04)
+## Hardware questions answered (raised 28 Oct, proposal for the 4 Nov review)
 
 The team's open doubts after the scope change (two players + flip only), answered one by one. Everything here is a **proposal** until the team agrees; it builds on the options above. Untested on hardware.
 
@@ -264,6 +264,7 @@ This changes the earlier default ("build on a bought game") to "build our own gr
 | 1 | Connect Four game (second-hand or a cheap generic one) | The 42 coins, and the dimensions to design around | €5–15 | — |
 | 2 | Limit switch | Confirm the flip finished (0° and 180°) | €1 each | — |
 | opt. | 7 green LEDs + 7 visible-light phototransistors + CD74HC4067 multiplexer | Upgrade: coin colour (question 5) | €5–6 | — |
+| later | **Bluetooth module**: HC-05 (Android only, ~€4) or HM-10 BLE (iPhone and Android, ~€5) | Final-product idea: the phone app talks to the board without a PC. Not needed for the course prototype (see [04-software.md](04-software.md)). | €4–5 | — |
 
 Total: roughly **€70–100** with the cheapest options, less if the lab lends parts. Split three ways that's €20–30 each.
 
@@ -280,6 +281,8 @@ Total: roughly **€70–100** with the cheapest options, less if the lab lends 
 | A1, A2 | Limit switches (flip at 0°, flip at 180°), other leg to GND, use `INPUT_PULLUP` |
 | D13, A3–A5 | Spare. The colour upgrade's multiplexer would use 4 of them plus one analog pin. |
 | 5V / GND | IR sensors. The LED strip's power goes to the external 5 V supply (see "Board LEDs" below); only its data wire and GND go to the Arduino. |
+
+**Bluetooth module (only if we add one later):** the Uno has no free pins with plain LEDs. Switch the column LEDs to a WS2812B strip (D12 only), then use A1 (Arduino RX ← module TX) and A2 (Arduino TX → module RX) with `SoftwareSerial`. The module's RX pin takes 3.3 V, so put a voltage divider (1 kΩ + 2 kΩ) between A2 and RX. Module VCC → 5 V, GND → GND. Untested on hardware.
 
 **Servo power:** servo red wires go to the **+6 V supply**, servo brown/black wires go to the **supply GND**, and **the supply GND must also connect to an Arduino GND pin** (common ground). Put the 1000 µF capacitor across the supply + and − (long leg to +). Never power the big servo from the Arduino 5 V pin.
 

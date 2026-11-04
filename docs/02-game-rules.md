@@ -5,7 +5,7 @@ This is the single source of truth for rules. Any code written later must implem
 ## Board
 
 - Standard Connect Four: **7 columns × 6 rows**, 42 coins (21 red, 21 yellow).
-- **Two players** at the same board. Red = **Player 1**, Yellow = **Player 2**. (Single player against the computer was removed on 2026-11-04, after talking to the professor.)
+- **Two players** at the same board. Red = **Player 1**, Yellow = **Player 2**. (Single player against the computer was removed at the 28 Oct 2026 class review.)
 - Red always starts.
 
 ## Game setup (on the GUI)

@@ -11,9 +11,9 @@ Remake a classic board game as a **physical board driven by an Arduino**, plus a
 
 The original mechanics must stay; the digital part adds enhancements.
 
-## Scope change (2026-11-04)
+## Scope change (class review, 2026-10-28)
 
-After talking to the professor: **single player against the computer is removed** (too code-heavy for our team). The project is now **two players + the flip mechanism**: choose the pattern before the game, show the coin positions live on the app, detect when the pattern is made, enable a Flip button that turns the board, then show the new positions and the winner (if any). Points 2 and 3 below are kept only as history.
+After the professor's review: **single player against the computer is removed** (too code-heavy for our team). The project is now **two players + the flip mechanism**: choose the pattern before the game, show the coin positions live on the app, detect when the pattern is made, enable a Flip button that turns the board, then show the new positions and the winner (if any). Points 2 and 3 below are kept only as history.
 
 ## What the professors assigned us (2026-10-07)
 
