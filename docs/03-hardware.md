@@ -1,11 +1,11 @@
 # 03 · Hardware (beginner edition)
 
-You don't need to invent the board. **Buy a normal Connect Four game (~€15) and modify it.** It already has a perfect grid, coins that fit, and a bottom release slider. All the work goes into the stand, the sensors and the motors around it.
+The game is two players + the flip (single player was removed on 2026-11-04). The board needs to: sense which column each coin enters, hold coins at both ends, turn 180°, and release coins at the end. **Buy a cheap Connect Four game (~€10–15) for its coins and measurements**; the proposal below is to laser-cut our own grid around them (see "Hardware questions answered", question 6).
 
 ## The big idea in one picture
 
 ```
-            [ 7 LEDs: show the computer's move ]
+            [ LED strip: whose turn, flip warning ]
             [ 7 IR sensors: detect coins       ]   <- FIXED sensor bar on the stand
        ┌────────────────────────────────────────┐
        │  gate A (servo)                          │
@@ -20,7 +20,7 @@ You don't need to invent the board. **Buy a normal Connect Four game (~€15) an
 
 Key design choices (and why):
 
-- **The sensor bar and LEDs are fixed to the stand, not to the board.** The board rotates under them. That means no sensors need to be duplicated on both ends, and fewer wires twist when it flips.
+- **The sensor bar and LED strip are fixed to the stand, not to the board.** The board rotates under them. That means no sensors need to be duplicated on both ends, and fewer wires twist when it flips.
 - **A gate at each end of the grid.** Whichever end is on top is open (coins go in); the end at the bottom is closed (coins sit on it). Before a flip the top gate closes, so nothing falls out. After the flip the gates have swapped roles. The bottom gate also opens to release all coins at the start of a new game.
 - **The axle goes through the centre of the board.** A balanced board needs much less motor force.
 
@@ -62,7 +62,7 @@ The one thing to get right is the **gap**. When the board turns on its centre ax
 | G. Distance sensor per column (ultrasonic / laser ToF) | Measure the height of each stack from above. | €15–25 | Rejected: the column slot is too narrow, the beams bounce off the walls. |
 | H. Load cell (scale) under the board | Weight goes up ~one coin's worth per drop. | €3–5 | Can't tell which column, so only useful as an extra check. |
 
-**Why only "which column" is enough:** gravity decides the row, turn order decides the colour, and the Arduino computes the grid after a flip itself (see `docs/02-game-rules.md`). So one "coin passed column N" event per turn is all the game needs. Cheat detection also only needs the column.
+**Why only "which column" is enough:** gravity decides the row, turn order decides the colour, and the Arduino computes the grid after a flip itself (see `docs/02-game-rules.md`). So one "coin passed column N" event per turn is all the game needs.
 
 **Timing (for whoever writes the code later):** a coin falling a few cm is moving about 1 m/s, so it blocks a beam for roughly 30–50 ms. Easily caught by a normal `loop()`. Count a coin when a beam goes blocked → clear, then ignore that column for ~300 ms so a bounce isn't counted twice.
 
@@ -112,6 +112,138 @@ This is close to the shopping list below (it upgrades the gate servos to MG90S a
 3. Cardboard board on a dowel + cardboard entry bar: turn it by hand and check the gap; drop coins through the gap.
 4. Flip servo on the cardboard board with 21 coins inside, slow sweep.
 
+## Hardware questions answered (2026-11-04)
+
+The team's open doubts after the scope change (two players + flip only), answered one by one. Everything here is a **proposal** until the team agrees; it builds on the options above. Untested on hardware.
+
+### 1. How do we know where every coin is? Do we need a sensor for each of the 42 holes?
+
+**No. 7 sensors are enough, one per column, at the entry.** Think of a cashier counting people through 7 doors instead of watching every seat.
+
+- The sensor says *which column* got a coin. **Gravity gives the row**: the Arduino keeps a count per column, so the coin lands on top of the ones already there.
+- So the Arduino always holds the full 7 × 6 grid in memory, and sends it to the app after every coin (`STATE`). That is the "real-time position of the coins" on the GUI.
+- **After a flip the Arduino computes the new grid itself**: each column's order is reversed. The coins have nowhere else to go, so no sensor is needed to "see" them.
+- Why not 42 sensors: 42 × wiring on a board that rotates, about 6× the cost, and much more to go wrong. It would only be worth it if coins could appear without passing the entry, which can't happen here.
+
+What can still go wrong, and the fix:
+
+| Problem | Fix |
+|---|---|
+| A sensor misses a coin | Test 50 drops per column before building on it (milestone M1). Break-beams almost never miss. |
+| Two coins at once | One coin per turn; the app shows whose turn it is. |
+| A coin dropped during the flip | Impossible: the top gate closes as soon as the pattern is made. |
+| Grid out of sync anyway | A "fix grid" screen in the app as a last resort (stretch goal). |
+
+### 2. Can one Arduino handle all of this?
+
+**Yes, an Uno is enough.** It has 20 pins (D0–D13, A0–A5). D0/D1 carry the USB link to ProtoPie, so 18 are usable. Analog pins A0–A5 also work as normal on/off pins.
+
+| What | Pins | Uses |
+|---|---|---|
+| 7 column sensors | D2–D8 | 7 |
+| Flip servo | D9 | 1 |
+| Gate A servo, gate B servo | D10, D11 | 2 |
+| LED strip (WS2812B): whose turn, flip warning | D12 | 1 |
+| Buzzer | A0 | 1 |
+| 2 limit switches (flip finished at 0° / 180°) | A1, A2 | 2 |
+| **Total** | | **14 of 18**, 4 spare |
+
+Only the colour-sensing upgrade (question 5) needs more: 7 *analog* readings, and the Uno has only 6 analog inputs. Three ways out, cheapest first:
+
+1. **CD74HC4067 16-channel analog multiplexer** (€1–2): one chip that lets one analog pin read 16 sensors in turn, using 4 extra digital pins to choose which. Recommended.
+2. **Arduino Nano** (€4–6): same chip as the Uno, but with 8 analog inputs (A6, A7 are analog-only).
+3. **Arduino Mega** (€15–20): 54 digital and 16 analog pins. Only if you run out of everything.
+
+Other pin-savers you may read about (74HC165 shift registers for many buttons, PCF8574 I2C expanders) are not needed at this size.
+
+Power is the real limit, not pins: **all servos run from the separate 5–6 V supply** with the grounds connected (see Wiring below).
+
+### 3. How do the gates (the "pull bars" that let coins out) work?
+
+**How the shop game does it:** under the columns there is a strip with tabs. Slide it sideways by half a column and the gaps line up with the columns, so every coin drops out at once.
+
+**Our version copies that at both ends of the board** (gate A and gate B):
+
+```
+ closed:  ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀    tabs under the 7 columns, coins rest on them
+           │   │   │   │   │   │   │
+ open:      ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀  strip slid by half a column pitch: gaps under columns
+```
+
+- **Strip:** 3 mm acrylic, laser cut (slides smoothly), running in a groove or two 3D-printed rails across the end of the board.
+- **Motor:** an MG90S micro servo screwed to the board's front face. Its arm pushes the strip through a **push rod**: a piece of 1–1.5 mm steel wire with a Z-bend at each end (the trick RC model planes use for flaps). A servo arm of ~15 mm turning 60–90° gives 15–20 mm of travel, enough for half a column. If you need more travel, use the printed rack-and-pinion from the options above.
+- **Holding:** the coins push *down* on the tabs, not sideways, so the servo only fights friction. A powered servo holds its position by itself.
+- **Measure first:** column pitch (centre to centre), coin thickness and diameter. The tab width and slide distance come from those.
+
+What each gate does during a game:
+
+| Moment | Gate on top | Gate at the bottom |
+|---|---|---|
+| Playing | open (coins go in) | closed (coins rest on it) |
+| Pattern made, waiting for the Flip button | **closes** | closed |
+| Board turning | closed | closed: coins are trapped inside |
+| Turn finished (the ends have swapped) | the old bottom gate, now on top, **opens** | the old top gate, now at the bottom, holds the coins |
+| Game over → new game | open | **opens for ~2 s**, coins fall into the tray, closes again |
+
+Both gates hold the full stack at some point, so build them identically.
+
+### 4. What exactly happens during the flip?
+
+1. A coin completes the pattern. The Arduino closes the top gate straight away and tells the app (`FLIP_READY`); the app enables the **Flip** button.
+2. The flipper presses **Flip** (`FLIP` message). This button doubles as a safety step: nobody's hands are in the board.
+3. Warning: the LED strip flashes and the buzzer beeps for ~2 s.
+4. The flip servo turns 180° **slowly** (2–3 s, in small steps). Slowly matters: the coins slide along their column as it passes horizontal instead of crashing onto the far gate.
+5. Wait ~1 s for the coins to settle. If you fitted the limit switch, check it is pressed.
+6. Open the gate that is now on top. The other gate (closed) is now the bottom.
+7. The Arduino sends the new grid and the result (`FLIP_DONE`, then `WIN`/`FLIP_WIN` or the next `TURN`).
+
+Mechanical rules for the flip:
+
+- **Balance:** the axle must go through the centre of the loaded board. Test by hand: let go at any angle and it should stay there. Then even a cheap servo is enough.
+- **Wires on the board:** the two gate servos ride on the board. Run their wires along the axle with a loose loop; with one flip per game the board only goes 0° → 180°, and back to 0° at the next new game (after the coins are released), so nothing winds up.
+- **Clearance:** the fixed entry bar must clear the turning board (see "The trick that solves both sides" above).
+
+### 5. How do we know which colour the coin is?
+
+First: **in a two-player game, the colour already comes from the turn order.** Red starts and players alternate, so the Arduino knows the colour of every coin without a sensor. A sensor only adds value if someone plays out of turn or grabs the wrong colour; then the app could warn "Wrong colour!".
+
+| Option | How | Cost (7 columns) | Verdict |
+|---|---|---|---|
+| ⭐ **A. Turn order, no sensor** | The app shows whose turn it is, big and in that colour; the LED strip lights in that colour too. | €0 | **Start here.** Zero risk, works from day one. |
+| ⭐ **B. Green LED + light sensor per column (upgrade)** | In each entry slot, a green LED and a phototransistor sit side by side looking at the passing coin. Yellow plastic reflects green light strongly; red plastic absorbs it. So yellow reads bright, red reads dark, an empty slot (black wall behind) reads darkest. One sensor gives *coin passed* and *its colour*, so it could even replace the IR beam. | ~€4 + €2 multiplexer | **Best upgrade** once the game works. Use a phototransistor (e.g. TEPT5700 or any "ambient light" phototransistor), **not an LDR**: an LDR reacts too slowly for a falling coin. Test one on the breadboard with your real coins first. |
+| C. TCS34725 colour sensor module per column | Proper RGB colour sensor on I2C. All 7 have the same address, so they also need a TCA9548A I2C multiplexer. | €45–60 | Accurate but expensive and more code; reading time is tight for a falling coin. |
+| D. Camera | Phone/webcam + a laptop program | — | No: a whole extra project. |
+
+**Plan:** A now; build one B sensor early on the breadboard to see if red and yellow give clearly different readings. If they do, add it after milestone M2 (game playable).
+
+### 6. Materials, and which "model" to build
+
+**The grid (where the coins sit).** Two ways:
+
+| Option | What | Verdict |
+|---|---|---|
+| Modify a bought game | Cheap game (€10–15) gives grid, 42 coins and one bottom slider. | Its top end is moulded for coin entry, so fitting a second gate there is hard. |
+| ⭐ **Laser-cut your own grid, keep the bought coins** | A sandwich of 3 layers: **clear 3 mm acrylic front**, a **middle layer with 7 vertical slots** (plywood/MDF, as thick as a coin + ~1 mm), **clear 3 mm acrylic back**, bolted with M3 screws. You see the coins through the clear sheets; no holes needed. | **Recommended.** Gates, axle mounts and servo mounts can be designed into the same file, and you control every gap. Still buy the game: for the coins and to measure. |
+
+This changes the earlier default ("build on a bought game") to "build our own grid, reuse the bought coins". It's a proposal; see DECISIONS.md.
+
+**Everything else:**
+
+| Part | Material / method | Approx. cost |
+|---|---|---|
+| Stand: base + 2 uprights | 6 mm plywood or MDF, laser cut, glued and screwed | €5–8 per sheet |
+| Axle | 8 mm steel rod or M8 threaded rod, through two **608 skateboard bearings** (8 mm hole, €1 each) pressed into the uprights | €4–6 |
+| Servo-to-axle coupling | 3D-printed hub; the servo horn screws onto it | lab filament |
+| Entry bar with 7 funnel slots | 3D printed (holds the sensors in exact spots) or stacked laser-cut layers | lab filament |
+| Gates | 3 mm acrylic strips in 3D-printed rails; 1–1.5 mm steel wire push rods | €3–5 |
+| Coin tray | Laser-cut box or drawer in the base | — |
+| Electronics | Arduino + breadboard in the base, away from the turning board | — |
+| Screws | M3 screws and nuts kit | €5 |
+
+**Modelling tools:** Onshape (free, in the browser) or Fusion 360 (free education licence) for the 3D model and the laser-cut outlines; boxes.py or MakerCase generate finger-jointed boxes for the base in minutes. Laser cutters take 2D DXF/SVG files.
+
+**Build order:** measure the coins → cardboard mock-up of grid + stand + entry bar (turn it by hand) → MDF version → acrylic for the visible parts.
+
 ## Shopping list
 
 **Budget goal: as cheap as possible.** The "Cheapest" column is the plan; the "Nicer" column is only if something cheap turns out unreliable. Prices are rough (EUR, AliExpress/Amazon-class; AliExpress is cheapest but takes 2–4 weeks, so order early). Buy 1–2 spares of anything under €3.
@@ -123,17 +255,17 @@ This is close to the shopping list below (it upgrades the gate servos to MG90S a
 | 1 | **Arduino Uno R3-compatible starter kit** (Elegoo-type: board, breadboard, wires, resistors, buttons, buzzer, a micro servo) | The brain + everything to learn with. | €30–35 | Uno R4 Minima (faster, more memory) +€20 |
 | 9 | **IR LED + IR phototransistor pairs** (bags of 10–20) + resistors | One per column (+2 spare): a coin passing breaks the beam | €3–5 total | Ready-made IR break-beam modules, €2–6 each |
 | 1 | **MG996R servo** (~10 kg·cm), check it reaches 180° | Flips the board. Servos go to an angle by themselves, so no position sensors needed. Works if the board is well balanced on its axle. | €6–8 | DS3218 20 kg·cm, €15 |
-| 2 | **SG90 micro servo** (one may come in the kit) | The two gates | €2 each | MG90S metal gear, €4 each |
-| 7 | **Plain LEDs** (from the kit) | Show which column the computer wants | €0 | WS2812B strip (any colour, one wire), €5–8 |
+| 2 | **MG90S metal-gear micro servo** (+1 spare) | The two gates; metal gears because each gate holds a full stack | €3–4 each | — |
+| 1 | **WS2812B LED strip**, ~8 LEDs | Whose turn (in that colour) and the flip warning; one data wire | €3–5 | — |
 | 1 | **5 V, 3–4 A power supply** + barrel jack adapter (or borrow a lab bench supply) | Servos need their own power; the Arduino USB port is not enough | €8 | — |
 | 1 | 1000 µF capacitor (10 V+) | Smooths servo power spikes | €1 | — |
-| 1 | Wooden dowel or threaded rod as axle, through holes in the stand | So the board turns | €2–3 | 8 mm rod + bearings, €8 |
-| — | Cardboard prototype first, then MDF/plywood offcuts, screws, hot glue | The stand, sensor bar, gates | €5–15 | Laser-cut acrylic |
-| 1 | Connect Four game (second-hand or a cheap generic one) | The grid and coins | €5–15 | — |
-| opt. | TCS34725 colour sensor | Upgrade: also check the coin colour | €8 | — |
-| opt. | Limit switch | Upgrade: confirm the flip finished | €1 | — |
+| 1 | 8 mm rod or M8 threaded rod + two 608 bearings | The axle the board turns on | €4–6 | — |
+| — | Cardboard prototype first, then 6 mm MDF/plywood, 3 mm clear acrylic, M3 screws | Stand, grid sandwich, entry bar, gates | €15–25 | — |
+| 1 | Connect Four game (second-hand or a cheap generic one) | The 42 coins, and the dimensions to design around | €5–15 | — |
+| 2 | Limit switch | Confirm the flip finished (0° and 180°) | €1 each | — |
+| opt. | 7 green LEDs + 7 visible-light phototransistors + CD74HC4067 multiplexer | Upgrade: coin colour (question 5) | €5–6 | — |
 
-Total: roughly **€60–90** with the cheapest options, less if the lab lends parts. Split three ways that's €20–30 each.
+Total: roughly **€70–100** with the cheapest options, less if the lab lends parts. Split three ways that's €20–30 each.
 
 ## Wiring (proposed pin plan)
 
@@ -143,9 +275,11 @@ Total: roughly **€60–90** with the cheapest options, less if the lab lends p
 | D9 | Flip servo signal |
 | D10 | Gate A servo signal (the end on top at power-on) |
 | D11 | Gate B servo signal |
-| D12, D13, A1–A5 | Column LEDs: 7 plain LEDs, each through a 220 Ω resistor. (With a WS2812B strip instead, only D12 is needed, through a 330 Ω resistor.) |
+| D12 | WS2812B LED strip data, through a 330 Ω resistor |
 | A0 | Buzzer (+) |
-| 5V / GND | IR sensors and LED strip (7 LEDs at low brightness is fine) |
+| A1, A2 | Limit switches (flip at 0°, flip at 180°), other leg to GND, use `INPUT_PULLUP` |
+| D13, A3–A5 | Spare. The colour upgrade's multiplexer would use 4 of them plus one analog pin. |
+| 5V / GND | IR sensors and LED strip (8 LEDs at low brightness is fine) |
 
 **Servo power:** servo red wires go to the **+6 V supply**, servo brown/black wires go to the **supply GND**, and **the supply GND must also connect to an Arduino GND pin** (common ground). Put the 1000 µF capacitor across the supply + and − (long leg to +). Never power the big servo from the Arduino 5 V pin.
 
@@ -154,7 +288,7 @@ Total: roughly **€60–90** with the cheapest options, less if the lab lends p
 ## Mechanical build order
 
 1. **Test everything on the table first**, no board: one sensor, then the LED strip, then one servo.
-2. **Sensor bar:** a strip of wood/acrylic with 7 slots lined up with the game's column openings; emitter on one side of each slot, receiver on the other.
+2. **Sensor bar:** a strip of wood/acrylic with 7 slots lined up with the grid's column openings; emitter on one side of each slot, receiver on the other.
 3. **Stand:** two uprights holding the axle at the centre height of the grid, with enough room for the grid to swing around (measure the diagonal!).
 4. **Gates:** a thin strip under each end of the grid, hinged or sliding, moved by an MG90S. Test with real coins that nothing falls out when upside down.
 5. **Flip servo:** fixed to one upright, its horn connected to the axle (servo horn → coupler → axle). The code should turn it slowly, not in one jump.

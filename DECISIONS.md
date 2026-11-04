@@ -4,10 +4,25 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-04 · Two players + flip only (Danny, after talking to the professor)
+
+- **Single player vs the computer is removed**: the computer player, suggested move, cheater detection and their messages (`SUGGEST`, `CHEAT`, `MODE`) are gone. Why: the professor said it is mostly coding and too complicated for our use case; the flip is the core of the project.
+- **The flip starts with a Flip button on the app.** When the pattern is made the board closes its top, the app enables Flip, and the flipper presses it. Lights + beep warn for ~2 s before turning. New messages `FLIP_READY` (Arduino → app) and `FLIP` (app → Arduino). Answers the open question from 2026-10-27. Our reading: the flip is not optional; the button chooses *when*.
+- **Coin colour:** still from turn order; a per-column colour sensor is proposed as an upgrade (see below).
+- **Hardware questions answered (proposal, not decided):** see `docs/03-hardware.md` → "Hardware questions answered". In short: 7 entry sensors are enough (no sensor per hole); an Uno has enough pins (14 of 18 used); sliding tab gates at both ends driven by MG90S + push rod; slow 180° turn with both gates closed; colour via green LED + phototransistor per column as an upgrade; **laser-cut our own grid (clear acrylic sandwich) and reuse the bought coins**, which would replace the 2026-10-07 default "build on a bought game". Waiting for the team.
+
 ### 2026-10-27 · Proposal, not decided: coin sensing and actuators (Claude, for the team)
 
 - Options compared in `docs/03-hardware.md` → "Coin sensing and motion: options". Recommended: keep sensors on a **fixed entry bar** above the board (one set of 7 covers both orientations, since coins always enter from the top of the room), using **IR break-beams** (backup: TCRT5000 reflective modules); gates driven by **MG90S servos with printed rack-and-pinion** instead of real linear actuators; flip by a **270° high-torque servo** (or MG996R if its range is tested OK).
 - Waiting for the team to pick. Until then the earlier defaults below still stand.
+
+### 2026-10-27 · From the team chat (WhatsApp, 7–27 Oct)
+
+- **New winner-after-flip rule (Danny, Airika agreed with the logic):** only the flipper has a line → flipper wins; only the other player → they win; **both → the player who did NOT flip wins**; nobody → play on with **no more flips**. Replaces "most lines wins, tie → flipper" and "max 3 flips". Why: a flip becomes a real risk you have to think through, and the rule is short for the demo.
+- **After a flip the coins rearrange inside the board, they don't fall out.** The pull bars (gates) at both ends hold them. Same as before, now stated explicitly.
+- ~~**Cheating ends the game**~~ and ~~**no difficulty levels**~~: single player was removed on 2026-11-04.
+- **Presentation split (2026-10-17):** block diagram + strategy-fan persona = Danny, flow chart + solo-player persona = Yujia, storyboard = Airika, polish = anyone. Two personas, not three. See [docs/07-presentation.md](docs/07-presentation.md).
+- ~~**Open:** automatic flip or player chooses?~~ → Flip button, see 2026-11-04.
 
 ### 2026-10-07 · Patterns must match exactly (Danny)
 
@@ -33,7 +48,7 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ### 2026-10-07 · Initial design (Danny + Claude)
 
-- **Game:** Connect Four with GUI, motors, single/multiplayer, cheater detection, scoring and a board flip. Assigned by the professors.
+- **Game:** Connect Four with GUI, motors, ~~single/~~multiplayer, ~~cheater detection,~~ scoring and a board flip. Assigned by the professors.
 - **Board size: standard 7×6** (default). Easiest to buy and the standard computer-player techniques assume it.
 - **Build on a bought Connect Four game** (default). Grid and coins are already precise; saves weeks.
 - **GUI: ProtoPie + ProtoPie Connect** (from the course brief).

@@ -17,9 +17,11 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 ## Open questions (answer and move to DECISIONS.md)
 
 - [ ] Final deadline date and later review dates (known: EX2 presentation on 2026-10-28, 3 minutes)
-- [ ] Flip: automatic when the pattern is made, or the player chooses on the app? How do we warn players during the flip (lights)?
 - [ ] ProtoPie licence: no student plan found; ask the professor
 - [ ] Polimi lab access: how to book laser cutter / 3D printer, and can we borrow Arduinos, servos, power supplies?
+- [ ] Hardware proposal (docs/03-hardware.md, "Hardware questions answered"): agree on sensors, gates, own laser-cut grid, colour sensing as an upgrade
+- [x] Flip starts with a Flip button on the app; lights + beep warn before it turns (Danny, 2026-11-04)
+- [x] Single player removed; two players + flip only (Danny, after the professor, 2026-11-04)
 - [x] Board size: standard 7×6 (Danny)
 - [x] GUI: ProtoPie (Danny)
 - [x] Budget: as cheap as possible (Danny)
@@ -41,6 +43,8 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [ ] todo · Everyone: Arduino IDE installed, Blink uploaded
 - [ ] todo · Everyone: read docs/02-game-rules.md
 - [ ] todo · Buy the Connect Four game and parts (docs/03-hardware.md)
+- [ ] todo · Measure the coins (diameter, thickness) and the column pitch; they size the grid and gates
+- [ ] todo · Breadboard test: one IR beam, and one green LED + phototransistor with red vs yellow coins
 - [ ] todo · Code: Wokwi tutorials (button + LED + servo in the simulator)
 - [ ] todo · GUI: ProtoPie Connect talking to the Arduino (one `DROP` message works)
 
@@ -48,7 +52,7 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 
 - [ ] todo · M1 sensors reliable (50 drops, 0 mistakes)
 - [ ] todo · M2 multiplayer playable with the GUI
-- [ ] todo · M3 single player, CHEATER, score
+- [ ] todo · M3 pattern detected → Flip button, score
 - [ ] todo · M4 gates hold coins upside down
 - [ ] todo · M5 motorised flip + correct grid after
 - [ ] todo · M6 polish and presentation

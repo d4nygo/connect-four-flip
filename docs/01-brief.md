@@ -11,6 +11,10 @@ Remake a classic board game as a **physical board driven by an Arduino**, plus a
 
 The original mechanics must stay; the digital part adds enhancements.
 
+## Scope change (2026-11-04)
+
+After talking to the professor: **single player against the computer is removed** (too code-heavy for our team). The project is now **two players + the flip mechanism**: choose the pattern before the game, show the coin positions live on the app, detect when the pattern is made, enable a Flip button that turns the board, then show the new positions and the winner (if any). Points 2 and 3 below are kept only as history.
+
 ## What the professors assigned us (2026-10-07)
 
 **Connect Four, "but a bit more complicated":**
@@ -33,7 +37,6 @@ The original mechanics must stay; the digital part adds enhancements.
 | Question | Our reading |
 |---|---|
 | "Detect which coin the user is putting in" | Detect **which column** the coin goes into. The colour is known from whose turn it is. A colour sensor is an optional upgrade. |
-| Who drops the computer's coin? | The human, into the column the GUI shows. That is what makes cheating possible. |
 | "Flip completely reversing the layout" | The board turns 180° on a horizontal axle; coins slide to the new bottom, so each column's order is reversed. See [02-game-rules.md](02-game-rules.md). |
 
 Original assignment screenshots: [assignment-1.png](assets/assignment-1.png), [assignment-2.png](assets/assignment-2.png). Earlier game comparison: see `docs/archive/game-comparison.md`.

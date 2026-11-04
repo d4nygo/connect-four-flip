@@ -38,7 +38,7 @@ Free tools to start **today, before buying anything**:
 |---|---|---|
 | M1 | 7 sensors report the right column every time | 50 drops, 0 mistakes |
 | M2 | Multiplayer game playable with the GUI showing the grid | Full game recorded |
-| M3 | Single player: computer suggests, CHEATER works, score updates | Demo video |
+| M3 | Pattern detected → Flip button enabled on the GUI; score updates | Demo video |
 | M4 | Gates hold coins upside down (by hand, no motor) | Photo/video |
 | M5 | Motorised flip + correct grid on the GUI afterwards | Demo video |
 | M6 | Polished: sounds, animations, enclosure, presentation | Final demo |

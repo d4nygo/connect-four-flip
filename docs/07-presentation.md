@@ -39,6 +39,8 @@ The team agreed on two personas (one per target community in the first proposal)
 
 ## Block diagram (slide 6)
 
+> Note (2026-11-04): this is the EX2 version. Single player was removed since; the computer player, the 7 column LEDs and the cheat sound no longer apply (now: an LED strip for turn/flip warning and a Flip button on the GUI). Update the slide if it is reused.
+
 Text version of the slide, so it can be edited and reviewed in the repo:
 
 ```mermaid
