@@ -20,7 +20,7 @@ You are helping a 3-person university team build **Connect Four Flip**: a physic
 - Board 7 columns × 6 rows; row 0 = bottom, column 0 = left; red = P1, yellow = P2. Two players only: single player vs the computer was removed (2026-11-04).
 - Arduino owns the game state, rules, pattern check and score; ProtoPie only displays and sends choices.
 - Messages are `MESSAGE||VALUE` lines; the full table is in `docs/04-software.md`. If you add or change one, update that table and both sides.
-- The flip reverses each column's coin order; columns don't swap. Winner after a flip: only one player has a line of 4+ → they win; both → the player who did NOT flip wins; none → keep playing, no more flips. The flip starts when the flipper presses the app's Flip button.
+- The flip reverses each column's coin order; columns don't swap. Winner after a flip: only one player has a line of 4+ → they win; both → the player who did NOT flip wins; none → keep playing, no more flips. The pattern is picked at random by the system at game start. When it's made, the player chooses Flip or Skip on the app.
 
 ## When you change things
 

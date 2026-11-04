@@ -20,7 +20,7 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [ ] ProtoPie licence: no student plan found; ask the professor
 - [ ] Polimi lab access: how to book laser cutter / 3D printer, and can we borrow Arduinos, servos, power supplies?
 - [ ] Hardware proposal (docs/03-hardware.md, "Hardware questions answered"): agree on sensors, gates, own laser-cut grid, colour sensing as an upgrade
-- [x] Flip starts with a Flip button on the app; lights + beep warn before it turns (Danny, 2026-11-04)
+- [x] Pattern made → board LEDs flash, app shows Flip or Skip; pattern picked at random by the system (Danny, 2026-11-04)
 - [x] Single player removed; two players + flip only (Danny, after the professor, 2026-11-04)
 - [x] Board size: standard 7×6 (Danny)
 - [x] GUI: ProtoPie (Danny)

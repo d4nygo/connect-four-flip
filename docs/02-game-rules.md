@@ -10,7 +10,7 @@ This is the single source of truth for rules. Any code written later must implem
 
 ## Game setup (on the GUI)
 
-1. Choose the **flip pattern** (or press "Random"). It stays **visible on screen for the whole game**, so everyone knows what to aim for.
+1. The system **picks the flip pattern at random** and shows it. It stays **visible on screen for the whole game**, so everyone knows what to aim for.
 2. Press **Start**. The board drops any old coins out of the bottom and closes.
 
 ## A normal turn
@@ -20,7 +20,7 @@ This is the single source of truth for rules. Any code written later must implem
 3. The Arduino checks, **in this order**:
    1. **Normal win**: did this coin make 4 in a row (horizontal, vertical, diagonal)? → that player wins. Game over.
    2. **Draw**: is the board full? → draw.
-   3. **Pattern**: did this coin complete the flip pattern **in the dropping player's own colour**? → the board closes its top so no more coins can go in, and the **Flip** button lights up on the app. The player who made the pattern presses it to start the **FLIP** (see below). The game waits until they do.
+   3. **Pattern**: did this coin complete the flip pattern **in the dropping player's own colour**? → the board closes its top so no more coins can go in, its LEDs flash, and the app plays an animation and shows **Flip** and **Skip**. The player who made the pattern chooses. **Flip** starts the **FLIP** (see below). **Skip** reopens the top and it is the other player's turn. The game waits until they choose.
    4. Otherwise, it is the other player's turn.
 
 A normal win beats a flip: if one coin makes both 4-in-a-row and the pattern, the player simply wins.
@@ -50,7 +50,7 @@ X X       . X .       X .       X X X       X X .
 
 Limits: **one flip per game**. If a flip produces no line, the game continues with **no more chances to flip**.
 
-**Starting the flip (Danny, 2026-11-04):** when the pattern is made, the app enables a **Flip** button and the flipper presses it to start the turn. Before turning, the board's lights flash and it beeps for ~2 s so hands stay clear. Our reading is that the flip always happens once the pattern is made; the button only says *when*. If the team wants it optional ("Flip" / "Don't flip"), change this line and log it.
+**Flip or Skip (Danny, 2026-11-04):** when the pattern is made, the board's LEDs flash and the app shows Flip and Skip with an animation. The player who made the pattern decides. If they flip, the board flashes and beeps for ~2 s before turning so hands stay clear. If they skip, nothing moves and the game goes on; the game's one flip is still available, so the next coin that completes the pattern offers the choice again.
 
 **Always visible:** the chosen pattern stays on screen for the whole game, so both players know what to build and what to block. Setting up the pattern on purpose is part of the strategy.
 

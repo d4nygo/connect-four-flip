@@ -5,7 +5,7 @@ The game is two players + the flip (single player was removed on 2026-11-04). Th
 ## The big idea in one picture
 
 ```
-            [ LED strip: whose turn, flip warning ]
+            [ LED strip: whose turn, pattern made, flip warning ]
             [ 7 IR sensors: detect coins       ]   <- FIXED sensor bar on the stand
        ┌────────────────────────────────────────┐
        │  gate A (servo)                          │
@@ -189,8 +189,8 @@ Both gates hold the full stack at some point, so build them identically.
 
 ### 4. What exactly happens during the flip?
 
-1. A coin completes the pattern. The Arduino closes the top gate straight away and tells the app (`FLIP_READY`); the app enables the **Flip** button.
-2. The flipper presses **Flip** (`FLIP` message). This button doubles as a safety step: nobody's hands are in the board.
+1. A coin completes the pattern. The Arduino closes the top gate straight away, flashes the LED strip, and tells the app (`FLIP_READY`); the app plays an animation and shows **Flip** and **Skip**.
+2. The player who made the pattern chooses (`FLIP||1` or `FLIP||0`). **Skip:** the top gate reopens, the LEDs stop, the other player's turn. **Flip:** carry on below. The choice doubles as a safety step: nobody's hands are in the board.
 3. Warning: the LED strip flashes and the buzzer beeps for ~2 s.
 4. The flip servo turns 180° **slowly** (2–3 s, in small steps). Slowly matters: the coins slide along their column as it passes horizontal instead of crashing onto the far gate.
 5. Wait ~1 s for the coins to settle. If you fitted the limit switch, check it is pressed.
@@ -256,7 +256,7 @@ This changes the earlier default ("build on a bought game") to "build our own gr
 | 9 | **IR LED + IR phototransistor pairs** (bags of 10–20) + resistors | One per column (+2 spare): a coin passing breaks the beam | €3–5 total | Ready-made IR break-beam modules, €2–6 each |
 | 1 | **MG996R servo** (~10 kg·cm), check it reaches 180° | Flips the board. Servos go to an angle by themselves, so no position sensors needed. Works if the board is well balanced on its axle. | €6–8 | DS3218 20 kg·cm, €15 |
 | 2 | **MG90S metal-gear micro servo** (+1 spare) | The two gates; metal gears because each gate holds a full stack | €3–4 each | — |
-| 1 | **WS2812B LED strip**, ~8 LEDs | Whose turn (in that colour) and the flip warning; one data wire | €3–5 | — |
+| 1 | **WS2812B LED strip**, 10–15 LEDs (60 LEDs/m, cut to length) | Whose turn (in that colour), flashing when the pattern is made, flip warning; one data wire | €3–6 | — |
 | 1 | **5 V, 3–4 A power supply** + barrel jack adapter (or borrow a lab bench supply) | Servos need their own power; the Arduino USB port is not enough | €8 | — |
 | 1 | 1000 µF capacitor (10 V+) | Smooths servo power spikes | €1 | — |
 | 1 | 8 mm rod or M8 threaded rod + two 608 bearings | The axle the board turns on | €4–6 | — |
@@ -279,11 +279,21 @@ Total: roughly **€70–100** with the cheapest options, less if the lab lends 
 | A0 | Buzzer (+) |
 | A1, A2 | Limit switches (flip at 0°, flip at 180°), other leg to GND, use `INPUT_PULLUP` |
 | D13, A3–A5 | Spare. The colour upgrade's multiplexer would use 4 of them plus one analog pin. |
-| 5V / GND | IR sensors and LED strip (8 LEDs at low brightness is fine) |
+| 5V / GND | IR sensors. The LED strip's power goes to the external 5 V supply (see "Board LEDs" below); only its data wire and GND go to the Arduino. |
 
 **Servo power:** servo red wires go to the **+6 V supply**, servo brown/black wires go to the **supply GND**, and **the supply GND must also connect to an Arduino GND pin** (common ground). Put the 1000 µF capacitor across the supply + and − (long leg to +). Never power the big servo from the Arduino 5 V pin.
 
 **IR break-beams:** each pair has an emitter (2 wires: power) and a receiver (3 wires: power, GND, signal). Mount emitter and receiver facing each other across the column slot, just above the board. With `INPUT_PULLUP` the signal reads HIGH when clear and LOW when a coin blocks it.
+
+## Board LEDs (pattern made, whose turn, flip warning)
+
+Danny (2026-11-04): when the pattern is made, the LEDs on the board flash while the app plays its animation.
+
+- **What:** one WS2812B ("NeoPixel") strip, 10–15 LEDs. Every LED can be any colour, and the whole strip needs **one data wire** (D12, already in the pin plan; no new pins).
+- **Where:** on the **fixed stand**, not the turning board: along the front of the entry bar, or around the base. Then no wires cross the flip. Light shining up through clear acrylic edges looks good.
+- **What it shows:** red or yellow glow = whose turn; fast rainbow/white flashing = pattern made, choose Flip or Skip; red flashing + beep = the board is about to turn; winner's colour = game over.
+- **Wiring:** strip 5V → external 5 V supply +; strip GND → supply − **and** Arduino GND; strip DIN → 330 Ω resistor → D12. A 1000 µF capacitor across the strip's 5V/GND (the servo one can be shared if it's close).
+- **Power:** each LED can draw up to 60 mA at full white. 15 LEDs at full white = 0.9 A, so keep brightness low in code (about 25%) and feed the strip from the external supply, not the Arduino's 5 V pin. Code library: Adafruit NeoPixel or FastLED.
 
 ## Mechanical build order
 

@@ -4,10 +4,17 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-04 · Flip or Skip, random pattern, flashing LEDs (Danny)
+
+- **The system picks the pattern at random** at the start of each game (no player choice). The Arduino picks it and sends `PATTERN` to the app, which only shows it.
+- **When the pattern is made, the player chooses Flip or Skip** on the app, which plays an animation; the **board's LEDs flash** at the same time. `FLIP||1` flips, `FLIP||0` skips. Replaces the reading below that the flip always happens.
+- **Skip keeps the game's one flip available** (Claude's default): the next coin that completes the pattern offers the choice again. Change if the team prefers "skip = flip used up".
+- **LEDs:** a WS2812B strip on D12, already in the pin plan, mounted on the fixed stand (not the turning board), so no pin or wiring change. See docs/03-hardware.md.
+
 ### 2026-11-04 · Two players + flip only (Danny, after talking to the professor)
 
 - **Single player vs the computer is removed**: the computer player, suggested move, cheater detection and their messages (`SUGGEST`, `CHEAT`, `MODE`) are gone. Why: the professor said it is mostly coding and too complicated for our use case; the flip is the core of the project.
-- **The flip starts with a Flip button on the app.** When the pattern is made the board closes its top, the app enables Flip, and the flipper presses it. Lights + beep warn for ~2 s before turning. New messages `FLIP_READY` (Arduino → app) and `FLIP` (app → Arduino). Answers the open question from 2026-10-27. Our reading: the flip is not optional; the button chooses *when*.
+- **The flip starts with a Flip button on the app.** When the pattern is made the board closes its top, the app enables Flip, and the flipper presses it. Lights + beep warn for ~2 s before turning. New messages `FLIP_READY` (Arduino → app) and `FLIP` (app → Arduino). Answers the open question from 2026-10-27. ~~Our reading: the flip is not optional.~~ → Flip or Skip, see entry above.
 - **Coin colour:** still from turn order; a per-column colour sensor is proposed as an upgrade (see below).
 - **Hardware questions answered (proposal, not decided):** see `docs/03-hardware.md` → "Hardware questions answered". In short: 7 entry sensors are enough (no sensor per hole); an Uno has enough pins (14 of 18 used); sliding tab gates at both ends driven by MG90S + push rod; slow 180° turn with both gates closed; colour via green LED + phototransistor per column as an upgrade; **laser-cut our own grid (clear acrylic sandwich) and reuse the bought coins**, which would replace the 2026-10-07 default "build on a bought game". Waiting for the team.
 
