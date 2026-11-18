@@ -5,14 +5,13 @@ This is the single source of truth for rules. Any code written later must implem
 ## Board
 
 - Standard Connect Four: **7 columns × 6 rows**, 42 coins (21 red, 21 yellow).
-- Red = **Player 1** (the human in single player). Yellow = **Player 2** (the computer in single player).
+- **Two players** at the same board. Red = **Player 1**, Yellow = **Player 2**. (Single player against the computer was removed at the 28 Oct 2026 class review.)
 - Red always starts.
 
 ## Game setup (on the GUI)
 
-1. Choose **Single player** or **Multiplayer**. (No difficulty levels for now: the computer has one level.)
-2. Choose the **flip pattern** (or press "Random"). It stays **visible on screen for the whole game**, so everyone knows what to aim for.
-3. Press **Start**. The board drops any old coins out of the bottom and closes.
+1. The system **picks the flip pattern at random** and shows it. It stays **visible on screen for the whole game**, so everyone knows what to aim for.
+2. Press **Start**. The board drops any old coins out of the bottom and closes.
 
 ## A normal turn
 
@@ -21,18 +20,10 @@ This is the single source of truth for rules. Any code written later must implem
 3. The Arduino checks, **in this order**:
    1. **Normal win**: did this coin make 4 in a row (horizontal, vertical, diagonal)? → that player wins. Game over.
    2. **Draw**: is the board full? → draw.
-   3. **Pattern**: did this coin complete the flip pattern **in the dropping player's own colour**? → **FLIP** (see below).
+   3. **Pattern**: did this coin complete the flip pattern **in the dropping player's own colour**? → the board closes its top so no more coins can go in, its LEDs flash, and the app plays an animation and shows **Flip** and **Skip**. The player who made the pattern chooses. **Flip** starts the **FLIP** (see below). **Skip** reopens the top and it is the other player's turn. The game waits until they choose.
    4. Otherwise, it is the other player's turn.
 
 A normal win beats a flip: if one coin makes both 4-in-a-row and the pattern, the player simply wins.
-
-## Single player: computer turns and cheating
-
-1. After your move, the computer picks a column and shows it on the GUI (and lights the LED above that column).
-2. **You drop the yellow coin into that column for the computer.**
-3. If the coin lands in **a different column**:
-   - the GUI shows **"CHEATER!"**, the board flashes red and buzzes
-   - **you lose the game** straight away (the computer wins). We can't pull a wrong coin back out without emptying the whole column, so the game can't continue fairly.
 
 ## The flip
 
@@ -59,7 +50,7 @@ X X       . X .       X .       X X X       X X .
 
 Limits: **one flip per game**. If a flip produces no line, the game continues with **no more chances to flip**.
 
-**Open question:** when the pattern is made, does the board flip automatically, or does the player choose "Flip" / "Don't flip" on the app? Also: how to warn players (lights on the board?) so nobody drops a coin during the flip. Not decided yet (team chat, 2026-10-27).
+**Flip or Skip (Danny, 2026-11-04):** when the pattern is made, the board's LEDs flash and the app shows Flip and Skip with an animation. The player who made the pattern decides. If they flip, the board flashes and beeps for ~2 s before turning so hands stay clear. If they skip, nothing moves and the game goes on; the game's one flip is still available, so the next coin that completes the pattern offers the choice again.
 
 **Always visible:** the chosen pattern stays on screen for the whole game, so both players know what to build and what to block. Setting up the pattern on purpose is part of the strategy.
 
@@ -78,7 +69,7 @@ row 1:  Y Y Y R . . .     row 1:  Y Y Y Y . . .   <- yellow line!
 row 0:  Y Y R Y . . .     row 0:  R R R R . . .   <- red line!
 ```
 
-Column 0 read Y,Y,R from the bottom up and now reads R,Y,Y; column 3 read Y,R and now reads R,Y. Nobody had four before the flip; afterwards **both** players have a line, so (rule 4 below) the player who did **not** cause the flip wins.
+Column 0 read Y,Y,R from the bottom up and now reads R,Y,Y; column 3 read Y,R and now reads R,Y. Nobody had four before the flip; afterwards **both** players have a line, so (rule 3 below) the player who did **not** cause the flip wins.
 
 The Arduino doesn't need to "see" the result: it computes the new grid itself from the old one , which is exact because the coins have nowhere else to go.
 
@@ -100,6 +91,5 @@ Why this rule: it is short to explain, it always produces a result, and because 
 | Normal win | +3 |
 | Win caused by a flip | +5 |
 | Draw | +1 each |
-| Cheating (single player) | game lost (the computer gets the win) |
 
 The score resets when the GUI sends "reset score" (e.g. a new pair of players).
