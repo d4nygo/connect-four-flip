@@ -114,7 +114,7 @@ This is close to the shopping list below (it upgrades the gate servos to MG90S a
 
 ## Hardware questions answered (raised 28 Oct, proposal for the 4 Nov review)
 
-The team's open doubts after the scope change (two players + flip only), answered one by one. Everything here is a **proposal** until the team agrees; it builds on the options above. Untested on hardware.
+The team's open doubts after the scope change (two players + flip only), answered one by one. The professor **approved** this approach on 4 Nov, then suggested magnets + Hall/reed sensors and an ESP32 board (see the next section, which is newer). Untested on hardware.
 
 ### 1. How do we know where every coin is? Do we need a sensor for each of the 42 holes?
 
@@ -243,6 +243,42 @@ This changes the earlier default ("build on a bought game") to "build our own gr
 **Modelling tools:** Onshape (free, in the browser) or Fusion 360 (free education licence) for the 3D model and the laser-cut outlines; boxes.py or MakerCase generate finger-jointed boxes for the base in minutes. Laser cutters take 2D DXF/SVG files.
 
 **Build order:** measure the coins → cardboard mock-up of grid + stand + entry bar (turn it by hand) → MDF version → acrylic for the visible parts.
+
+## Professor's feedback (4 and 18 Nov): magnets, Hall sensors, ESP32
+
+This updates the proposal above. Where the two disagree, this section is newer. Untested on hardware.
+
+**What the professor said**
+- 4 Nov: the hardware proposal was **approved**. Next step: make the final components list and get the parts ready. Suggested sensors: **reed sensors and Hall sensors**, with **magnets inside the coins** (Airika's notes).
+- 18 Nov: **don't buy an Arduino Mega; use an ESP32-based board**, so it can read up to 8 analog values.
+
+**How the magnet idea works**
+- Glue a small neodymium disc magnet (e.g. 6 × 2 mm, ~€8 for 50) into the centre of each of the 42 coins: drill a shallow hole or press it in, then a drop of glue.
+- In each of the 7 entry slots, a magnet sensor sits in the slot wall. When a coin falls past, the sensor sees the magnet. Same fixed entry bar, same "one set of 7 covers both sides" idea; only the sensor type changes.
+- **Hall sensor (recommended):** an electronic chip, no moving parts, very fast. The analog type (e.g. **SS49E**, ~€0.30 each) gives a number that rises or falls with the magnet's strength and pole. It needs an analog input per column, which is why the professor suggested the ESP32.
+- **Reed sensor (simpler, cheaper):** a tiny glass switch that closes near a magnet; reads like a button on any digital pin. But the glass breaks easily, it can "bounce", and it may be too slow or not sensitive enough for a falling coin. Good as a quick first test.
+- **Colour:** the magnet's pole could tell red from yellow (red coins north-side front, yellow south-side front), but a player can drop a coin in either way round, which flips the pole. So keep **colour from turn order** and treat the pole reading as a bonus check at most.
+- **Watch out:** the sensor only sees a small magnet within about 5–10 mm, so the slot must guide the coin close to it. Coins with magnets will cling to each other a little in the tray and stack differently; test a few before doing all 42.
+
+**ESP32 instead of the Uno**
+- An ESP32 board costs about €5–10, is programmed in the same Arduino IDE, and has many analog inputs, plus Wi-Fi and Bluetooth built in (useful later for the phone-only idea).
+- It runs on **3.3 V, not 5 V**: power the Hall sensors from its 3V3 pin so their output never goes above 3.3 V. Servos still run from the external 5–6 V supply (their 3.3 V signal wire usually works; test one). The LED strip's data line usually works at 3.3 V too.
+- **Which board:** an **ESP32-S3 DevKit** has 10 analog pins on its first converter (GPIO1–GPIO10), enough for 7 sensors with room to spare. On a classic ESP32 DevKit only 6 of those pins are exposed, and the others stop working when Wi-Fi is on. Since we talk to ProtoPie Connect over USB, either board works, but the S3 is the safer pick.
+- Proposed ESP32-S3 pin plan (check the pin labels on the actual board):
+
+| ESP32-S3 pin | Goes to |
+|---|---|
+| GPIO1–GPIO7 | Hall sensor outputs, column 0 (left) to 6 (right) |
+| GPIO15 | Flip servo signal |
+| GPIO16, GPIO17 | Gate A and gate B servo signals (if the gates are motorised) |
+| GPIO18 | LED strip data (330 Ω resistor) |
+| GPIO8 | Buzzer |
+| GPIO9, GPIO10 | Limit switches (flip at 0° / 180°) |
+| 3V3 / GND | Hall sensors; all grounds joined with the external supply |
+
+**Gates: manual or motorised?** The team (Airika, Danny) is considering opening and closing the gates **by hand** to save motors. That works for releasing the coins at the end of a game. During a flip, though, the top gate must be closed before the board turns, so with manual gates a player closes it, then presses Flip; the Arduino can't check this unless a switch is added. Still open.
+
+**Fabrication:** 3D printing at the Polimi OpenLab (a safety course is needed first) or at the TED Laboratory (Bovisa campus, Durando); contact noted by Airika: gabtiele.viscardi@polimi.it (as written on the board, check the spelling).
 
 ## Shopping list
 
