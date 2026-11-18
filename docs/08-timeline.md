@@ -53,10 +53,19 @@ Add each new review or discussion as a new section at the bottom. When an open q
 
 - **Team discussion, who does what:** Airika: UI design of the app (flows and interactions). Danny: review presentation, research on the Arduino side, keeping the FigJam up to date. Yujia (Jessica): possible 3D models and research on the servos needed.
 - **Decided (Danny), random pattern + Flip or Skip:** the system picks the flip pattern at random at the start of each game. When the pattern is made, the app enables Flip with an animation, the board's LEDs flash, and the player chooses **Flip** or **Skip**.
-- **To discuss with the professor:** the proposed hardware approach (7 fixed sensors, Uno pin budget, sliding gates, flip sequence, colour by turn order, laser-cut grid, LED strip).
-- **Professor's feedback:** _to add after the review._
+- **Presented to the professor:** the proposed hardware approach (7 fixed sensors at the top, gravity gives the row, Uno pin budget, sliding gates, slow flip with both gates closed). Our own doubts on it: which sensor type (simple light-beam sensor, or the green light + light sensor that also reads colour, which might be too much?); gates by servo or by hand?; which motor/servo; which material (3D printing, wood or cardboard)?
+- **Professor's feedback:** the hardware proposal was **approved**. Finalise the components list and get the components ready. Suggested sensors: **reed sensors and Hall sensors** (magnet sensors).
+- **Team notes (Airika):** gates opening/closing **by hand**; 3D printing at the Polimi OpenLab (safety course needed) or the TED Laboratory (Bovisa campus, Durando), contact gabtiele.viscardi@polimi.it; we need 7 sensors for the top/bottom; **magnets inside the coins** (from Amazon) with **Hall sensors (more precise) or reed sensors**; a powerful motor for the flip; define the components list and see where we can cut.
+- **App:** first screens of the phone app UI were added to the Group-06 board (screenshots, 4 Nov).
 - **Open questions raised:**
   - [ ] After a **Skip**, is the game's one flip used up, or can the next pattern offer it again? (Current default: still available.)
+  - [ ] Gates by hand or by servo? (If by hand, a player closes the top gate before pressing Flip.)
+  - [ ] Hall or reed sensors, and which magnets?
+  - [ ] Which flip motor exactly?
+
+## 18 Nov 2026 · Review
+
+- **Professor's feedback:** do **not** buy an Arduino Mega; use an **ESP32-based board** instead, so it can read up to 8 analog values (needed for 7 analog Hall sensors). See [03-hardware.md](03-hardware.md) → "Professor's feedback (4 and 18 Nov)" for what that changes (3.3 V, pin plan, ESP32-S3 suggestion).
 
 ## All open questions in one place
 
@@ -65,10 +74,14 @@ Add each new review or discussion as a new section at the bottom. When an open q
 | Final deadline and later review dates | 7 Oct | open |
 | ProtoPie licence for students | 7 Oct | open, ask the professor |
 | Booking Polimi laser cutters / 3D printers; borrowing Arduinos, servos, power supplies | 7 Oct | open |
-| Final choice of sensors and motors | 27 Oct | proposal ready, to agree at/after 4 Nov |
+| Final choice of sensors and motors | 27 Oct | approach approved 4 Nov; professor suggests magnets + Hall/reed sensors, ESP32 (18 Nov); final list to make |
 | Phone talking to the Arduino without a PC | 27 Oct | open, ask the professor |
-| Coin positions, sensor count, pins, gates, colour, materials | 28 Oct | proposal ready (03-hardware.md), to agree |
+| Coin positions, sensor count, pins, gates, colour, materials | 28 Oct | approved 4 Nov (7 fixed sensors); details below still open |
 | Does Skip use up the one flip? | 4 Nov | open (default: no) |
+| Gates by hand or by servo? | 4 Nov | open (team leaning: by hand) |
+| Hall or reed sensors; which magnets? | 4 Nov | open (Hall is more precise) |
+| Which flip motor? | 4 Nov | open |
+| Final components list | 4 Nov | to do |
 
 ## Where things live
 

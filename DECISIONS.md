@@ -4,6 +4,16 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-18 · Review: ESP32 instead of Arduino (professor)
+
+- **Use an ESP32-based board, not an Arduino Mega**, so it can read up to 8 analog values (7 analog Hall sensors). Replaces the Arduino Uno default. Suggested board: ESP32-S3 DevKit (10 analog pins on its first converter). It runs on 3.3 V; see `docs/03-hardware.md` → "Professor's feedback (4 and 18 Nov)" for the pin plan. Untested on hardware.
+
+### 2026-11-04 · Review: hardware approach approved (professor)
+
+- **The hardware proposal was approved**: 7 fixed sensors at the top, board turning underneath, gravity gives the row. Next: final components list and get the parts.
+- **Sensors (professor's suggestion):** **magnets inside the coins** with **Hall sensors** (more precise) or **reed sensors**, instead of light beams. Colour still comes from turn order (a coin can be dropped either way round, which flips the magnet's pole).
+- **Team leaning, not decided:** gates opened and closed **by hand** (Airika). 3D printing at Polimi OpenLab (safety course) or TED Laboratory (Bovisa).
+
 ### 2026-11-04 · Flip or Skip, random pattern, flashing LEDs (Danny)
 
 - **The system picks the pattern at random** at the start of each game (no player choice). The Arduino picks it and sends `PATTERN` to the app, which only shows it.
