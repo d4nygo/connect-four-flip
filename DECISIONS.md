@@ -4,6 +4,14 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-24 · 3D-printable stand, concept v0 (Claude, proposal for the team)
+
+- **(default) Printed 24 mm coins**, board ~215 × 171 mm, all parts within a 220 mm print bed. Why: Danny asked for a board smaller than the standard game, cheap and quick to print. Shop coins (~33 mm) would need a bigger board split into pieces.
+- **(default) Two A3144 sensors per column** (front and back wall), wired together, one magnet per coin. Why: the A3144 only sees the south pole and a coin can be inserted either way round.
+- **(default) Gates by hand:** sliding plate, centred = closed with a magnet click, push either way to open. Keeps the turning board wire-free. Answers "gates by hand or servo" unless the team objects.
+- **(default) Flip servo drives the board directly** (horn on the board's boss), printed pivot pin on the other side; axle through the middle of the coin slots.
+- Details in `docs/03-hardware.md` → "3D-printable stand, concept v0". Untested on hardware.
+
 ### 2026-11-18 · Review: ESP32 instead of Arduino (professor)
 
 - **Use an ESP32-based board, not an Arduino Mega**, so it can read up to 8 analog values (7 analog Hall sensors). Replaces the Arduino Uno default. Suggested board: ESP32-S3 DevKit (10 analog pins on its first converter). It runs on 3.3 V; see `docs/03-hardware.md` → "Professor's feedback (4 and 18 Nov)" for the pin plan. Untested on hardware.

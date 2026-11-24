@@ -280,6 +280,21 @@ This updates the proposal above. Where the two disagree, this section is newer. 
 
 **Fabrication:** 3D printing at the Polimi OpenLab (a safety course is needed first) or at the TED Laboratory (Bovisa campus, Durando); contact noted by Airika: gabtiele.viscardi@polimi.it (as written on the board, check the spelling).
 
+## 3D-printable stand, concept v0 (24 Nov 2026, proposal)
+
+Designed around the ordered parts (LAFVIN ESP32 DevKit V1 kit, HOTUT 13 kg 180° servo, EPLZON A3144 Hall sensors, 4 × 2 mm magnets). Source: [`cad/flip_board.scad`](../cad/flip_board.scad) (parametric OpenSCAD; STL exports live in the project files, not in git). Untested on hardware.
+
+- **Smaller than a shop game:** printed coins 24 × 5 mm with a magnet pocket; board 215 × 171 mm; every part fits a 220 × 220 mm bed (uprights placed diagonally). About 450 g of PLA and ~35 h of printing (rough).
+- **Nothing electrical turns.** The board is plastic, coins and magnets only. Sensors sit in a fixed entry bar across the top, the servo on the left upright, the ESP32 + breadboard on the base. No wires twist.
+- **Axle:** left to right through the exact middle of the coin slots (y = 0, z = 0). Column 0 stays left after the flip and each slot lands under the same sensor. Left: servo through a window in the upright, 2-arm horn screwed to the board's boss (direct drive). Right: printed 8 mm pin on the upright in a hole in the board's boss. Board corners sweep an 86.6 mm radius; the entry bar sits 3 mm outside it (coin falls across a ~4 mm gap).
+- **Board:** two identical `core_half` prints (front + back, round windows), two `end_cap`s with the gate groove, bolted with M3.
+- **Gates (by hand):** a 3 mm plate slides front-to-back in each end cap. Centred = closed (a magnet pair clicks it in place so it can't slide during the flip). Push either tab 11 mm = open. Tabs stick out front and back, so one is always reachable. The player closes the top gate before pressing Flip.
+- **Sensors:** A3144 is digital and reacts to the **south** pole only, and a coin can go in either way round, so each column has **two sensors**, one in the front wall and one in the back wall of a narrow throat (coin + 0.6 mm), outputs wired together (14 sensors, still 7 inputs). Magnet flush with the coin face, 0.8 mm wall: ~2 mm gap, roughly 1100 gauss vs the A3144's up-to-350 gauss switch point. At 4 mm it drops to ~330 gauss, so keep walls thin and test first with `sensor_test`. If weak: stack two magnets per coin.
+- **Wiring (from the team's Tinkered circuit):** sensor OUT pairs → GPIO 13, 14, 27, 26, 25, 33, 32 (column 0 → 6), each with 10 kΩ pull-up to **3V3**; sensor VCC → VIN (5 V from USB), GND common. Servo signal → GPIO 4; servo power from a separate 5 V ≥ 3 A charger with 1000 µF across it, common GND. Servo pulse range must be widened from 1000–2000 µs to roughly 500–2500 µs for 180° (find the real ends by testing).
+- **Board start position:** either; the servo alternates 0° ↔ 180°, no need to turn back between games.
+- **Magnets:** 42 coins + 6 for the gate clicks = 48 of 50.
+- **Test order:** sensor_test + one sensor (50 drops each way round) → servo end points → board with coins flipped by hand → full stand.
+
 ## Shopping list
 
 **Budget goal: as cheap as possible.** The "Cheapest" column is the plan; the "Nicer" column is only if something cheap turns out unreliable. Prices are rough (EUR, AliExpress/Amazon-class; AliExpress is cheapest but takes 2–4 weeks, so order early). Buy 1–2 spares of anything under €3.
