@@ -293,6 +293,7 @@ Designed around the ordered parts (LAFVIN ESP32 DevKit V1 kit, HOTUT 13 kg 180°
 - **Wiring (from the team's Tinkered circuit):** sensor OUT pairs → GPIO 13, 14, 27, 26, 25, 33, 32 (column 0 → 6), each with 10 kΩ pull-up to **3V3**; sensor VCC → VIN (5 V from USB), GND common. Servo signal → GPIO 4; servo power from a separate 5 V ≥ 3 A charger with 1000 µF across it, common GND. Servo pulse range must be widened from 1000–2000 µs to roughly 500–2500 µs for 180° (find the real ends by testing).
 - **Board start position:** either; the servo alternates 0° ↔ 180°, no need to turn back between games.
 - **Magnets:** 42 coins + 6 for the gate clicks = 48 of 50.
+- **v1 design pass (25 Nov):** tapered A-shaped uprights (60 mm foot, 36 mm top) with cut-outs, pin with a cone root and chamfered tip, slimmer chamfered sensor bar (19 mm deep), slot lead-in funnels on the end caps, 18 mm chamfered windows, hex pockets for the M3 bolts, rounded gate tabs, lighter tray with finger notch, gusseted brackets. About 17% less plastic (~375 g, ~29 h, rough); every functional measurement unchanged; no supports needed.
 - **Test order:** sensor_test + one sensor (50 drops each way round) → servo end points → board with coins flipped by hand → full stand.
 
 ## Shopping list
