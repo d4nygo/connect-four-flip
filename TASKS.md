@@ -48,6 +48,8 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [x] done (Danny, 2026-10-07) · Added `rikosyaa` and `Gilgamesh-Plan` as collaborators
 - [ ] todo · Ask Polimi labs / course staff about borrowing parts and fab access
 - [ ] todo · Everyone: Arduino IDE installed, Blink uploaded
+- [ ] todo · Buy remaining electronics: 5 V 4 A adapter + barrel-to-screw-terminal, 1000 µF cap, WS2812B strip, wire, 2nd breadboard (docs/03-hardware.md → "Wiring: ESP32 DevKit V1")
+- [ ] todo · ESP32 bench tests in order: Blink → measure VIN → one A3144 + LED (mark magnets' south face) → one column → GPIO 34 read → servo on 5 V adapter → LED strip
 - [ ] todo · Everyone: read docs/02-game-rules.md
 - [ ] todo · Buy the Connect Four game and parts (docs/03-hardware.md)
 - [ ] todo · Measure the coins (diameter, thickness) and the column pitch; they size the grid and gates
@@ -65,6 +67,8 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [ ] todo · M6 polish and presentation
 
 ## Done
+
+- [x] done (Claude, 2026-11-26) · ESP32 DevKit V1 pin check, pin plan and power plan for the parts we bought
 
 - [x] done (Claude, 2026-10-07) · Rules, flip and winner-after-flip rule designed; context docs and repo structure
 

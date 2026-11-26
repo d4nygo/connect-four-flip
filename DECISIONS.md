@@ -4,6 +4,13 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-26 · ESP32 DevKit V1 wiring and power plan (proposal, Claude for Danny)
+
+- **Pins:** columns 0–6 on GPIO 34, 35, 32, 33, 25, 26, 27; flip servo GPIO 4; LED strip GPIO 18; buzzer GPIO 23. Strapping pins (2, 5, 12, 15) and USB serial (1, 3) unused. Details in `docs/03-hardware.md` → "Wiring: ESP32 DevKit V1". Replaces the Uno and ESP32-S3 pin tables.
+- **A3144 sensors are digital, not analog**, so the "8 analog inputs" reason for the ESP32 no longer applies; any digital pin works. Sensors on 5 V (VIN), outputs pulled up to 3V3 with 10 kΩ, two sensors per column share one wire.
+- **Power:** ESP32 + sensors from the PC's USB; servo + LED strip from a separate 5 V 4 A adapter with a 1000 µF cap; grounds joined, adapter + never on the ESP32.
+- Why: avoids boot-sensitive pins, no level shifters, no brown-out resets from the servo. Untested on hardware; team to confirm.
+
 ### 2026-11-18 · Review: ESP32 instead of Arduino (professor)
 
 - **Use an ESP32-based board, not an Arduino Mega**, so it can read up to 8 analog values (7 analog Hall sensors). Replaces the Arduino Uno default. Suggested board: ESP32-S3 DevKit (10 analog pins on its first converter). It runs on 3.3 V; see `docs/03-hardware.md` → "Professor's feedback (4 and 18 Nov)" for the pin plan. Untested on hardware.
