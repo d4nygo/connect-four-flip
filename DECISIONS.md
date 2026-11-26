@@ -4,6 +4,13 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-26 · Screw-free stand (Danny)
+
+- **No screws anywhere** (Danny). Pegs + snap clips for the board halves, a snap strap for the servo, glued foot sockets for the uprights, a push-in axle pin, drop-in sensor bar with lock pins.
+- Sensors read "3144" (digital switch, Danny checked). The servo horn is in the bag.
+- **(default) Sensor rows are soldered on the table as strips** (bus wires for 5 V and GND, one OUT wire each), then pressed into the bar; front and back OUT wires are joined outside the right upright.
+- ESP32 plugs straight into the breadboard (wiring thread / Danny); the printed holder is dropped.
+
 ### 2026-11-26 · Model matched to the parts we bought
 
 - **(default) ESP32 on a printed holder with 18 mm posts, beside the breadboard,** not plugged into it: the 30-pin DevKit covers every hole on one side of an 830-point breadboard.

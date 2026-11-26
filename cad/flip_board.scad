@@ -1,9 +1,11 @@
-// Connect Four Flip: parametric 3D-printable board, draft v0 (2026-11-24)
+// Connect Four Flip: parametric 3D-printable board, v2 screw-free (2026-11-26)
 // Untested on hardware. Measure your real parts and change the numbers below.
 //
 // Pick a part:  openscad -D 'part="coin"' -o coin.stl flip_board.scad
-// Parts: coin, core_half, gate, entry_bar, upright_left, upright_right,
-//        bracket, tray, sensor_test, assembly (preview only)
+// Parts: coin, core_half, gate, board_clip, entry_bar, lock_pin, upright_left, upright_right,
+//        axle_pin, servo_strap, foot_socket, tray, sensor_test, assembly (preview only)
+// No screws: halves join with pegs + snap clips, servo with a snap strap, uprights stand in
+// glued foot sockets, the right pivot is a push-in pin, the sensor bar drops in and is pinned.
 //
 // Coordinates (assembly): x = across the columns (column 0 on the left, -x)
 //                         y = up, z = towards the player (front)
@@ -78,7 +80,9 @@ bar_h   = 26;  bar_z = 9.5;  bar_w = 210;  funnel_z = 7.5;
 throat  = coin_t + 0.6;          // slot at the sensors: coin can't wander away from them
 throat_h = 16;
 sens_wall = 0.8;                 // plastic between sensor face and coin: keep it thin!
-sens_y  = bar_y0 + 8;            // sensor height
+sens_y  = bar_y0 + 12;           // sensor height (legs hang down into the wire trench below)
+trench_y0 = bar_y0 + 0.8; trench_y1 = bar_y0 + 7.3; trench_d = 4;   // wire trench along the bottom of both faces
+xhole_x = 100;                   // wire hole through the bar's solid right end: back bundle -> front
 a3144   = [4.5, 3.6, 1.9];       // pocket for the A3144 body (x, y, z)
 
 base_y  = -(ceil(R_sweep) + 3 + 25);   // top of the base board (-115)
@@ -88,6 +92,17 @@ horn_x  = -(board_w/2 + boss_l) + horn_pocket_d - 0.5;  // board-side face of th
 x_left  = horn_x - servo_flange_to_horn + up_t;          // inner face of left upright
 pin_d   = 8;
 
+// ---- screw-free joints (v2) ----
+peg_d   = 3.6;  peg_h = 3.5;  peg_hole = 3.9;   // board halves: pegs on the left side, holes on the right
+clip_y  = 48;   clip_w = 8;   clip_reach = 12;  // 4 snap clips over the board's side edges
+clip_t  = 1.6;  clip_bump = 0.6;
+lock_d  = 3.5;  lock_hole = 3.8;                 // lock pins (sensor bar)
+strap_w = 8;    strap_t = 2.2;                    // servo strap
+strap_z0 = 13.6;                                  // inner face of the strap legs (servo is +-10)
+slot_z0 = 12.0; slot_z1 = 16.0;                   // strap slots through the left upright
+sock_h  = 12;   sock_wall = 3;  sock_fl = 12;     // foot sockets: height, wall, glue flange
+tongue_l = 4.6; tongue_z = 4;  tongue_h = 16;    // sensor bar end tongues
+
 // ---- electronics on the base (LAFVIN kit). Measure yours! ----
 esp_l = 51.5;  esp_w = 28.4;  esp_pcb = 1.6;   // ESP32 DevKit V1 30-pin board
 esp_hole_d = 3.0;  esp_hole_in = 2.6;          // corner holes: diameter, centre inset from the edges
@@ -95,7 +110,8 @@ esp_stand = 18;                                 // header pins point down: room 
 bb = [165, 10, 55];                             // 830-point breadboard (x, height, z)
 base_d0 = 70;  base_d1 = -135;                  // base board front / back edge (z)
 bb_pos  = [-145, base_d1 + 6];                  // breadboard corner (x, z)
-esp_pos = [60, base_d1 + 30];                   // ESP32 holder centre (x, z), USB end faces +x
+esp_pos = [-124.5, -103];                       // ESP32 centre (x, z): plugged into the breadboard's left end, USB to the left
+batt = [28, -131, 62, 58, 15];                  // 4 x AA holder for the servo: x, z, length, depth, height
 
 
 function rowy(r) = -rows_h/2 + 0.5 + coin_d/2 + r*coin_d;
@@ -181,10 +197,30 @@ module core_half() {   // one half of the whole board, ends included
     translate([board_w/2+boss_l+0.01, 0, 0]) rotate([0,-90,0]) cylinder(d1=pin_d+2.6, d2=pin_d+0.6, h=1);
     for (sg=[-1,1]) translate([sg*(board_w/2+boss_l+0.01), 0, 0]) rotate([0, sg*-90, 0]) translate([0,0,-0.01])
       linear_extrude(horn_pocket_d+0.01) horn_outline(0.3);
-    // M3 bolts joining the two halves (heads and nuts sit in hex recesses)
-    for (sg=[-1,1], yy=[-50,-20,20,50,-80,80]) translate([sg*(inner_w/2+side/2), yy, -1]) {
-      cylinder(d=3.3, h=20);
-      translate([0,0,1+zf-1.6]) cylinder(d=6.4, h=5, $fn=6);
+    // peg holes on the right side (the other half's pegs go in here)
+    for (yy=[-80,-20,20,80]) translate([inner_w/2+side/2, yy, -0.01]) {
+      cylinder(d=peg_hole, h=peg_h+0.5);
+      cylinder(d1=peg_hole+0.8, d2=peg_hole, h=0.4);
+    }
+    // grooves for the snap clips' bumps, both sides
+    for (sg=[-1,1], e=[-1,1]) translate([sg*(board_w/2-clip_reach+1.1), e*clip_y, zf-clip_bump-0.2]) cube([2.4, clip_w+1, 2], center=true);
+  }
+  // pegs on the left side, pointing at the other half
+  for (yy=[-80,-20,20,80]) translate([-(inner_w/2+side/2), yy, -peg_h]) {
+    translate([0,0,0.6]) cylinder(d=peg_d, h=peg_h);
+    cylinder(d1=peg_d-1, d2=peg_d, h=0.6);
+  }
+}
+
+// snap clip over a side edge of the board (print 4). Local: board edge at x=0, board between z=+-zf.
+module board_clip() {
+  difference() {
+    union() {
+      translate([0, -clip_w/2, -zf-clip_t]) cube([clip_t+0.6, clip_w, 2*zf+2*clip_t]);          // back
+      for (sg=[-1,1]) translate([-clip_reach, -clip_w/2, sg>0 ? zf : -zf-clip_t]) cube([clip_reach+0.6, clip_w, clip_t]);  // arms
+      // bumps at the arm tips, with a ramp so it slides on
+      for (sg=[-1,1]) translate([-clip_reach, clip_w/2, sg*zf]) rotate([90,0,0]) linear_extrude(clip_w)
+        polygon(sg>0 ? [[0,0],[2,0],[0.6,-clip_bump],[0,-clip_bump]] : [[0,0],[2,0],[0.6,clip_bump],[0,clip_bump]]);
     }
   }
 }
@@ -220,16 +256,21 @@ module entry_bar() {
       }
       for (s=[-1,1]) translate([colx(c)-a3144[0]/2, sens_y-a3144[1]/2, s>0 ? throat/2+sens_wall : -bar_z-1])
         cube([a3144[0], a3144[1], bar_z - throat/2 - sens_wall + 1]);
-      for (s=[-1,1]) translate([colx(c)-2.5, bar_y0-1, s>0 ? bar_z-1.5 : -bar_z-1]) cube([5, sens_y-bar_y0+1, 2.5]);
+      // leg channel: from the sensor pocket straight down into the trench, open to the face
+      for (s=[-1,1]) translate([colx(c)-2.3, trench_y0, s>0 ? throat/2+sens_wall : -bar_z-1]) cube([4.6, sens_y-trench_y0, bar_z - throat/2 - sens_wall + 1]);
     }
-    for (s=[-1,1]) translate([-bar_w/2-1, bar_y0-0.01, s>0 ? bar_z-1.5 : -bar_z-1]) cube([bar_w+2, 4, 2.5]);
+    // wire trench along the bottom of the front and back faces, open at the right end
+    for (s=[-1,1]) translate([-bar_w/2+4, trench_y0, s>0 ? bar_z-trench_d : -bar_z-1]) cube([bar_w, trench_y1-trench_y0, trench_d+1]);
+    // hole through the solid right end: the back bundle comes through here to the front
+    translate([xhole_x, (trench_y0+trench_y1)/2, -bar_z-1]) cylinder(d=6, h=2*bar_z+2);
     // small bevel on the bottom edges, where the coin leaves the bar
     for (c=[0:6]) translate([colx(c), bar_y0, 0]) rotate([0,0,0]) hull() {
       translate([-col_w/2, -0.01, -throat/2-0.8]) cube([col_w, 0.01, throat+1.6]);
       translate([-col_w/2, 0.8, -throat/2]) cube([col_w, 0.01, throat]);
     }
-    for (s=[-1,1], yy=[bar_y0+7, bar_y0+21]) translate([s*(bar_w/2+1), yy, 0]) rotate([0,90,0]) translate([0,0,-12]) cylinder(d=2.5, h=12);
   }
+  // tongues at both ends: they drop into the slots in the uprights' ears
+  for (s=[-1,1]) translate([s>0 ? bar_w/2-0.5 : -bar_w/2-tongue_l, bar_y0, -tongue_z]) cube([tongue_l+0.5, tongue_h, 2*tongue_z]);
 }
 
 // ================= uprights =================
@@ -246,10 +287,10 @@ module up_cutouts() {
     translate([band[0], -100]) square([band[1]-band[0], 200]);
   }
 }
-wire_d = 3;   // depth of the cable channels
-module wire_path() {   // 4 mm wide channel, 2.5 mm in from the back edge, full height
+wire_d = 4;   // depth of the cable channels
+module wire_path() {   // 6 mm wide channel, 2.5 mm in from the back edge, full height
   intersection() {
-    difference() { offset(delta=-2.5) up_profile(); offset(delta=-6.5) up_profile(); }
+    difference() { offset(delta=-2.5) up_profile(); offset(delta=-8.5) up_profile(); }
     translate([base_y-1, -100]) square([up_top-base_y+2, 100-12]);
   }
 }
@@ -263,21 +304,28 @@ module upright_body(xi, outward) {
   }
   ear_x0 = outward>0 ? bar_w/2 : xi;
   ear_x1 = outward>0 ? xi : -bar_w/2;
-  translate([ear_x0, bar_y0+2, -10]) cube([ear_x1-ear_x0+0.01, bar_h-4, 20]);
+  difference() {
+    translate([ear_x0, bar_y0-4, -10]) cube([ear_x1-ear_x0+0.01, bar_h+2, 20]);
+    // slot, open at the top and on the board side: the bar's tongue drops in
+    translate([outward>0 ? bar_w/2-1 : -bar_w/2-tongue_l-fit, bar_y0-fit, -tongue_z-fit/2]) cube([tongue_l+fit+1, 100, 2*tongue_z+fit]);
+    // right side only: the sensor bundle leaves the front trench through the front cheek...
+    if (outward>0) translate([bar_w/2-1, trench_y0, tongue_z]) cube([xi-bar_w/2+2, trench_y1-trench_y0, 7]);
+    // lock pin goes through both cheeks, just above the tongue
+    translate([outward>0 ? bar_w/2+2.6 : -bar_w/2-2.6, bar_y0+tongue_h+fit+lock_hole/2, -11]) cylinder(d=lock_hole, h=22);
+  }
 }
 module upright_right() {
   difference() {
     union() {
       upright_body(x_right, 1);
-      translate([x_right+0.01, 0, 0]) rotate([0,-90,0]) {
-        cylinder(d=pin_d, h=x_right-(board_w/2-2));
-        cylinder(d1=pin_d+4, d2=pin_d, h=2);          // fillet at the root: stronger pin
-      }
+      translate([x_right+0.01, 0, 0]) rotate([0,90,0]) cylinder(d=pin_d+8, h=up_t-0.02);   // solid round around the hole
     }
-    // chamfered pin tip
-    translate([board_w/2-2-0.01, 0, 0]) rotate([0,90,0]) difference() { cylinder(d=pin_d+2, h=1); cylinder(d1=pin_d-1.6, d2=pin_d, h=1); }
-    for (yy=[bar_y0+7, bar_y0+21]) translate([bar_w/2-1, yy, 0]) rotate([0,90,0]) cylinder(d=3.3, h=40);
-    for (zz=[-17,17]) translate([x_right-1, base_y+12, zz]) rotate([0,90,0]) cylinder(d=3.3, h=20);
+    // ...goes through the upright here, then along a groove on the outer face to the cable channel
+    translate([x_right-1, trench_y0, tongue_z+0.5]) cube([up_t+2, trench_y1-trench_y0, 5]);
+    translate([x_right+up_t-wire_d, trench_y0, -up_wt]) cube([wire_d+1, trench_y1-trench_y0, up_wt+tongue_z+5.5]);
+    // hole for the axle pin: snug, the pin is pushed in from outside
+    translate([x_right-1, 0, 0]) rotate([0,90,0]) cylinder(d=pin_d+0.15, h=up_t+2);
+    translate([x_right+up_t-0.6, 0, 0]) rotate([0,90,0]) cylinder(d1=pin_d+0.15, d2=pin_d+1.4, h=0.61);
   }
 }
 module upright_left() {
@@ -285,41 +333,68 @@ module upright_left() {
   difference() {
     upright_body(x_left, -1);
     translate([sx-1, -servo_spline_off-fit, -servo_w/2-fit]) cube([up_t+2, servo_l+2*fit, servo_w+2*fit]);
-    for (sg=[-1,1], zz=[-servo_hole_gap/2, servo_hole_gap/2])  // slotted, so any MG996R clone fits
-      hull() for (e=[0, servo_hole_slot/2]) translate([sx-1, -servo_spline_off+servo_l/2+sg*(servo_hole_pitch/2+e), zz]) rotate([0,90,0]) cylinder(d=2.8, h=up_t+2);
-    for (yy=[bar_y0+7, bar_y0+21]) translate([-bar_w/2-40, yy, 0]) rotate([0,90,0]) cylinder(d=3.3, h=41);
-    for (zz=[-17,17]) translate([sx-1, base_y+12, zz]) rotate([0,90,0]) cylinder(d=3.3, h=20);
+    // two slots for the servo strap's snap legs (no screws through the flanges)
+    for (sg=[-1,1]) translate([sx-1, servo_yc-strap_w/2-fit, sg>0 ? slot_z0 : -slot_z1]) cube([up_t+2, strap_w+2*fit, slot_z1-slot_z0]);
   }
 }
 
-// ================= ESP32 holder =================
-// Flat plate with 4 standoffs. The board sits pins-down, screwed with 4 x M2.5 x 6 (or melted in
-// with a hot pin if the holes are smaller). Two M3 / wood screws hold the plate on the base.
-module esp32_holder() {
-  pl = esp_l + 14;  pw = esp_w + 14;  t = 2.5;
-  hx = esp_l/2 - esp_hole_in;  hz = esp_w/2 - esp_hole_in;
+servo_yc = -servo_spline_off + servo_l/2;   // middle of the servo body (y)
+
+// ================= servo strap (print 1) =================
+// A U that hugs the bottom of the servo; its two legs go through the slots in the left upright
+// and click behind its inner face. Squeeze the two hooks together to take the servo out.
+// Local coords = assembly coords.
+module servo_strap() {
+  xb = sx_out - servo_case_below_flange;          // bottom of the servo case
+  translate([0, servo_yc-strap_w/2, 0]) multmatrix(M_XZY) linear_extrude(strap_w) {
+    // (x, z) profile
+    translate([xb-strap_t, -(strap_z0+strap_t)]) square([strap_t, 2*(strap_z0+strap_t)]);     // bottom beam
+    translate([xb-0.4, -6]) square([0.4+0.01, 12]);                                           // pad: presses the servo 0.4 mm
+    for (sg=[-1,1]) {
+      z_in = strap_z0; z_out = strap_z0+strap_t;
+      translate([xb-strap_t, sg>0 ? z_in : -z_out]) square([x_left+2.5-(xb-strap_t), strap_t]);   // leg
+      // hook: ramp on the way in, flat face catches the inner face of the upright
+      polygon(sg>0 ? [[x_left+0.2, z_out-0.01],[x_left+0.2, z_out+1.2],[x_left+2.5, z_out-0.01]]
+                   : [[x_left+0.2, -z_out+0.01],[x_left+0.2, -z_out-1.2],[x_left+2.5, -z_out+0.01]]);
+    }
+  }
+}
+
+// ================= foot socket (print 2) =================
+// A frame stuck to the base board (double-sided mounting tape or hot glue). The upright stands
+// in it on the base board itself. Same part both sides. Local: upright centred at x=0, z=0.
+module foot_socket() {
   difference() {
     union() {
-      translate([-pl/2, -pw/2, 0]) linear_extrude(t) rr2(pl, pw, 4);
-      for (x=[-hx,hx], z=[-hz,hz]) translate([x, z, 0]) cylinder(d=esp_hole_d+3.4, h=esp_stand);
+      translate([0,0,0]) linear_extrude(sock_h) offset(r=sock_wall+fit) square([up_t, 2*up_wb], center=true);
+      linear_extrude(2) offset(r=sock_wall+sock_fl) square([up_t, 2*up_wb], center=true);
     }
-    for (x=[-hx,hx], z=[-hz,hz]) translate([x, z, 1]) cylinder(d=esp_hole_d-0.8, h=esp_stand);  // M2.5 self-tap pilot
-    for (x=[-pl/2+4, pl/2-4]) translate([x, 0, -1]) cylinder(d=3.4, h=t+2);                    // to the base
-    translate([-esp_l/2+8, -esp_w/2+6, -1]) cube([esp_l-16, esp_w-12, t+2]);                   // saves plastic
+    translate([0,0,-1]) linear_extrude(sock_h+2) offset(delta=fit) square([up_t, 2*up_wb], center=true);
+    // notches so the cable channel (back edge, outer face) can leave at the bottom: both sides
+    for (sg=[-1,1]) translate([sg*(up_t/2+fit+sock_wall/2), -up_wb+5.5, sock_h/2+2]) cube([sock_wall+2, 7, sock_h], center=true);
+  }
+}
+
+// ================= small pins =================
+module axle_pin() {   // right pivot: pushed through the right upright into the board's right boss
+  L = (x_right+up_t) - (board_w/2-2);
+  cylinder(d=pin_d+6, h=1.6);                                     // head
+  translate([0,0,1.6]) cylinder(d=pin_d, h=L-1);
+  translate([0,0,1.6+L-1]) cylinder(d1=pin_d, d2=pin_d-1.6, h=1);
+  // three crush ribs for a tight fit in the upright only
+  for (a=[0,120,240]) rotate([0,0,a]) translate([pin_d/2-0.2, -0.4, 1.6]) cube([0.45, 0.8, up_t-0.5]);
+}
+module lock_pin() {   // sensor bar: pushed front-to-back through the ear, above the bar's tongue
+  difference() {
+    union() {
+      cylinder(d=lock_d+3.5, h=1.5);
+      translate([0,0,1.5]) cylinder(d=lock_d, h=20.5);
+      translate([0,0,22]) cylinder(d1=lock_d, d2=lock_d-1, h=0.8);
+    }
   }
 }
 
 // ================= small parts =================
-module bracket() {  // L-bracket with a gusset (print 4): x = away from the upright, y = up
-  difference() {
-    union() {
-      cube([3, 20, 18]); cube([20, 3, 18]);
-      translate([0,0,6]) linear_extrude(6) polygon([[0,0],[16,0],[0,16]]);
-    }
-    translate([-1, 12, 9]) rotate([0,90,0]) cylinder(d=3.3, h=5);         // M3 into the upright
-    translate([13, -1, 9]) rotate([-90,0,0]) cylinder(d=3.5, h=5);        // wood screw into the base
-  }
-}
 module tray() {  // catches the coins when the bottom gate opens
   w = board_w + 2; d = 60; h = 22;
   difference() {
@@ -344,7 +419,7 @@ module sensor_test() {  // one column of the entry bar + 60 mm of slot: test mag
 // ================= assembly preview =================
 module assembly(angle=0) {
   rotate([angle,0,0]) {
-    color("#4a7bd1") { core_half(); mirror([0,0,1]) core_half(); }
+    color("#4a7bd1") { core_half(); rotate([0,180,0]) core_half(); }
     
     color("#e7e7e7") { translate([0, rows_h/2+fit/2, 0]) gate(); mirror([0,1,0]) translate([0, rows_h/2+fit/2, 0]) gate(); }
     for (c=[0:6], r=[0:2]) {
@@ -369,10 +444,13 @@ if (part=="gate") rotate([90,0,0]) translate([0,-fit/2,0]) gate();
 if (part=="entry_bar") translate([0,0,-bar_y0]) rotate([90,0,0]) entry_bar();
 if (part=="upright_left") translate([0,0,-(x_left-up_t)]) rotate([0,-90,0]) upright_left();
 if (part=="upright_right") translate([0,0,x_right+up_t]) rotate([0,90,0]) upright_right();
-if (part=="bracket") bracket();
+if (part=="board_clip") translate([0,0,clip_w/2]) rotate([90,0,0]) board_clip();
+if (part=="servo_strap") translate([0,0,-(servo_yc-strap_w/2)]) rotate([90,0,0]) servo_strap();
+if (part=="foot_socket") foot_socket();
+if (part=="axle_pin") axle_pin();
+if (part=="lock_pin") lock_pin();
 if (part=="tray") rotate([90,0,0]) tray();
 if (part=="sensor_test") rotate([90,0,0]) sensor_test();
-if (part=="esp32_holder") esp32_holder();
 
 // pieces in assembly position, for the 3D viewer and the assembly guide
 module m3(len, head=true) { cylinder(d=3, h=len); if (head) translate([0,0,-2.8]) cylinder(d=5.5, h=2.8); }
@@ -393,15 +471,10 @@ if (part=="g_horn") {
   translate([horn_x, 0, 0]) rotate([0,-90,0]) { linear_extrude(horn_t) horn_outline(0); cylinder(d=horn_hub_d-1, h=horn_hub_h); }
 }
 if (part=="g_horn_screw") translate([horn_x, 0, 0]) rotate([0,-90,0]) translate([0,0,0]) m3(6);
-if (part=="g_servo_screws") for (yy=[-servo_spline_off+servo_l/2-servo_hole_pitch/2, -servo_spline_off+servo_l/2+servo_hole_pitch/2], zz=[-servo_hole_gap/2, servo_hole_gap/2]) {
-  translate([sx_out-2.5, yy, zz]) rotate([0,90,0]) m3(16);
-  translate([x_left, yy, zz]) rotate([0,90,0]) nut();
-}
+if (part=="g_strap") servo_strap();
 if (part=="g_core_front") core_half();
-if (part=="g_core_back") mirror([0,0,1]) core_half();
-if (part=="g_core_bolts") for (sg=[-1,1], yy=[-80,-50,-20,20,50,80]) translate([sg*(inner_w/2+side/2), yy, 0]) {
-  translate([0,0,zf-1.6]) mirror([0,0,1]) m3(12);
-  translate([0,0,-zf+1.6-2.4]) nut(); }
+if (part=="g_core_back") rotate([0,180,0]) core_half();   // the same print, turned over
+if (part=="g_clips") for (sg=[-1,1], e=[-1,1]) translate([sg*board_w/2, e*clip_y, 0]) mirror([sg>0?0:1,0,0]) board_clip();
 if (part=="g_gate_top") translate([0, rows_h/2, 0]) gate();
 if (part=="g_gate_bot") rotate([180,0,0]) translate([0, rows_h/2, 0]) gate();
 if (part=="g_magnets") for (c=[0:6], r=[0:2]) if (c!=6 || r<1) translate([colx(c), rowy(r), coin_t/2-mag_h]) cylinder(d=mag_d, h=mag_h);
@@ -409,32 +482,36 @@ if (part=="g_red")    for (c=[0:6], r=[0:2]) if ((c+r)%2==0 && (c!=6 || r<1)) tr
 if (part=="g_yellow") for (c=[0:6], r=[0:2]) if ((c+r)%2==1 && (c!=6 || r<1)) translate([colx(c), rowy(r), -coin_t/2]) coin();
 if (part=="g_upl") upright_left();
 if (part=="g_upr") upright_right();
-if (part=="g_brk_l") for (zz=[-17,17]) translate([x_left-up_t, base_y, zz-9]) mirror([1,0,0]) bracket();
-if (part=="g_brk_r") for (zz=[-17,17]) translate([x_right+up_t, base_y, zz-9]) bracket();
-if (part=="g_brk_screws") for (sg=[-1,1], zz=[-17,17]) {
-  xo = sg>0 ? x_right+up_t : x_left-up_t;
-  translate([xo + sg*3, base_y+12, zz]) rotate([0, sg>0?-90:90, 0]) m3(12);
-  translate([xo + sg*13, base_y+3, zz]) rotate([90,0,0]) m3(12);
-  translate([xo - sg*(up_t+0.01), base_y+12, zz]) rotate([0, sg>0?-90:90, 0]) nut();
-}
+if (part=="g_sock_l") translate([x_left-up_t/2, base_y, 0]) multmatrix(M_XZY) foot_socket();
+if (part=="g_sock_r") translate([x_right+up_t/2, base_y, 0]) multmatrix(M_XZY) foot_socket();
+if (part=="g_axle_pin") translate([x_right+up_t, 0, 0]) rotate([0,-90,0]) axle_pin();
 if (part=="g_bar") entry_bar();
-if (part=="g_sensors") for (c=[0:6], sg=[-1,1]) translate([colx(c)-2, sens_y-1.5, sg>0 ? throat/2+sens_wall : -throat/2-sens_wall-1.5]) cube([4,3,1.5]);
-if (part=="g_bar_screws") for (sg=[-1,1], yy=[bar_y0+7, bar_y0+21]) translate([sg>0 ? x_right+up_t : x_left-up_t, yy, 0]) rotate([0, sg>0?-90:90, 0]) m3(25);
+if (part=="g_sensors") for (c=[0:6], sg=[-1,1]) {
+  zf0 = throat/2+sens_wall;   // branded face sits here, against the thin wall
+  translate([colx(c), 0, 0]) mirror([0,0,sg>0?0:1]) {
+    translate([-2, sens_y-1.5, zf0]) cube([4, 3, 1.5]);                                    // A3144 body
+    for (k=[-1,0,1]) translate([k*1.27, 0, 0]) {
+      translate([-0.2, (trench_y0+trench_y1)/2, zf0+0.55]) cube([0.4, sens_y-1.5-(trench_y0+trench_y1)/2, 0.4]);   // leg down
+      translate([-0.2, (trench_y0+trench_y1)/2, zf0+0.55]) cube([0.4, 0.4, bar_z-trench_d/2-zf0-0.55]);          // bent out into the trench
+    }
+  }
+}
+if (part=="g_lock_pins") for (sg=[-1,1]) translate([sg*(bar_w/2+2.6), bar_y0+tongue_h+fit+lock_hole/2, -10-1.5]) lock_pin();
 if (part=="g_base") translate([-150, base_y-9, base_d1]) cube([300, 9, base_d0-base_d1]);
 if (part=="g_breadboard") translate([bb_pos[0], base_y, bb_pos[1]]) difference() {
   cube(bb);
   translate([4, bb[1]-0.6, bb[2]/2-1.5]) cube([bb[0]-8, 1, 3]);                       // centre channel
   for (i=[0:62], j=[0:4], k=[0,1]) translate([5+i*2.54, bb[1]-0.8, 7+j*2.54+k*(bb[2]-14-4*2.54)]) cube([1,1,1]);
 }
-if (part=="g_esp_holder") translate([esp_pos[0], base_y, esp_pos[1]]) multmatrix(M_XZY) esp32_holder();
-if (part=="g_esp32") translate([esp_pos[0], base_y+esp_stand, esp_pos[1]]) {
+if (part=="g_battery") translate([batt[0], base_y, batt[1]]) cube([batt[2], batt[4], batt[3]]);
+if (part=="g_esp32") translate([esp_pos[0], base_y+bb[1]+8.5, esp_pos[1]]) {   // plugged straight into the breadboard
   translate([-esp_l/2, 0, -esp_w/2]) cube([esp_l, esp_pcb, esp_w]);                    // PCB
-  translate([-esp_l/2+1, esp_pcb, -9]) cube([25.5, 3.2, 18]);                           // WROOM module (antenna end at -x)
-  translate([esp_l/2-5.5, esp_pcb, -4]) cube([6.5, 3, 8]);                              // micro-USB
-  for (sg=[-1,1]) translate([-esp_l/2+5, -8.5, sg*(esp_w/2-1.27)-1.25]) cube([15*2.54, 8.5, 2.5]); // header pins, down
+  translate([esp_l/2-26.5, esp_pcb, -9]) cube([25.5, 3.2, 18]);                         // WROOM module (antenna end at +x)
+  translate([-esp_l/2-1, esp_pcb, -4]) cube([6.5, 3, 8]);                               // micro-USB, facing the left edge
+  for (sg=[-1,1]) translate([-esp_l/2+6, -8.5, sg*12.7-1.25]) cube([15*2.54, 8.5, 2.5]);    // pin headers, into the breadboard
 }
 if (part=="g_tray") translate([0, base_y, 0]) tray();
-if (part=="asm_core") { core_half(); mirror([0,0,1]) core_half(); }
+if (part=="asm_core") { core_half(); rotate([0,180,0]) core_half(); }
 if (part=="asm_red")    for (c=[0:6], r=[0:2]) if ((c+r)%2==0 && (c!=6 || r<1)) translate([colx(c), rowy(r), -coin_t/2]) coin();
 if (part=="asm_yellow") for (c=[0:6], r=[0:2]) if ((c+r)%2==1 && (c!=6 || r<1)) translate([colx(c), rowy(r), -coin_t/2]) coin();
 if (part=="asm_bar") entry_bar();

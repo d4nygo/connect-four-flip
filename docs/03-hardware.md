@@ -304,6 +304,14 @@ Designed around the ordered parts (LAFVIN ESP32 DevKit V1 kit, HOTUT 13 kg 180°
   - **Base board 300 × 205 mm:** the extra depth behind the board holds the kit's 830-point breadboard (back-left) and the ESP32 holder (back-right, USB towards the right edge), out of the board's sweep.
   - **Servo flange holes are slots** (48.5 to 49.5 mm spacing) so any MG996R-size clone fits.
   - Still to check on the real parts: servo horn in the bag? sensor marking "3144" (switch) vs "49E" (linear)? servo turns 180°?
+- **v2 (26 Nov, Danny: "no screws"):** every screw replaced.
+  - Board halves: 4 printed pegs on the left side into 4 holes on the right (identical halves, the second one turned over), plus 4 snap `board_clip`s over the side edges at y = ±48 mm.
+  - Servo: the snug window stops it turning; a printed `servo_strap` hugs its bottom and its two hooks click behind the left upright. Horn screw optional.
+  - Uprights stand in 2 printed `foot_socket`s (floorless frames, stuck to the base with mounting tape or hot glue, last). The L-brackets are gone.
+  - Right pivot: a separate push-in `axle_pin` (8 mm, crush ribs in the upright, turns freely in the board).
+  - Sensor bar: end tongues drop into open-top slots in the ears; one `lock_pin` per side.
+  - Sensors 12 mm above the bar bottom; leg channel under each pocket; 6.5 × 4 mm wire trench along both faces; 6 mm hole at x = 100 brings the back row forward; bundle exits through the right ear and upright onto a groove to the back-edge channel (now 6 × 4 mm).
+  - ESP32 plugs straight into the breadboard (holder dropped); 4×AA holder area kept clear at the back right.
 - **Test order:** sensor_test + one sensor (50 drops each way round) → servo end points → board with coins flipped by hand → full stand.
 
 ## Shopping list
