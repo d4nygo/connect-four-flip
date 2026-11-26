@@ -309,7 +309,7 @@ module upright_body(xi, outward) {
     // slot, open at the top and on the board side: the bar's tongue drops in
     translate([outward>0 ? bar_w/2-1 : -bar_w/2-tongue_l-fit, bar_y0-fit, -tongue_z-fit/2]) cube([tongue_l+fit+1, 100, 2*tongue_z+fit]);
     // right side only: the sensor bundle leaves the front trench through the front cheek...
-    if (outward>0) translate([bar_w/2-1, trench_y0, tongue_z]) cube([xi-bar_w/2+2, trench_y1-trench_y0, 7]);
+    if (outward>0) translate([bar_w/2-1, trench_y0, tongue_z]) cube([xi-bar_w/2+2, trench_y1-trench_y0+2.5, 7]);
     // lock pin goes through both cheeks, just above the tongue
     translate([outward>0 ? bar_w/2+2.6 : -bar_w/2-2.6, bar_y0+tongue_h+fit+lock_hole/2, -11]) cylinder(d=lock_hole, h=22);
   }
@@ -321,8 +321,8 @@ module upright_right() {
       translate([x_right+0.01, 0, 0]) rotate([0,90,0]) cylinder(d=pin_d+8, h=up_t-0.02);   // solid round around the hole
     }
     // ...goes through the upright here, then along a groove on the outer face to the cable channel
-    translate([x_right-1, trench_y0, tongue_z+0.5]) cube([up_t+2, trench_y1-trench_y0, 5]);
-    translate([x_right+up_t-wire_d, trench_y0, -up_wt]) cube([wire_d+1, trench_y1-trench_y0, up_wt+tongue_z+5.5]);
+    translate([x_right-1, trench_y0, 3]) cube([up_t+2, trench_y1-trench_y0+2.5, 7.5]);   // 9 x 7.5 mm: room for 18 thin wires
+    translate([x_right+up_t-wire_d, trench_y0, -up_wt]) cube([wire_d+1, trench_y1-trench_y0+2.5, up_wt+10.5]);
     // hole for the axle pin: snug, the pin is pushed in from outside
     translate([x_right-1, 0, 0]) rotate([0,90,0]) cylinder(d=pin_d+0.15, h=up_t+2);
     translate([x_right+up_t-0.6, 0, 0]) rotate([0,90,0]) cylinder(d1=pin_d+0.15, d2=pin_d+1.4, h=0.61);
