@@ -4,6 +4,13 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-26 · Model matched to the parts we bought
+
+- **(default) ESP32 on a printed holder with 18 mm posts, beside the breadboard,** not plugged into it: the 30-pin DevKit covers every hole on one side of an 830-point breadboard.
+- **(default) Base board grows to 300 × 205 mm,** electronics at the back, outside the board's sweep.
+- **(default) Servo flange holes slotted** for 48.5 to 49.5 mm spacing.
+- **Open:** the sensor bag says "A3144 Linearer". The A3144 is an on/off switch; a linear sensor (49E) gives an analog voltage and changes the wiring. Read the marking on one sensor.
+
 ### 2026-11-26 · Gates slide side to side (Danny)
 
 - **Gates slide sideways like the shop game's slider** (slotted ladder strip), not front to back. Why (Danny): a front-to-back gate could slide open by gravity while the board turns; a sideways gate moves along the flip axle, where gravity never pulls.

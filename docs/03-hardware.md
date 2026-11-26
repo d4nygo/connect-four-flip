@@ -299,6 +299,11 @@ Designed around the ordered parts (LAFVIN ESP32 DevKit V1 kit, HOTUT 13 kg 180°
   - **Servo joint:** the 2-arm horn sits in a horn-shaped pocket (3.5 mm deep) in the board's boss; no screws between horn and board (they couldn't be reached once assembled). The board is trapped between the uprights (≤ 1 mm side play). Horn size is parametric (`horn_*`): measure it.
   - **Cable channels:** 4 × 3 mm channel along the back edge of each upright's outer face; sensor wires run in grooves along the sensor bar.
   - Assembly guide with every part and screw, plus a simulation of a round: Danny's artifact "Flip Board Assembly".
+- **v1.3 (26 Nov, matched to the parts we bought):**
+  - **ESP32 holder** (`esp32_holder`, printed): plate with 4 posts 18 mm tall for the LAFVIN ESP32 DevKit V1 30-pin (board ~51.5 × 28.4 mm, holes ~Ø3 mm, 2.6 mm from the edges: measure, the numbers are `esp_*` in the model). Pins point down so dupont plugs fit underneath; the 30-pin board is too wide for a single breadboard.
+  - **Base board 300 × 205 mm:** the extra depth behind the board holds the kit's 830-point breadboard (back-left) and the ESP32 holder (back-right, USB towards the right edge), out of the board's sweep.
+  - **Servo flange holes are slots** (48.5 to 49.5 mm spacing) so any MG996R-size clone fits.
+  - Still to check on the real parts: servo horn in the bag? sensor marking "3144" (switch) vs "49E" (linear)? servo turns 180°?
 - **Test order:** sensor_test + one sensor (50 drops each way round) → servo end points → board with coins flipped by hand → full stand.
 
 ## Shopping list

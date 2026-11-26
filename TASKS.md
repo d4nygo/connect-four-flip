@@ -27,6 +27,7 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [ ] After a Skip, is the one flip used up? (default: no, raised 4 Nov)
 - [ ] todo · Book the 3D-printer safety course (OpenLab) or contact the TED Laboratory (Bovisa)
 - [ ] todo · Breadboard test: one A3144 on the ESP32 with a magnet in a printed coin through `sensor_test`, 50 drops each way round
+- [ ] todo · Check the bought parts: horn in the servo bag? sensor marking 3144 or 49E? ESP32 hole spacing (`esp_*` in the model)
 - [ ] todo · Measure the servo (flange to horn face) and its real 0°/180° pulse values; update `cad/flip_board.scad`
 - [ ] todo · Team OK on printed 24 mm coins (concept v0, 24 Nov)
 - [x] Mechanical concept v0 + parametric model (`cad/flip_board.scad`) (Claude for Danny, 2026-11-24)

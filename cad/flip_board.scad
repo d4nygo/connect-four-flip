@@ -26,6 +26,7 @@ servo_w        = 20.0;   // body width
 servo_l        = 40.5;   // body length (without flanges)
 servo_hole_pitch = 48.5; // flange screw holes, centre to centre along the length
 servo_hole_gap   = 10.0; // flange screw holes, across the width
+servo_hole_slot  = 1.0;  // holes are slots: fit any spacing from 48.5 to 49.5 mm
 servo_spline_off = 10.2; // spline centre to the near end of the body
 servo_flange_to_horn = 16.5; // flange top surface to the outer face of the 2-arm horn
 servo_case_above_flange = 9.2;  // flange top surface to the top of the case
@@ -86,6 +87,15 @@ x_right = board_w/2 + boss_l + 3;       // inner face of right upright
 horn_x  = -(board_w/2 + boss_l) + horn_pocket_d - 0.5;  // board-side face of the horn (sits in the pocket)
 x_left  = horn_x - servo_flange_to_horn + up_t;          // inner face of left upright
 pin_d   = 8;
+
+// ---- electronics on the base (LAFVIN kit). Measure yours! ----
+esp_l = 51.5;  esp_w = 28.4;  esp_pcb = 1.6;   // ESP32 DevKit V1 30-pin board
+esp_hole_d = 3.0;  esp_hole_in = 2.6;          // corner holes: diameter, centre inset from the edges
+esp_stand = 18;                                 // header pins point down: room for dupont plugs
+bb = [165, 10, 55];                             // 830-point breadboard (x, height, z)
+base_d0 = 70;  base_d1 = -135;                  // base board front / back edge (z)
+bb_pos  = [-145, base_d1 + 6];                  // breadboard corner (x, z)
+esp_pos = [60, base_d1 + 30];                   // ESP32 holder centre (x, z), USB end faces +x
 
 
 function rowy(r) = -rows_h/2 + 0.5 + coin_d/2 + r*coin_d;
@@ -275,10 +285,27 @@ module upright_left() {
   difference() {
     upright_body(x_left, -1);
     translate([sx-1, -servo_spline_off-fit, -servo_w/2-fit]) cube([up_t+2, servo_l+2*fit, servo_w+2*fit]);
-    for (yy=[-servo_spline_off+servo_l/2-servo_hole_pitch/2, -servo_spline_off+servo_l/2+servo_hole_pitch/2], zz=[-servo_hole_gap/2, servo_hole_gap/2])
-      translate([sx-1, yy, zz]) rotate([0,90,0]) cylinder(d=2.8, h=up_t+2);
+    for (sg=[-1,1], zz=[-servo_hole_gap/2, servo_hole_gap/2])  // slotted, so any MG996R clone fits
+      hull() for (e=[0, servo_hole_slot/2]) translate([sx-1, -servo_spline_off+servo_l/2+sg*(servo_hole_pitch/2+e), zz]) rotate([0,90,0]) cylinder(d=2.8, h=up_t+2);
     for (yy=[bar_y0+7, bar_y0+21]) translate([-bar_w/2-40, yy, 0]) rotate([0,90,0]) cylinder(d=3.3, h=41);
     for (zz=[-17,17]) translate([sx-1, base_y+12, zz]) rotate([0,90,0]) cylinder(d=3.3, h=20);
+  }
+}
+
+// ================= ESP32 holder =================
+// Flat plate with 4 standoffs. The board sits pins-down, screwed with 4 x M2.5 x 6 (or melted in
+// with a hot pin if the holes are smaller). Two M3 / wood screws hold the plate on the base.
+module esp32_holder() {
+  pl = esp_l + 14;  pw = esp_w + 14;  t = 2.5;
+  hx = esp_l/2 - esp_hole_in;  hz = esp_w/2 - esp_hole_in;
+  difference() {
+    union() {
+      translate([-pl/2, -pw/2, 0]) linear_extrude(t) rr2(pl, pw, 4);
+      for (x=[-hx,hx], z=[-hz,hz]) translate([x, z, 0]) cylinder(d=esp_hole_d+3.4, h=esp_stand);
+    }
+    for (x=[-hx,hx], z=[-hz,hz]) translate([x, z, 1]) cylinder(d=esp_hole_d-0.8, h=esp_stand);  // M2.5 self-tap pilot
+    for (x=[-pl/2+4, pl/2-4]) translate([x, 0, -1]) cylinder(d=3.4, h=t+2);                    // to the base
+    translate([-esp_l/2+8, -esp_w/2+6, -1]) cube([esp_l-16, esp_w-12, t+2]);                   // saves plastic
   }
 }
 
@@ -345,6 +372,7 @@ if (part=="upright_right") translate([0,0,x_right+up_t]) rotate([0,90,0]) uprigh
 if (part=="bracket") bracket();
 if (part=="tray") rotate([90,0,0]) tray();
 if (part=="sensor_test") rotate([90,0,0]) sensor_test();
+if (part=="esp32_holder") esp32_holder();
 
 // pieces in assembly position, for the 3D viewer and the assembly guide
 module m3(len, head=true) { cylinder(d=3, h=len); if (head) translate([0,0,-2.8]) cylinder(d=5.5, h=2.8); }
@@ -357,6 +385,8 @@ if (part=="g_servo") {
     for (yy=[servo_l/2 - servo_hole_pitch/2 + 7, servo_l/2 + servo_hole_pitch/2 + 7], zz=[servo_w/2-servo_hole_gap/2, servo_w/2+servo_hole_gap/2]) translate([-1,yy,zz]) rotate([0,90,0]) cylinder(d=3, h=5);
   }
   translate([sx_out + servo_case_above_flange, 0, 0]) rotate([0,90,0]) cylinder(d=12, h=1.5);
+  // 3-wire cable leaves the far end of the case, low down
+  translate([sx_out - servo_case_below_flange + 3, -servo_spline_off + servo_l - 1, -2.5]) cube([4, 25, 5]);
   translate([sx_out + servo_case_above_flange, 0, 0]) rotate([0,90,0]) cylinder(d=5.8, h=horn_x - horn_t - sx_out - servo_case_above_flange + 1);
 }
 if (part=="g_horn") {
@@ -390,7 +420,19 @@ if (part=="g_brk_screws") for (sg=[-1,1], zz=[-17,17]) {
 if (part=="g_bar") entry_bar();
 if (part=="g_sensors") for (c=[0:6], sg=[-1,1]) translate([colx(c)-2, sens_y-1.5, sg>0 ? throat/2+sens_wall : -throat/2-sens_wall-1.5]) cube([4,3,1.5]);
 if (part=="g_bar_screws") for (sg=[-1,1], yy=[bar_y0+7, bar_y0+21]) translate([sg>0 ? x_right+up_t : x_left-up_t, yy, 0]) rotate([0, sg>0?-90:90, 0]) m3(25);
-if (part=="g_base") translate([-150, base_y-9, -70]) cube([300, 9, 140]);
+if (part=="g_base") translate([-150, base_y-9, base_d1]) cube([300, 9, base_d0-base_d1]);
+if (part=="g_breadboard") translate([bb_pos[0], base_y, bb_pos[1]]) difference() {
+  cube(bb);
+  translate([4, bb[1]-0.6, bb[2]/2-1.5]) cube([bb[0]-8, 1, 3]);                       // centre channel
+  for (i=[0:62], j=[0:4], k=[0,1]) translate([5+i*2.54, bb[1]-0.8, 7+j*2.54+k*(bb[2]-14-4*2.54)]) cube([1,1,1]);
+}
+if (part=="g_esp_holder") translate([esp_pos[0], base_y, esp_pos[1]]) multmatrix(M_XZY) esp32_holder();
+if (part=="g_esp32") translate([esp_pos[0], base_y+esp_stand, esp_pos[1]]) {
+  translate([-esp_l/2, 0, -esp_w/2]) cube([esp_l, esp_pcb, esp_w]);                    // PCB
+  translate([-esp_l/2+1, esp_pcb, -9]) cube([25.5, 3.2, 18]);                           // WROOM module (antenna end at -x)
+  translate([esp_l/2-5.5, esp_pcb, -4]) cube([6.5, 3, 8]);                              // micro-USB
+  for (sg=[-1,1]) translate([-esp_l/2+5, -8.5, sg*(esp_w/2-1.27)-1.25]) cube([15*2.54, 8.5, 2.5]); // header pins, down
+}
 if (part=="g_tray") translate([0, base_y, 0]) tray();
 if (part=="asm_core") { core_half(); mirror([0,0,1]) core_half(); }
 if (part=="asm_red")    for (c=[0:6], r=[0:2]) if ((c+r)%2==0 && (c!=6 || r<1)) translate([colx(c), rowy(r), -coin_t/2]) coin();
