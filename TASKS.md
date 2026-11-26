@@ -48,8 +48,8 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [x] done (Danny, 2026-10-07) · Added `rikosyaa` and `Gilgamesh-Plan` as collaborators
 - [ ] todo · Ask Polimi labs / course staff about borrowing parts and fab access
 - [ ] todo · Everyone: Arduino IDE installed, Blink uploaded
-- [ ] todo · Buy remaining electronics: 4 × AA holder with switch + NiMH AAs, WS2812B strip, wire, 2nd breadboard (5 V 4 A adapter later) (docs/03-hardware.md → "Wiring: ESP32 DevKit V1")
-- [ ] todo · ESP32 bench tests in order: Blink → measure VIN → one A3144 on GPIO 32 (mark magnets' south face) → one column → servo on battery pack → LED strip
+- [ ] todo · Buy remaining electronics: 4 × AA holder with switch + AAs, multi-core wire for the 9-wire bundle, maybe a servo extension (5 V adapter later) (docs/03-hardware.md → "Wiring: ESP32 DevKit V1")
+- [ ] todo · ESP32 bench tests in order: Blink → measure battery rail → one A3144 on D23 (mark magnets' south face) → one column → all 7 → servo on battery rail
 - [ ] todo · Everyone: read docs/02-game-rules.md
 - [ ] todo · Buy the Connect Four game and parts (docs/03-hardware.md)
 - [ ] todo · Measure the coins (diameter, thickness) and the column pitch; they size the grid and gates
@@ -69,6 +69,9 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 ## Done
 
 - [x] done (Claude, 2026-11-26) · ESP32 DevKit V1 pin check, pin plan and power plan for the parts we bought
+- [x] done (Claude, 2026-11-26) · Wiring v3 (one breadboard side, no LEDs/buzzer) + 3D cable map with x-ray/exploded views
+- [ ] todo · Confirm which ESP32 side is free on the breadboard (3V3…D23 expected); update the Tinkercad circuit to the v3 pins
+- [ ] todo · Move cable routes onto the screw-free 3D model when it is ready
 
 - [x] done (Claude, 2026-10-07) · Rules, flip and winner-after-flip rule designed; context docs and repo structure
 

@@ -4,6 +4,13 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-26 · Wiring v3: one breadboard side, no LEDs or buzzer (proposal, Claude for Danny)
+
+- **Only one side of the ESP32 can be wired** on our breadboard, so all pins move to the free side: columns 0–6 on D23, D22, D21, D19, D18, D5, TX2 (GPIO 17); servo on D4; free-side GND jumpered to the − rail. Replaces the GPIO 32…13 column pins below (Tinkercad to update). Free side to confirm on the real board.
+- **LED strip and buzzer removed** (Danny): the app shows everything. Reverses the 2026-11-04 "board LEDs flash" part; the app animation stays.
+- **Sensors now on the 4 × AA battery rail** (VIN is on the blocked side), together with the servo. ESP32 stays on the PC's USB; grounds joined. Untested on hardware.
+- 3D cable map: "Flip Board Cable Map" artifact; details in `docs/03-hardware.md`.
+
 ### 2026-11-26 · ESP32 DevKit V1 wiring and power plan (proposal, Claude for Danny)
 
 - **Pins:** columns 0–6 on GPIO 32, 33, 25, 26, 27, 14, 13 (same as the team's Tinkercad); flip servo GPIO 4; LED strip GPIO 18; buzzer GPIO 23. Strapping pins (2, 5, 12, 15) and USB serial (1, 3) unused. Details in `docs/03-hardware.md` → "Wiring: ESP32 DevKit V1". Replaces the Uno and ESP32-S3 pin tables.
