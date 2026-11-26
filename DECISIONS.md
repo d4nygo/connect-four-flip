@@ -4,6 +4,13 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-26 · Gates slide side to side (Danny)
+
+- **Gates slide sideways like the shop game's slider** (slotted ladder strip), not front to back. Why (Danny): a front-to-back gate could slide open by gravity while the board turns; a sideways gate moves along the flip axle, where gravity never pulls.
+- **(default) Servo horn drops into a horn-shaped pocket** in the board, no screws (they can't be reached once assembled).
+- **Leave cable channels in the model** (Danny): along the sensor bar and down both uprights.
+- **Open:** 14 sensors (2 per column, one magnet per coin) or 7 sensors with 2 magnets per coin (needs ~84 magnets). Waiting for the team.
+
 ### 2026-11-24 · 3D-printable stand, concept v0 (Claude, proposal for the team)
 
 - **(default) Printed 24 mm coins**, board ~215 × 171 mm, all parts within a 220 mm print bed. Why: Danny asked for a board smaller than the standard game, cheap and quick to print. Shop coins (~33 mm) would need a bigger board split into pieces.
