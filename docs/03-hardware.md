@@ -310,7 +310,7 @@ Replaces the Arduino Uno table and the ESP32-S3 table above. Readable version wi
 
 **Key facts about the parts**
 - **A3144 is a digital Hall switch, not analog** ("Linearer" on the Amazon label is wrong). Output is on/off, so analog pins and ADC2-vs-Wi-Fi don't matter: any normal pin works. It reacts only to a **south pole** on its printed face. Supply 4.5–24 V, so it can't reliably run on 3.3 V.
-- Its output is **open collector** (a switch to GND). Power the sensor from 5 V, pull the output up to **3V3** with 10 kΩ: the pin never sees more than 3.3 V. No level shifter. Two sensors (front and back wall of a column) can share one wire: either one pulls it LOW.
+- Its output is **open collector** (a switch to GND). Power the sensor from 5 V and wire the output **straight to the GPIO with `INPUT_PULLUP`** (the ESP32's built-in ~45 kΩ pull-up to 3.3 V): the pin never sees more than 3.3 V. **No resistors, no level shifter** (Danny 26 Nov: we have no resistors). Two sensors (front and back wall of a column) share one wire: either one pulls it LOW.
 - Legs with the printed face towards you: **1 = 5 V, 2 = GND, 3 = OUT**. Printed face points into the coin slot.
 - HOTUT servo: standard MG996R-type servo despite the "Power Function Motor" sticker. Brown = GND, red = +5 V, orange = signal. Needs ~500–2500 µs pulses for 180° (Tinkercad's 1000–2000 µs gives ~90°).
 
@@ -318,30 +318,28 @@ Replaces the Arduino Uno table and the ESP32-S3 table above. Readable version wi
 
 | ESP32 pin | Goes to |
 |---|---|
-| GPIO 34, 35, 32, 33, 25, 26, 27 | Columns 0 (left) to 6 (right). Each: both sensors' OUT joined + 10 kΩ to 3V3 (34/35 have no internal pull-up) |
+| GPIO 32, 33, 25, 26, 27, 14, 13 | Columns 0 (left) to 6 (right), same pins as the team's Tinkercad. Both sensors' OUT joined, straight to the pin, `INPUT_PULLUP` |
 | GPIO 4 | Flip servo signal (orange) |
-| GPIO 18 | WS2812B LED strip DIN, through 330 Ω |
+| GPIO 18 | WS2812B LED strip DIN (direct) |
 | GPIO 23 | Buzzer + |
 | VIN (≈4.7 V on USB) / GND | Sensor bar 5 V and GND buses (14 × A3144 ≈ 60–130 mA) |
-| 3V3 | The 7 pull-up resistors only |
 | GND | Common ground with the 5 V adapter's − |
-| Spare | GPIO 13, 16, 17, 19, 21, 22 (16/17 for gate servos if ever motorised; 21/22 for an I²C display) |
-| Use with care | GPIO 14 (pulses at boot), 36/VP and 39/VN (input only, glitch with Wi-Fi) |
+| Spare | GPIO 16, 17, 19, 21, 22 (16/17 for gate servos if ever motorised; 21/22 for an I²C display) |
+| Use with care | GPIO 14 (pulses at boot: fine for a sensor, never servo/LEDs); 34, 35, 36/VP, 39/VN (input only, no built-in pull-up, so unusable without resistors) |
 | Don't use | GPIO 1/3 (USB serial to ProtoPie Connect), 2, 5, 12, 15 (strapping pins; 12 held HIGH stops the board booting), EN |
 
-The team's Tinkercad circuit (sensors 13, 14, 27, 26, 25, 33, 32; servo 4) also works; the plan above moves 13/14 to 34/35 so the 7 columns are one row of the header and GPIO 14 is avoided.
 
-**Power: two supplies, one shared ground**
+**Power: two supplies, one shared ground** (a separate battery for the servo is fine, as a teammate's friend suggested)
 - **USB from the PC** → ESP32, plus the sensor bar through VIN. Measure VIN first: it must be ≥ 4.5 V for the A3144; if not, feed the bar from the 5 V adapter.
-- **5 V 4 A adapter** (barrel → screw terminal) → servo + LED strip only. Worst case ≈ 2.5 A servo stall + 0.9 A LEDs full white ≈ 3.4 A.
-- **1000 µF capacitor** across + and − next to the servo, stripe (−) to GND.
-- **Adapter − → ESP32 GND** (the only wire between them). Adapter + never touches the ESP32.
+- **Servo + LED strip supply**, pick one: **4 × AA NiMH pack (4.8 V)** with switch (recommended now); 4 × AA alkaline (6 V: servo OK, too high for the WS2812B, so the strip then goes on VIN, dim); USB power bank (may auto-switch-off); **5 V 4 A adapter** for the final demo. Not a 9 V battery or an unregulated LiPo. Worst case ≈ 2.5 A servo stall + 0.9 A LEDs full white.
+- **1000 µF capacitor** now optional (servo is on its own supply); add if the servo stutters, stripe (−) to GND.
+- **Battery/adapter − → ESP32 GND** (the only wire between them). Its + never touches the ESP32.
 - Why: the servo's current spikes would brown-out (reset) the ESP32 on a shared supply; the shared ground lets the servo understand the signal.
 - If the LED strip flickers with 3.3 V data: power the strip through a 1N4001 diode (≈4.3 V) so it accepts 3.3 V data.
 
-**Still to buy:** 5 V 4 A adapter + barrel-to-screw-terminal (~€12), 1000 µF 10–16 V cap (~€1), WS2812B strip 10–15 LEDs (~€5), ribbon/multi-core wire for the 9 bar wires (~€4), second breadboard (the DevKit is too wide for one, ~€3), optional 14 × 100 nF caps. 10 kΩ / 330 Ω resistors and buzzer: check the LAFVIN kit. Borrow a multimeter.
+**Still to buy:** 4 × AA holder with switch (~€3) + 4 NiMH AAs and charger (~€10–15, or borrow), WS2812B strip 10–15 LEDs (~€5), ribbon/multi-core wire for the 9 bar wires (~€4), second breadboard (the DevKit is too wide for one, ~€3). Later for the demo: 5 V 4 A adapter (~€12). No resistors or capacitors needed. Borrow a multimeter.
 
-**Test order:** Blink (data USB cable; CP2102/CH340 driver) → measure VIN → one A3144 + LED + 1 kΩ, no code, and mark each magnet's south face → one column (two sensors) → column into GPIO 34 with DigitalReadSerial → servo with ESP32Servo Sweep, small angles first → LED strip at low brightness.
+**Test order:** Blink (data USB cable; CP2102/CH340 driver) → measure VIN → one A3144 on GPIO 32 with DigitalReadSerial (`INPUT_PULLUP`), mark each magnet's south face → one column (two sensors on the same pin) → servo on the battery pack with ESP32Servo Sweep, small angles first → LED strip at low brightness.
 
 **7 sensors instead of 14?** Wiring stays 7 signal pins either way. Only 7 sensors with one magnet per coin would need an omnipolar sensor (e.g. DRV5032, AH180; runs on 3.3 V). Decided with the 3D model.
 
