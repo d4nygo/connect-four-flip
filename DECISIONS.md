@@ -4,6 +4,11 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-27 · Players choose the flip pattern (Danny)
+
+- **The players pick the pattern on the app before the game** (Box, T, L, Flat L, Zigzag, or Random), as in Danny's app prototype. Replaces "picked at random by the system" (4 Nov). `PATTERN` now goes from the app to the ESP32.
+- Flip or Skip: the rules still have Skip; the prototype shows only Flip. Open, see TASKS.
+
 ### 2026-11-27 · Print plan: 5 runs (Danny asked for the fewest print runs)
 
 - **All 60 pieces in 5 runs** on a 220 × 220 mm bed, plus a 2 h 37 min test run first (sensor test piece + 1 test coin, Danny): run 1 board half + 2 foot sockets, run 2 board half + 2 gates, run 3 left upright + 21 red coins, run 4 right upright + 21 yellow coins, run 5 sensor bar + tray + clips, straps, pins (spares included). About 48.5 h and 491 g PLA. 5 is the minimum: each board half and each upright fills a bed, and the bar (219 mm) fits beside none of them.
