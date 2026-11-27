@@ -6,7 +6,7 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ### 2026-11-27 · Print plan: 5 runs (Danny asked for the fewest print runs)
 
-- **All 60 pieces in 5 runs** on a 220 × 220 mm bed, plus a 2 h sensor test piece first: run 1 board half + 2 foot sockets, run 2 board half + 2 gates, run 3 left upright + 21 red coins, run 4 right upright + 21 yellow coins, run 5 sensor bar + tray + clips, straps, pins (spares included). About 48.5 h and 491 g PLA. 5 is the minimum: each board half and each upright fills a bed, and the bar (219 mm) fits beside none of them.
+- **All 60 pieces in 5 runs** on a 220 × 220 mm bed, plus a 2 h 37 min test run first (sensor test piece + 1 test coin, Danny): run 1 board half + 2 foot sockets, run 2 board half + 2 gates, run 3 left upright + 21 red coins, run 4 right upright + 21 yellow coins, run 5 sensor bar + tray + clips, straps, pins (spares included). About 48.5 h and 491 g PLA. 5 is the minimum: each board half and each upright fills a bed, and the bar (219 mm) fits beside none of them.
 - **(default) Uprights printed in red (left) and yellow (right)**, because the coins ride along in their corners. One run = one colour.
 - **(default) Clips and servo strap in PLA** on run 5 with spares; PETG only if they crack (replaces the earlier PETG default).
 - Per-object infill: big parts 20 % gyroid, coins/gates/clips/strap/pins 100 %; lock pins get a 3 mm brim; no skirt. Plate files (3MF) are in the project files, not in git.
