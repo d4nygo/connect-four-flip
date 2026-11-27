@@ -23,10 +23,18 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [ ] Polimi lab access: how to book laser cutter / 3D printer, and can we borrow Arduinos, servos, power supplies?
 - [x] Hardware approach approved by the professor (4 Nov); ESP32 instead of Arduino (18 Nov)
 - [ ] Final components list (professor, 4 Nov): Hall or reed sensors + magnets, ESP32 board, flip motor, gates by hand or servo
-- [ ] Gates by hand or by servo?
+- [ ] Gates by hand or by servo? (proposal 24 Nov: by hand, sliding plate with magnet click; team to confirm)
 - [ ] After a Skip, is the one flip used up? (default: no, raised 4 Nov)
 - [ ] todo · Book the 3D-printer safety course (OpenLab) or contact the TED Laboratory (Bovisa)
-- [ ] todo · Breadboard test: one Hall sensor (SS49E) on the ESP32 with a magnet in a coin, 50 drops
+- [ ] todo · Breadboard test: one A3144 on the ESP32 with a magnet in a printed coin through `sensor_test`, 50 drops each way round
+- [ ] todo · Check the bought parts: horn in the servo bag? sensor marking 3144 or 49E? ESP32 hole spacing (`esp_*` in the model)
+- [ ] todo · Measure the servo (flange to horn face) and its real 0°/180° pulse values; update `cad/flip_board.scad`
+- [ ] todo · Team OK on printed 24 mm coins (concept v0, 24 Nov)
+- [ ] todo · Send the design review file (`docs/design-review/flip-board-design-review.html`) to the professor for build approval (Danny)
+- [x] App prototype (Danny): pattern chosen before the game, Flip or Skip when it's made (`gui/Play_FLIP.html`, 27 Nov)
+- [ ] Uprights in red and yellow (saves 2 print runs) or grey (7 runs)? (Danny to confirm)
+- [x] Print plan: 5 runs + sensor test, plate 3MFs in project files `flip-board-cad/print-runs/` (Claude for Danny, 2026-11-27)
+- [x] Mechanical concept v0 + parametric model (`cad/flip_board.scad`) (Claude for Danny, 2026-11-24)
 - [x] Pattern made → board LEDs flash, app shows Flip or Skip; pattern picked at random by the system (Danny, 2026-11-04)
 - [x] Single player removed; two players + flip only (professor, class review 2026-10-28)
 - [x] Board size: standard 7×6 (Danny)

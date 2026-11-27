@@ -4,6 +4,57 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-27 · Players choose the flip pattern (Danny)
+
+- **The players pick the pattern on the app before the game** (Box, T, L, Flat L, Zigzag, or Random), as in Danny's app prototype. Replaces "picked at random by the system" (4 Nov). `PATTERN` now goes from the app to the ESP32.
+- **Skip stays** (Danny): the prototype's "Flip ready" screen now has Skip next to Flip. Skip passes the turn and keeps the game's one flip available; after a flip, no more flips. Prototype: `gui/Play_FLIP.html`.
+
+### 2026-11-27 · Print plan: 5 runs (Danny asked for the fewest print runs)
+
+- **All 60 pieces in 5 runs** on a 220 × 220 mm bed, plus a 2 h 37 min test run first (sensor test piece + 1 test coin, Danny): run 1 board half + 2 foot sockets, run 2 board half + 2 gates, run 3 left upright + 21 red coins, run 4 right upright + 21 yellow coins, run 5 sensor bar + tray + clips, straps, pins (spares included). About 48.5 h and 491 g PLA. 5 is the minimum: each board half and each upright fills a bed, and the bar (219 mm) fits beside none of them.
+- **(default) Uprights printed in red (left) and yellow (right)**, because the coins ride along in their corners. One run = one colour.
+- **(default) Clips and servo strap in PLA** on run 5 with spares; PETG only if they crack (replaces the earlier PETG default).
+- Per-object infill: big parts 20 % gyroid, coins/gates/clips/strap/pins 100 %; lock pins get a 3 mm brim; no skirt. Plate files (3MF) are in the project files, not in git.
+- Design review file for the professors (single self-contained HTML) made for approval to build.
+- **Print files and the review page are kept in git** (Danny, 27 Nov): STLs in `cad/stl/`, plates in `cad/print-runs/`, review page in `docs/design-review/`. This is an exception to the "no big binaries" rule; videos and other exports still stay out.
+- **Open: red/yellow uprights** are a proposal, not yet confirmed by Danny. Grey uprights would need 2 more runs (coins on their own plates).
+
+### 2026-11-27 · Fit check fixes (Danny asked for a clearance and cable audit)
+
+- **(default) Uprights 10 mm thick** (was 8) so the cable channels can be 5 mm deep; servo side geometry unchanged.
+- **(default) Thrust ring on the right upright**: board side play 0.8 mm, so the horn can't walk out of its pocket.
+- **(default) 26–28 AWG stranded wire** recommended for the sensor rows and bundle (jumper wires fit but fill channels ~50%).
+- **(default) Print clips and servo strap in PETG** if available.
+
+### 2026-11-26 · Screw-free stand (Danny)
+
+- **No screws anywhere** (Danny). Pegs + snap clips for the board halves, a snap strap for the servo, glued foot sockets for the uprights, a push-in axle pin, drop-in sensor bar with lock pins.
+- Sensors read "3144" (digital switch, Danny checked). The servo horn is in the bag.
+- **(default) Sensor rows are soldered on the table as strips** (bus wires for 5 V and GND, one OUT wire each), then pressed into the bar; front and back OUT wires are joined outside the right upright.
+- ESP32 plugs straight into the breadboard (wiring thread / Danny); the printed holder is dropped.
+
+### 2026-11-26 · Model matched to the parts we bought
+
+- **(default) ESP32 on a printed holder with 18 mm posts, beside the breadboard,** not plugged into it: the 30-pin DevKit covers every hole on one side of an 830-point breadboard.
+- **(default) Base board grows to 300 × 205 mm,** electronics at the back, outside the board's sweep.
+- **(default) Servo flange holes slotted** for 48.5 to 49.5 mm spacing.
+- **Open:** the sensor bag says "A3144 Linearer". The A3144 is an on/off switch; a linear sensor (49E) gives an analog voltage and changes the wiring. Read the marking on one sensor.
+
+### 2026-11-26 · Gates slide side to side (Danny)
+
+- **Gates slide sideways like the shop game's slider** (slotted ladder strip), not front to back. Why (Danny): a front-to-back gate could slide open by gravity while the board turns; a sideways gate moves along the flip axle, where gravity never pulls.
+- **(default) Servo horn drops into a horn-shaped pocket** in the board, no screws (they can't be reached once assembled).
+- **Leave cable channels in the model** (Danny): along the sensor bar and down both uprights.
+- **Open:** 14 sensors (2 per column, one magnet per coin) or 7 sensors with 2 magnets per coin (needs ~84 magnets). Waiting for the team.
+
+### 2026-11-24 · 3D-printable stand, concept v0 (Claude, proposal for the team)
+
+- **(default) Printed 24 mm coins**, board ~215 × 171 mm, all parts within a 220 mm print bed. Why: Danny asked for a board smaller than the standard game, cheap and quick to print. Shop coins (~33 mm) would need a bigger board split into pieces.
+- **(default) Two A3144 sensors per column** (front and back wall), wired together, one magnet per coin. Why: the A3144 only sees the south pole and a coin can be inserted either way round.
+- **(default) Gates by hand:** sliding plate, centred = closed with a magnet click, push either way to open. Keeps the turning board wire-free. Answers "gates by hand or servo" unless the team objects.
+- **(default) Flip servo drives the board directly** (horn on the board's boss), printed pivot pin on the other side; axle through the middle of the coin slots.
+- Details in `docs/03-hardware.md` → "3D-printable stand, concept v0". Untested on hardware.
+
 ### 2026-11-18 · Review: ESP32 instead of Arduino (professor)
 
 - **Use an ESP32-based board, not an Arduino Mega**, so it can read up to 8 analog values (7 analog Hall sensors). Replaces the Arduino Uno default. Suggested board: ESP32-S3 DevKit (10 analog pins on its first converter). It runs on 3.3 V; see `docs/03-hardware.md` → "Professor's feedback (4 and 18 Nov)" for the pin plan. Untested on hardware.

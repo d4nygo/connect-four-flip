@@ -280,6 +280,42 @@ This updates the proposal above. Where the two disagree, this section is newer. 
 
 **Fabrication:** 3D printing at the Polimi OpenLab (a safety course is needed first) or at the TED Laboratory (Bovisa campus, Durando); contact noted by Airika: gabtiele.viscardi@polimi.it (as written on the board, check the spelling).
 
+## 3D-printable stand, concept v0 (24 Nov 2026, proposal)
+
+Designed around the ordered parts (LAFVIN ESP32 DevKit V1 kit, HOTUT 13 kg 180° servo, EPLZON A3144 Hall sensors, 4 × 2 mm magnets). Source: [`cad/flip_board.scad`](../cad/flip_board.scad) (parametric OpenSCAD; STL exports live in the project files, not in git). Untested on hardware.
+
+- **Smaller than a shop game:** printed coins 24 × 5 mm with a magnet pocket; board 215 × 171 mm; every part fits a 220 × 220 mm bed (uprights placed diagonally). About 450 g of PLA and ~35 h of printing (rough).
+- **Nothing electrical turns.** The board is plastic, coins and magnets only. Sensors sit in a fixed entry bar across the top, the servo on the left upright, the ESP32 + breadboard on the base. No wires twist.
+- **Axle:** left to right through the exact middle of the coin slots (y = 0, z = 0). Column 0 stays left after the flip and each slot lands under the same sensor. Left: servo through a window in the upright, 2-arm horn screwed to the board's boss (direct drive). Right: printed 8 mm pin on the upright in a hole in the board's boss. Board corners sweep an 86.6 mm radius; the entry bar sits 3 mm outside it (coin falls across a ~4 mm gap).
+- **Board:** two identical `core_half` prints (front + back, round windows, ends included), bolted with 12 M3 screws.
+- **Gates (by hand):** see v1.2 below (side-sliding ladder strip). The player closes the top gate before pressing Flip.
+- **Sensors:** A3144 is digital and reacts to the **south** pole only, and a coin can go in either way round, so each column has **two sensors**, one in the front wall and one in the back wall of a narrow throat (coin + 0.6 mm), outputs wired together (14 sensors, still 7 inputs). Magnet flush with the coin face, 0.8 mm wall: ~2 mm gap, roughly 1100 gauss vs the A3144's up-to-350 gauss switch point. At 4 mm it drops to ~330 gauss, so keep walls thin and test first with `sensor_test`. If weak: stack two magnets per coin.
+- **Wiring (from the team's Tinkered circuit):** sensor OUT pairs → GPIO 13, 14, 27, 26, 25, 33, 32 (column 0 → 6), each with 10 kΩ pull-up to **3V3**; sensor VCC → VIN (5 V from USB), GND common. Servo signal → GPIO 4; servo power from a separate 5 V ≥ 3 A charger with 1000 µF across it, common GND. Servo pulse range must be widened from 1000–2000 µs to roughly 500–2500 µs for 180° (find the real ends by testing).
+- **Board start position:** either; the servo alternates 0° ↔ 180°, no need to turn back between games.
+- **Magnets:** 42 coins (v1.2 dropped the gate magnets).
+- **v1 design pass (25 Nov):** tapered A-shaped uprights (60 mm foot, 36 mm top) with cut-outs, pin with a cone root and chamfered tip, slimmer chamfered sensor bar (19 mm deep), slot lead-in funnels on the end caps, 18 mm chamfered windows, hex pockets for the M3 bolts, rounded gate tabs, lighter tray with finger notch, gusseted brackets. About 17% less plastic (~375 g, ~29 h, rough); every functional measurement unchanged; no supports needed.
+- **v1.2 (26 Nov, after Danny's review):**
+  - **Gates slide side to side** like the shop game: a ladder strip (two rails outside the coin slot, 7 rungs 3 mm wide). Closed: rungs under the column centres. Open: slide 13.75 mm (half a column) so the rungs hide under the ribs. It slides along the flip axle, so gravity can't open it during the flip. Knobs on both faces. The strip is trapped between the two board halves; the separate end caps and the gate magnets are gone.
+  - **Servo joint:** the 2-arm horn sits in a horn-shaped pocket (3.5 mm deep) in the board's boss; no screws between horn and board (they couldn't be reached once assembled). The board is trapped between the uprights (≤ 1 mm side play). Horn size is parametric (`horn_*`): measure it.
+  - **Cable channels:** 4 × 3 mm channel along the back edge of each upright's outer face; sensor wires run in grooves along the sensor bar.
+  - Assembly guide with every part and screw, plus a simulation of a round: Danny's artifact "Flip Board Assembly".
+- **v1.3 (26 Nov, matched to the parts we bought):**
+  - **ESP32 holder** (`esp32_holder`, printed): plate with 4 posts 18 mm tall for the LAFVIN ESP32 DevKit V1 30-pin (board ~51.5 × 28.4 mm, holes ~Ø3 mm, 2.6 mm from the edges: measure, the numbers are `esp_*` in the model). Pins point down so dupont plugs fit underneath; the 30-pin board is too wide for a single breadboard.
+  - **Base board 300 × 205 mm:** the extra depth behind the board holds the kit's 830-point breadboard (back-left) and the ESP32 holder (back-right, USB towards the right edge), out of the board's sweep.
+  - **Servo flange holes are slots** (48.5 to 49.5 mm spacing) so any MG996R-size clone fits.
+  - Still to check on the real parts: servo horn in the bag? sensor marking "3144" (switch) vs "49E" (linear)? servo turns 180°?
+- **v2 (26 Nov, Danny: "no screws"):** every screw replaced.
+  - Board halves: 4 printed pegs on the left side into 4 holes on the right (identical halves, the second one turned over), plus 4 snap `board_clip`s over the side edges at y = ±48 mm.
+  - Servo: the snug window stops it turning; a printed `servo_strap` hugs its bottom and its two hooks click behind the left upright. Horn screw optional.
+  - Uprights stand in 2 printed `foot_socket`s (floorless frames, stuck to the base with mounting tape or hot glue, last). The L-brackets are gone.
+  - Right pivot: a separate push-in `axle_pin` (8 mm, crush ribs in the upright, turns freely in the board).
+  - Sensor bar: end tongues drop into open-top slots in the ears; one `lock_pin` per side.
+  - Sensors 12 mm above the bar bottom; leg channel under each pocket; 6.5 × 4 mm wire trench along both faces; 6 mm hole at x = 100 brings the back row forward; bundle exits through the right ear and upright onto a groove to the back-edge channel (now 6 × 4 mm).
+  - ESP32 plugs straight into the breadboard (holder dropped); 4×AA holder area kept clear at the back right.
+- **v2.1 (27 Nov, fit check):** computer collision check of all 24 parts (standing and every 6° of the flip) found 5 clashes, all fixed: socket flanges through the tray (flange now front/back only), gate grip vs window (3 mm neck, 10 mm grip outside), axle pin too long / head inside upright, lock pin head vs upright (now Ø5.6), bar ends touching the ears (0.3 mm gap). Thrust ring on the right upright limits board side play to 0.8 mm (horn keeps ≥ 2 mm engagement). Uprights 10 mm thick, channels 6 × 5 mm, trench 8.5 × 4 with 45° top, Ø7 cross hole, deeper front trench end, 10 × 7.5 upright hole, splice bay 16 × 31 × 5 on the right upright. Smallest moving gap 0.8 mm (thrust ring), next 1.7 mm. Cable fill ≤ 50% with 1.4 mm jumpers; 26–28 AWG recommended.
+- **Print plan (27 Nov):** 5 print runs (+ 2 h 37 min test run first: sensor test piece + 1 test coin), about 48.5 h, 491 g PLA in 3 colours: (1) board half + 2 foot sockets 10 h 10 min, (2) board half + 2 gates 9 h 21 min, (3) left upright + 21 red coins 8 h 49 min, (4) right upright + 21 yellow coins 9 h 7 min, (5) sensor bar + tray + small parts and spares 11 h 6 min. PrusaSlicer 2.7, standard speeds; re-slice with the lab printer profile. Plate 3MFs: `cad/print-runs/`; STLs: `cad/stl/`; review page: `docs/design-review/`. Red/yellow uprights still to be confirmed.
+- **Test order:** sensor_test + one sensor (50 drops each way round) → servo end points → board with coins flipped by hand → full stand.
+
 ## Shopping list
 
 **Budget goal: as cheap as possible.** The "Cheapest" column is the plan; the "Nicer" column is only if something cheap turns out unreliable. Prices are rough (EUR, AliExpress/Amazon-class; AliExpress is cheapest but takes 2–4 weeks, so order early). Buy 1–2 spares of anything under €3.

@@ -10,7 +10,7 @@ This is the single source of truth for rules. Any code written later must implem
 
 ## Game setup (on the GUI)
 
-1. The system **picks the flip pattern at random** and shows it. It stays **visible on screen for the whole game**, so everyone knows what to aim for.
+1. The players **choose the flip pattern** on the app before the game: Box, T-shape, L-shape, Flat L, Zigzag, or **Random** (the app picks one). The same pattern counts for both players. It stays **visible on screen for the whole game**, so everyone knows what to aim for. (Danny, 27 Nov 2026, as in the app prototype; before this, the system picked it at random.)
 2. Press **Start**. The board drops any old coins out of the bottom and closes.
 
 ## A normal turn

@@ -20,7 +20,7 @@ You are helping a 3-person university team build **Connect Four Flip**: a physic
 - Board 7 columns × 6 rows; row 0 = bottom, column 0 = left; red = P1, yellow = P2. Two players only: single player vs the computer was removed at the 28 Oct 2026 class review.
 - Arduino owns the game state, rules, pattern check and score; ProtoPie only displays and sends choices.
 - Messages are `MESSAGE||VALUE` lines; the full table is in `docs/04-software.md`. If you add or change one, update that table and both sides.
-- The flip reverses each column's coin order; columns don't swap. Winner after a flip: only one player has a line of 4+ → they win; both → the player who did NOT flip wins; none → keep playing, no more flips. The pattern is picked at random by the system at game start. When it's made, the player chooses Flip or Skip on the app.
+- The flip reverses each column's coin order; columns don't swap. Winner after a flip: only one player has a line of 4+ → they win; both → the player who did NOT flip wins; none → keep playing, no more flips. The players choose the pattern on the app before the game (or Random), Danny 27 Nov 2026. When it's made, the player chooses Flip or Skip on the app.
 
 ## Working with the team (Danny's standing preferences)
 
@@ -39,6 +39,6 @@ You are helping a 3-person university team build **Connect Four Flip**: a physic
 ## Don't
 
 - Don't power servos from the Arduino 5 V pin; always an external supply with common ground.
-- Don't put big binary files (videos, CAD exports) in git; link them from the docs instead.
+- Don't put big binary files (videos, CAD exports) in git; link them from the docs instead. Exception (Danny, 27 Nov 2026): the current print files in `cad/stl/` and `cad/print-runs/` and the review page in `docs/design-review/`; replace them when the model changes, don't add old versions.
 - No code has been written yet (team decision, 2026-10-07). When code is added, put Arduino code in `arduino/` and ProtoPie files in `gui/`, and update `docs/04-software.md`.
 - Don't claim hardware code works unless it was run on the real board; say "untested on hardware".

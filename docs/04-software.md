@@ -18,7 +18,7 @@ Final product idea:
 Why a PC is still in the prototype: as far as we know, a ProtoPie prototype can't talk to Bluetooth or the Arduino directly; it talks to ProtoPie Connect, which runs on a computer. The course template's own example does the same ("for the prototype Arduino will be connected to the pc"). The PC sits out of sight; players only touch the phone. **Check with the professor** whether a phone-only setup is possible; if it is, update this section.
 
 - **Arduino = the brain and the referee.** It owns the board state, the rules, the pattern check, the flip and the score. One source of truth means the screen can never disagree with the physical board.
-- **ProtoPie (on the phone) = the face.** Showing the random pattern, the grid live, whose turn, the Flip / Skip choice, the flip animation, the winner and the scoreboard. It mostly reacts to messages.
+- **ProtoPie (on the phone) = the face.** Letting the players choose the pattern (or Random), the grid live, whose turn, the Flip / Skip choice, the flip animation, the winner and the scoreboard. It mostly reacts to messages.
 - **ProtoPie Connect** (free desktop app from ProtoPie) passes messages between the Arduino's USB serial port and the ProtoPie prototype running on the phone. The messages stay the same if we later switch to a Bluetooth module, because it is also a serial text link.
 
 ## Logic the code will need (plain-language spec)
@@ -47,7 +47,6 @@ ProtoPie Connect reads and writes **one line per message** in the form `MESSAGE|
 | `STATE` | 42 digits, top row first, `0` empty, `1` red, `2` yellow | Full board, redraw the grid |
 | `TURN` | `1` or `2` | Whose turn |
 | `DROP` | `col,row,player` | A coin was detected |
-| `PATTERN` | `0` box, `1` T, `2` L, `3` flat L, `4` zigzag | The pattern the Arduino picked at random for this game: show it |
 | `FLIP_READY` | player who made the pattern | Pattern made: play the animation, show Flip and Skip |
 | `FLIP_START` | player who triggered | Start the flip animation |
 | `FLIP_DONE` | 42 digits | Board after the flip |
@@ -60,6 +59,7 @@ ProtoPie Connect reads and writes **one line per message** in the form `MESSAGE|
 
 | Message | Value | Meaning |
 |---|---|---|
+| `PATTERN` | `0` box, `1` T, `2` L, `3` flat L, `4` zigzag | The pattern the players chose before the game (Random is resolved on the app); sent before `NEWGAME` |
 | `FLIP` | `1` flip / `0` skip | The player's choice after `FLIP_READY` |
 | `NEWGAME` | `1` | Release old coins and start |
 | `RESET_SCORE` | `1` | Scores back to 0 |
@@ -75,7 +75,7 @@ ProtoPie Connect reads and writes **one line per message** in the form `MESSAGE|
 
 ## GUI screens to design in ProtoPie
 
-1. Setup: Start button; then show the pattern the Arduino picked (`PATTERN`), e.g. with a short "rolling" animation
+1. Setup: Start, then choose the pattern (5 shapes or Random); Start game sends `PATTERN||n` then `NEWGAME||1`
 2. Game: 7×6 grid mirroring `STATE` live, the chosen pattern always visible, whose turn (big, in that colour), scoreboard
 3. Flip / Skip: hidden until `FLIP_READY`, then a celebratory animation with two big buttons; Flip sends `FLIP||1`, Skip sends `FLIP||0`
 4. Flip animation (triggered by `FLIP_START`, ended by `FLIP_DONE` with the new grid)

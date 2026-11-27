@@ -1,0 +1,82 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Four in a Row · FLIP!</title><style>*{box-sizing:border-box}body{margin:0;background:#090b12;color:#f7f4ed;font:15px/1.45 -apple-system,BlinkMacSystemFont,Arial,sans-serif;min-height:100svh;display:flex;align-items:center;justify-content:center;gap:clamp(24px,5vw,80px);padding:18px}main{width:min(393px,calc((100svh - 36px)*.46127),100%);flex-shrink:0;background:#11131d;border-radius:28px;overflow:hidden;box-shadow:0 0 0 1px #34394c}main svg{display:block;width:100%;height:auto}section{max-width:300px}aside[hidden]{display:none}h1{font-size:25px;line-height:1.15;margin:0 0 10px}p,label{color:#b2b6c5}select,button{border:1px solid #444a63;background:#1c2030;color:#fff;font:inherit;border-radius:9px;padding:8px}button{width:36px;cursor:pointer}aside div{display:flex;gap:4px;margin:12px 0}select{width:100%;margin-top:5px}#status{display:block;color:#ffd05c;font-size:13px;margin-top:10px}g[role=button]:focus-visible{outline:2px solid #fff}main[data-view=motion] #board{transform-box:fill-box;transform-origin:center;animation:flip 2.3s ease-in-out both}@keyframes flip{0%{transform:rotate(-10deg) scaleY(1)}50%{transform:rotate(0) scaleY(.1)}100%{transform:rotate(0) scaleY(-1)}}@media(prefers-reduced-motion:reduce){main[data-view=motion] #board{animation:none}}@media(max-width:700px){body{flex-direction:column;align-items:center;gap:15px;padding:8px 10px 20px}main{width:min(393px,100%)}section{width:min(393px,100%);max-width:none}aside div{justify-content:space-between}button{width:12%;min-height:44px}}</style><main aria-label="Game"></main><section><h1>Board simulator</h1><p>The phone reflects the board. During a turn, choose a column here or press 1–7 to simulate a physical coin.</p><aside><div><button data-col="1" aria-label="Drop coin in column 1">1</button><button data-col="2" aria-label="Drop coin in column 2">2</button><button data-col="3" aria-label="Drop coin in column 3">3</button><button data-col="4" aria-label="Drop coin in column 4">4</button><button data-col="5" aria-label="Drop coin in column 5">5</button><button data-col="6" aria-label="Drop coin in column 6">6</button><button data-col="7" aria-label="Drop coin in column 7">7</button></div></aside><label>Preview a reference screen<select><option value="">Choose screen…</option><option value="start">01 · Start</option><option value="patterns">02 · Choose pattern</option><option value="turn1">03 · Player 1’s turn</option><option value="turn2">04 · Player 2’s turn</option><option value="ready">05 · Flip ready (Flip or Skip)</option><option value="motion">06 · Flipping</option><option value="check">07 · Checking</option><option value="win">08 · Normal victory</option><option value="flipwin">09 · Flip victory</option><option value="both">10 · Both players made four</option><option value="draw">11 · Draw</option></select></label><output id="status" aria-live="polite"></output></section><script>
+const W=393,H=852,C={bg:'#11131D',panel:'#1C2030',ink:'#F7F4ED',sub:'#B2B6C5',blue:'#4D68FF',red:'#FF675F',yellow:'#FFD05C',off:'#2D3346',hole:'#151B34',border:'#34394C',green:'#81DAAC'};
+const names=['BOX','T-SHAPE','L-SHAPE','FLAT L','ZIGZAG'];
+const shapes=[[[0,0],[1,0],[0,1],[1,1]],[[0,0],[1,0],[2,0],[1,1]],[[0,0],[0,1],[0,2],[1,2]],[[0,0],[0,1],[1,1],[2,1]],[[1,0],[2,0],[0,1],[1,1]]];
+const labels=['Box','T-shape','L-shape','Flat L','Zigzag'];
+function blank(){return Array.from({length:6},()=>Array(7).fill(0))}
+function rect(x,y,w,h,r,fill,stroke='none',sw=1){return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+r+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'"/>'}
+function circle(x,y,r,fill,stroke='none',sw=1){return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'"/>'}
+function text(x,y,str,size=14,color=C.ink,weight=500,align='start',space=0){return '<text x="'+x+'" y="'+y+'" text-anchor="'+align+'" font-family="Helvetica Neue,Arial,sans-serif" font-size="'+size+'" font-weight="'+weight+'" letter-spacing="'+space+'" fill="'+color+'">'+str+'</text>'}
+function center(y,str,size,color,weight){return text(196.5,y,str,size,color,weight,'middle')}
+function line(x1,y1,x2,y2,color,w){return '<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" fill="none" stroke="'+color+'" stroke-width="'+w+'" stroke-linecap="round"/>'}
+function iconLock(x,y,fill){return '<g transform="translate('+x+' '+y+')" fill="none" stroke="'+fill+'" stroke-width="1.8"><rect x="0" y="7" width="13" height="10" rx="2.5"/><path d="M3 7V5a3.5 3.5 0 0 1 7 0v2"/></g>'}
+function wrap(name,body,action){return '<g id="'+name+'"'+(action?' data-action="'+action+'" role="button" tabindex="0" style="cursor:pointer"':'')+'>'+body+'</g>'}
+function button(title,action,disabled=false){return wrap('primary-button',rect(24,730,345,56,18,disabled?C.off:C.yellow)+(disabled?iconLock(125,749,C.sub):'')+text(disabled?207:196.5,764,title,17,disabled?C.sub:C.bg,800,'middle',0.4),action)}
+function chip(x,y,r,p,marked=false){return circle(x,y,r,p===1?C.red:p===2?C.yellow:C.hole)+(p?circle(x,y,r-3,'none',marked?C.ink:'#000000',marked?3:0.7)+text(x,y+r*0.34,p,Math.max(11,r*.95),C.bg,800,'middle'):'')}
+function shape(x,y,k,step,color){let f=shapes[k];return f.map(([cx,cy])=>circle(x+cx*step,y+cy*step,step*.42,color)).join('')}
+function board(x,y,w,h,grid,marks=[],rotation=0){let pad=w*.04,dx=(w-2*pad)/7,dy=(h-2*pad)/6;return '<g id="board" transform="rotate('+rotation+' '+(x+w/2)+' '+(y+h/2)+')">'+rect(x,y,w,h,w*.065,C.blue)+grid.map((row,r)=>row.map((p,c)=>chip(x+pad+(c+.5)*dx,y+pad+(r+.5)*dy,Math.min(dx,dy)*.412,p,marks.includes(r*7+c))).join('')).join('')+'</g>'}
+function header(back){let status=text(31,34,'9:41',15,C.ink,750);for(let i=0;i<4;i++)status+=rect(310+i*4.5,31-(i+1)*2.4,3,2.4*(i+1),1,C.ink);status+='<path d="M333 24q6-5 12 0m-10 3q4-3 8 0m-6 3q2-1 4 0" fill="none" stroke="'+C.ink+'" stroke-width="2" stroke-linecap="round"/>'+rect(350,22,18,10,3,'none',C.sub)+rect(352,24,14,6,1.5,C.ink)+rect(369,25,2,4,1,C.sub);
+return status+wrap('header', (back?wrap('back',rect(24,62,44,44,16,C.panel)+text(46,91,'←',25,C.ink,600,'middle'),'back'):text(24,93,'FLIP!',27,C.yellow,900,'start',-1.5))+rect(226,68,143,30,15,C.panel)+circle(241,83,4,C.green)+text(251,87,'Board connected',12,C.ink,600))}
+function scoreCards(s){return [1,2].map((p,i)=>{let x=i?202:24;return rect(x,130,167,72,18,C.panel,s.p===p?(p===1?C.red:C.yellow):C.border,s.p===p?2:1)+chip(x+27,166,15,p)+text(x+53,155,'PLAYER '+p,11,C.sub,750,'start',1)+text(x+52,185,String(s.score[i]).padStart(2,'0'),27,C.ink,800)}).join('')}
+const sample=()=>{let b=blank(); b[4]=[0,0,1,1,1,0,0]; b[5]=[0,0,2,1,2,2,0];return b};
+function render(s){let v=s.view,body=rect(0,0,W,H,0,C.bg)+header(v==='patterns');let k=s.pattern;
+if(v==='start'){body+=text(24,149,'TWO PLAYERS. ONE TWIST.',14,C.yellow,750,'start',1.2)+text(24,221,'FOUR IN',60,C.ink,900,'start',-3)+text(24,278,'A ROW.',60,C.ink,900,'start',-3)+text(24,339,'FLIP!',65,C.yellow,900,'start',-4)+board(65,378,263,225,sample(),[],-11)+center(666,'The classic game.',18,C.ink,650)+center(689,'With a whole new angle.',18,C.ink,650)+button('LET’S PLAY','play')+center(813,'Two players · One physical board',12,C.sub)}
+else if(v==='patterns'){body+=text(24,174,'Choose your',39,C.ink,800,'start',-1.6)+text(24,215,'flip pattern.',39,C.ink,800,'start',-1.6)+text(24,253,'Complete this shape with your coins',16,C.sub)+text(24,275,'to unlock the flip.',16,C.sub);
+for(let i=0;i<6;i++){let x=24+(i%2)*178.5,y=304+Math.floor(i/2)*128,active=i===k;body+=wrap('pattern-'+i,rect(x,y,166.5,116,18,C.panel,active?C.yellow:C.border,active?2:1)+(i===5?text(x+18,y+59,'?',37,C.yellow,800):shape(x+26,y+23,i,15,C.yellow))+(active?circle(x+144,y+22,10,C.yellow)+text(x+144,y+27,'✓',15,C.bg,800,'middle'):'')+text(x+16,y+97,i===5?'RANDOM':names[i],15,C.ink,750),'select-'+i)}
+body+=button('START GAME','start')+center(813,labels[k]+' selected · Same pattern for both players',12,C.sub)}
+else if(['turn','ready','check'].includes(v)){let ready=v==='ready',check=v==='check';body+=scoreCards(s)+center(253,ready?'Flip ready!':check?'Flip complete.':'Player '+s.p+'’s turn',29,ready?C.yellow:C.ink,800)+center(279,ready?'Pattern complete. Flip or skip?':check?'New positions received.':'Drop a '+(s.p===1?'red':'yellow')+' coin into the board.',14,C.sub)+board(24,306,345,294,s.grid,s.mark)+rect(24,624,345,72,20,C.panel,ready?C.yellow:C.border);
+if(check){body+=center(668,'Checking result…',19,C.ink,700)+center(750,'Syncing the board',15,C.ink,650)+center(780,'Your next turn starts after the result check.',13,C.sub)}else{body+=shape(47,644,k,12,ready?C.yellow:C.sub)+text(103,650,ready?'PATTERN COMPLETE':'FLIP PATTERN',11,C.sub,700,'start',1)+text(103,677,labels[k],20,C.ink,700)+(ready?wrap('skip-button',rect(24,730,112,56,18,C.panel,C.border)+text(80,764,'SKIP',17,C.ink,800,'middle',0.4),'skip')+wrap('primary-button',rect(148,730,221,56,18,C.yellow)+text(258.5,764,'↻  FLIP',17,C.bg,800,'middle',0.4),'flip'):button(s.flipped?'FLIP USED':'FLIP LOCKED','',true))+center(813,ready?'Flip now (hands clear), or skip and keep playing.':s.flipped?'One flip per game: no more flips.':'Complete your pattern to unlock FLIP.',12,C.sub)}}
+else if(v==='motion'){body+=center(211,'↻',68,C.yellow,750)+board(85,243,223,191,s.grid,[], -12)+center(521,'Flipping…',39,C.ink,800)+center(577,'Hands off the board.',20,C.yellow,750)+center(619,'Please wait while the board rotates',16,C.sub)+center(641,'and the coins settle.',16,C.sub)+rect(93,718,207,44,22,C.panel)+iconLock(122,731,C.sub)+text(152,746,'Controls locked',15,C.sub,650)+center(797,'The game resumes when the board is ready.',12,C.sub)}
+else{let draw=v==='draw',both=v==='both',flip=v==='flipwin';body+=center(147,both?'BOTH PLAYERS MADE FOUR':flip?'FLIP VICTORY':'ROUND COMPLETE',13,C.yellow,750)+center(202,draw?'It’s a':both?'Two lines.':flip?'A new angle.':'Player '+s.winner,43,C.ink,850)+center(246,draw?'draw.':both?'One winner.':flip?'A new winner.':'wins.',43,C.ink,850)+center(286,both||flip?'Player '+s.winner+' wins.':draw?'The board is full. No four in a row.':'Four in a row. Beautifully played.',15,C.sub,600)+(flip?center(307,'The flip created their four in a row.',14,C.sub):'')+board(52,320,289,246,s.grid,s.mark);
+if(both){body+=center(608,'Player '+s.p+' triggered the flip.',16,C.ink,650)+center(630,'When both make four, the',16,C.sub)+center(652,'non-flipping player wins.',16,C.sub)+center(688,'DECIDED BY THE NON-FLIPPING PLAYER RULE',12,C.yellow,700)}
+else{body+=rect(24,596,345,42,16,C.panel)+center(623,draw?'+1   PLAYER 1       +1   PLAYER 2':(flip?'+5':'+3')+'   POINTS FOR PLAYER '+s.winner,15,C.yellow,750)+rect(24,655,345,51,16,C.panel)+text(42,686,'SESSION SCORE',12,C.sub,700)+text(349,688,s.score[0]+'  :  '+s.score[1],22,C.ink,800,'end')}
+body+=button('PLAY AGAIN','again')+center(813,'Clear the physical board before the next round.',12,C.sub)}
+return '<svg xmlns="http://www.w3.org/2000/svg" width="393" height="852" viewBox="0 0 393 852" role="img" aria-label="Four in a Row FLIP">'+body+rect(130,838,133,5,2.5,C.ink)+'</svg>'}
+
+function fresh(score=[0,0],pattern=1){return {view:'start',p:1,pattern,grid:blank(),mark:[],score:[...score],winner:0,flipped:false}}
+function lineMarks(grid,p){
+ const found=new Set();
+ for(let r=0;r<6;r++) for(let c=0;c<7;c++) for(const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1]]){
+ const cells=[0,1,2,3].map(i=>[r+i*dr,c+i*dc]);if(cells.every(([rr,cc])=>grid[rr]?.[cc]===p))cells.forEach(([rr,cc])=>found.add(rr*7+cc))}
+ return [...found]}
+function match(s,last){for(let r=0;r<6;r++)for(let c=0;c<7;c++){
+ const cells=shapes[s.pattern].map(([dx,dy])=>[r+dy,c+dx]);
+ if(cells.every(([y,x])=>s.grid[y]?.[x]===s.p)&&cells.some(([y,x])=>y*7+x===last))return cells.map(([y,x])=>y*7+x)
+ }return []}
+function finish(s,afterFlip){const wins=[lineMarks(s.grid,1),lineMarks(s.grid,2)];
+ if(wins[0].length&&wins[1].length&&afterFlip){s.winner=3-s.p;s.view='both';s.mark=wins.flat();return true}
+ let winner=wins.findIndex(m=>m.length)+1;if(winner){s.view=afterFlip?'flipwin':'win';s.winner=winner;s.mark=wins[winner-1];s.score[winner-1]+=afterFlip?5:3;return true}
+ if(s.grid.every(row=>row.every(Boolean))){s.view='draw';s.score=s.score.map(v=>v+1);s.mark=[];return true}return false}
+function drop(s,c){if(s.view!=='turn'||!Number.isInteger(c)||c<0||c>6)return false;
+ let r=5;while(r>=0&&s.grid[r][c])r--;if(r<0)return false;s.grid[r][c]=s.p;
+ if(!finish(s,false)){s.mark=s.flipped?[]:match(s,r*7+c);if(s.mark.length)s.view='ready';else s.p=3-s.p}return true}
+function settle(s){const old=s.grid;s.grid=blank();for(let c=0;c<7;c++){let bottom=5;for(let r=0;r<6;r++){if(old[r][c])s.grid[bottom--][c]=old[r][c]}}s.mark=[];s.view='check'}
+function next(s){if(s.view==='check'&&!finish(s,true)){s.p=3-s.p;s.view='turn'}}
+function act(s,id){
+ if(id==='play'&&s.view==='start')s.view='patterns';
+ else if(id==='back'&&s.view==='patterns')s.view='start';
+ else if(id.startsWith('select-')&&s.view==='patterns'){let i=Number(id.slice(7));if(Number.isInteger(i)&&i>=0&&i<=5)s.pattern=i===5?Math.floor(Math.random()*5):i}
+ else if(id==='start'&&s.view==='patterns')Object.assign(s,fresh(s.score,s.pattern),{view:'turn'});
+ else if(id==='again'&&['win','flipwin','both','draw'].includes(s.view))Object.assign(s,fresh(s.score,s.pattern),{view:'patterns'});
+ else if(id==='flip'&&s.view==='ready'){s.view='motion';s.flipped=true}
+ else if(id==='skip'&&s.view==='ready'){s.view='turn';s.mark=[];s.p=3-s.p}}
+function example(id){let s=fresh([3,2]);s.view=id;s.grid=sample();
+ if(id==='turn1'||id==='turn2'){s.view='turn';s.p=id==='turn1'?1:2;s.grid[4]=[0,0,0,1,s.p===2?1:0,0,0];s.grid[5]=[0,0,2,1,2,0,0]}
+ if(id==='ready')s.mark=[30,31,32,38];
+ if(id==='check')settle(s);
+ if(id==='win'||id==='flipwin'||id==='both'||id==='draw'){s.grid=blank();
+ if(id==='draw'){s.grid=s.grid.map((row,r)=>row.map((_,c)=>1+(Math.floor(c/2)+r)%2))}
+ else if(id==='both'){s.grid[5]=[1,1,1,1,2,1,0];s.grid[4]=[2,2,2,2,2,0,0];s.grid[3]=[0,1,0,1,0,0,0]}
+ else if(id==='flipwin'){s.grid[5]=[2,2,2,2,1,1,1];s.grid[4]=[1,0,1,0,0,0,0]}
+ else s.grid[5]=[1,1,1,1,2,2,2];finish(s,id==='both'||id==='flipwin')}
+ return s}
+
+let state=fresh(),epoch=0;const stage=document.querySelector('main'),sim=document.querySelector('aside'),status=document.querySelector('#status');
+function paint(){stage.innerHTML=render(state);stage.dataset.view=state.view;sim.hidden=state.view!=='turn';status.textContent=state.view==='turn'?'Player '+state.p+' · Drop a coin':state.view==='ready'?'Pattern complete':state.view==='check'?'Checking result':state.view}
+function clickAction(id){let prev=state.view;act(state,id);paint();if(prev==='ready'&&state.view==='motion'){let n=++epoch;setTimeout(()=>{if(n!==epoch)return;settle(state);paint();setTimeout(()=>{if(n!==epoch)return;next(state);paint()},1800)},2300)}}
+stage.addEventListener('click',e=>{let b=e.target.closest('[data-action]');if(b)clickAction(b.dataset.action)});
+stage.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)&&e.target.dataset.action){e.preventDefault();clickAction(e.target.dataset.action)}});
+function playColumn(c){if(drop(state,c)){paint()}else if(state.view==='turn')status.textContent='Column '+(c+1)+' is full. Choose another column.'}
+sim.addEventListener('click',e=>{if(e.target.dataset.col)playColumn(Number(e.target.dataset.col)-1)});
+document.addEventListener('keydown',e=>{if(!e.repeat&&!e.altKey&&!e.ctrlKey&&!e.metaKey&&/^[1-7]$/.test(e.key)&&state.view==='turn')playColumn(Number(e.key)-1)});
+const selector=document.querySelector('select');selector.onchange=()=>{if(!selector.value)return;epoch++;state=example(selector.value);selector.value='';paint()};paint();</script></html>
