@@ -81,12 +81,12 @@ throat  = coin_t + 0.6;          // slot at the sensors: coin can't wander away 
 throat_h = 16;
 sens_wall = 0.8;                 // plastic between sensor face and coin: keep it thin!
 sens_y  = bar_y0 + 12;           // sensor height (legs hang down into the wire trench below)
-trench_y0 = bar_y0 + 0.8; trench_y1 = bar_y0 + 7.3; trench_d = 4;   // wire trench along the bottom of both faces
-xhole_x = 100;                   // wire hole through the bar's solid right end: back bundle -> front
+trench_y0 = bar_y0 + 0.8; trench_y1 = bar_y0 + 9.3; trench_d = 4;  // ceiling slopes 45 deg (prints without support)   // wire trench along the bottom of both faces
+xhole_x = 99.5;                   // wire hole through the bar's solid right end: back bundle -> front
 a3144   = [4.5, 3.6, 1.9];       // pocket for the A3144 body (x, y, z)
 
 base_y  = -(ceil(R_sweep) + 3 + 25);   // top of the base board (-115)
-up_t    = 8;  up_z = 22;                // upright thickness and half depth
+up_t    = 10; up_z = 22;                // upright thickness and half depth (10: room for a 5 mm deep cable channel)
 x_right = board_w/2 + boss_l + 3;       // inner face of right upright
 horn_x  = -(board_w/2 + boss_l) + horn_pocket_d - 0.5;  // board-side face of the horn (sits in the pocket)
 x_left  = horn_x - servo_flange_to_horn + up_t;          // inner face of left upright
@@ -96,8 +96,8 @@ pin_d   = 8;
 peg_d   = 3.6;  peg_h = 3.5;  peg_hole = 3.9;   // board halves: pegs on the left side, holes on the right
 clip_y  = 48;   clip_w = 8;   clip_reach = 12;  // 4 snap clips over the board's side edges
 clip_t  = 1.6;  clip_bump = 0.6;
-lock_d  = 3.5;  lock_hole = 3.8;                 // lock pins (sensor bar)
-strap_w = 8;    strap_t = 2.2;                    // servo strap
+lock_d  = 3.5;  lock_hole = 3.8;  lock_x = 2.3;  lock_head = 5.6;                 // lock pins (sensor bar)
+strap_w = 8;    strap_t = 2.2;  hook_l = 1.8;   // hook stays 1.7 mm clear of the turning boss                    // servo strap
 strap_z0 = 13.6;                                  // inner face of the strap legs (servo is +-10)
 slot_z0 = 12.0; slot_z1 = 16.0;                   // strap slots through the left upright
 sock_h  = 12;   sock_wall = 3;  sock_fl = 12;     // foot sockets: height, wall, glue flange
@@ -193,7 +193,7 @@ module core_half() {   // one half of the whole board, ends included
       translate([knob_x-1.9, e>0 ? rows_h/2 : -rows_h/2-groove, rail_z1-0.5]) cube([gate_shift+3.8, groove, 5]);
     }
     for (sg=[-1,1]) translate([sg*(board_w/2+boss_l+1), 0, 0]) rotate([0,90,0])
-      translate([0,0,sg>0 ? -(boss_l+1+3) : -1]) cylinder(d=pin_d+0.6, h=boss_l+1+3);
+      translate([0,0,sg>0 ? -(boss_l+1+3) : -1]) cylinder(d=pin_d+0.6, h=boss_l+1+3);   // 9 mm deep from the boss face
     translate([board_w/2+boss_l+0.01, 0, 0]) rotate([0,-90,0]) cylinder(d1=pin_d+2.6, d2=pin_d+0.6, h=1);
     for (sg=[-1,1]) translate([sg*(board_w/2+boss_l+0.01), 0, 0]) rotate([0, sg*-90, 0]) translate([0,0,-0.01])
       linear_extrude(horn_pocket_d+0.01) horn_outline(0.3);
@@ -234,9 +234,12 @@ module gate() {
     // seven rungs across the slot, under the middle of each column
     for (c=[0:6]) translate([colx(c)-rung_w/2, 0, -rail_z1+0.01]) cube([rung_w, gate_t, 2*rail_z1-0.02]);
     // knobs, front and back: they poke out through the board's skin
-    for (sg=[-1,1]) translate([knob_x, 0, 0]) hull() {
-      translate([-1.5, 0, sg>0 ? rail_z1-0.5 : -zf-3.5]) cube([3, gate_t, 4]);
-      translate([-3, 0, sg>0 ? zf+1.5 : -zf-3.5]) cube([6, gate_t, 2]);
+    for (sg=[-1,1]) translate([knob_x, 0, 0]) {
+      translate([-1.5, 0, sg>0 ? rail_z1-0.5 : -zf-0.6]) cube([3, gate_t, zf+0.6-(rail_z1-0.5)+0.01]);   // neck: 3 wide through the 3.8 window
+      hull() {                                                                                    // grip: 10 wide, 3.6 proud, flares only outside the skin
+        translate([-1.5, 0, sg>0 ? zf+0.5 : -zf-0.6]) cube([3, gate_t, 0.1]);
+        translate([-5, 0, sg>0 ? zf+1.6 : -zf-3.6]) cube([10, gate_t, 2]);
+      }
     }
   }
 }
@@ -245,7 +248,7 @@ module gate() {
 module entry_bar() {
   difference() {
     // chamfered body with softened ends
-    translate([-bar_w/2, bar_y0, -bar_z]) multmatrix(M_XZY) rbox([bar_w, 2*bar_z, bar_h], r=1.5, c=0);
+    translate([-bar_w/2+fit, bar_y0, -bar_z]) multmatrix(M_XZY) rbox([bar_w-2*fit, 2*bar_z, bar_h], r=1.5, c=0);   // 0.3 mm gap to each ear
     // top chamfers along the long edges
     for (s=[-1,1]) translate([0, bar_y0+bar_h, s*bar_z]) rotate([45,0,0]) cube([bar_w+2, 2*2.5, 2*2.5], center=true);
     for (c=[0:6]) {
@@ -260,9 +263,12 @@ module entry_bar() {
       for (s=[-1,1]) translate([colx(c)-2.3, trench_y0, s>0 ? throat/2+sens_wall : -bar_z-1]) cube([4.6, sens_y-trench_y0, bar_z - throat/2 - sens_wall + 1]);
     }
     // wire trench along the bottom of the front and back faces, open at the right end
-    for (s=[-1,1]) translate([-bar_w/2+4, trench_y0, s>0 ? bar_z-trench_d : -bar_z-1]) cube([bar_w, trench_y1-trench_y0, trench_d+1]);
+    for (s=[-1,1]) translate([-bar_w/2+4, 0, 0]) mirror([0,0,s>0?0:1]) rotate([90,0,90]) linear_extrude(bar_w)
+      polygon([[bar_z-trench_d, trench_y0], [bar_z+1, trench_y0], [bar_z+1, trench_y1+1], [bar_z, trench_y1], [bar_z-trench_d, trench_y1-trench_d]]);
     // hole through the solid right end: the back bundle comes through here to the front
-    translate([xhole_x, (trench_y0+trench_y1)/2, -bar_z-1]) cylinder(d=6, h=2*bar_z+2);
+    translate([xhole_x, (trench_y0+trench_y1)/2, -bar_z-1]) cylinder(d=7, h=2*bar_z+2);
+    // front trench gets deeper from the hole to the end: both rows (18 wires) run here
+    translate([xhole_x-3.5, trench_y0, bar_z-5.5]) cube([bar_w/2-xhole_x+5, 10, 6]);
     // small bevel on the bottom edges, where the coin leaves the bar
     for (c=[0:6]) translate([colx(c), bar_y0, 0]) rotate([0,0,0]) hull() {
       translate([-col_w/2, -0.01, -throat/2-0.8]) cube([col_w, 0.01, throat+1.6]);
@@ -287,7 +293,7 @@ module up_cutouts() {
     translate([band[0], -100]) square([band[1]-band[0], 200]);
   }
 }
-wire_d = 4;   // depth of the cable channels
+wire_d = 5;   // depth of the cable channels
 module wire_path() {   // 6 mm wide channel, 2.5 mm in from the back edge, full height
   intersection() {
     difference() { offset(delta=-2.5) up_profile(); offset(delta=-8.5) up_profile(); }
@@ -307,11 +313,11 @@ module upright_body(xi, outward) {
   difference() {
     translate([ear_x0, bar_y0-4, -10]) cube([ear_x1-ear_x0+0.01, bar_h+2, 20]);
     // slot, open at the top and on the board side: the bar's tongue drops in
-    translate([outward>0 ? bar_w/2-1 : -bar_w/2-tongue_l-fit, bar_y0-fit, -tongue_z-fit/2]) cube([tongue_l+fit+1, 100, 2*tongue_z+fit]);
+    translate([outward>0 ? bar_w/2-1 : -bar_w/2-tongue_l-fit, bar_y0-fit, -tongue_z-fit]) cube([tongue_l+fit+1, 100, 2*tongue_z+2*fit]);   // 0.3 mm each side
     // right side only: the sensor bundle leaves the front trench through the front cheek...
-    if (outward>0) translate([bar_w/2-1, trench_y0, tongue_z]) cube([xi-bar_w/2+2, trench_y1-trench_y0+2.5, 7]);
+    if (outward>0) translate([bar_w/2-1, trench_y0, tongue_z]) cube([xi-bar_w/2+2, 10, 7]);
     // lock pin goes through both cheeks, just above the tongue
-    translate([outward>0 ? bar_w/2+2.6 : -bar_w/2-2.6, bar_y0+tongue_h+fit+lock_hole/2, -11]) cylinder(d=lock_hole, h=22);
+    translate([outward>0 ? bar_w/2+lock_x : -bar_w/2-lock_x, bar_y0+tongue_h+fit+lock_hole/2, -11]) cylinder(d=lock_hole, h=22);
   }
 }
 module upright_right() {
@@ -319,12 +325,14 @@ module upright_right() {
     union() {
       upright_body(x_right, 1);
       translate([x_right+0.01, 0, 0]) rotate([0,90,0]) cylinder(d=pin_d+8, h=up_t-0.02);   // solid round around the hole
+      // thrust ring: keeps the board's side play to 0.8 mm so the horn can't leave its pocket
+      translate([board_w/2+boss_l+0.8, 0, 0]) rotate([0,90,0]) cylinder(d=pin_d+6, h=x_right-(board_w/2+boss_l+0.8)+0.02);
     }
     // ...goes through the upright here, then along a groove on the outer face to the cable channel
-    translate([x_right-1, trench_y0, 3]) cube([up_t+2, trench_y1-trench_y0+2.5, 7.5]);   // 9 x 7.5 mm: room for 18 thin wires
-    translate([x_right+up_t-wire_d, trench_y0, -up_wt]) cube([wire_d+1, trench_y1-trench_y0+2.5, up_wt+10.5]);
+    translate([x_right-1, trench_y0, 3]) cube([up_t+2, 10, 7.5]);   // 10 x 7.5 mm: room for 18 wires
+    translate([x_right+up_t-wire_d, bar_y0-3, -up_wt+1.5]) cube([wire_d+1, 16, up_wt-1.5+13]);   // splice bay: 16 x 32 mm, joins the hole to the channel
     // hole for the axle pin: snug, the pin is pushed in from outside
-    translate([x_right-1, 0, 0]) rotate([0,90,0]) cylinder(d=pin_d+0.15, h=up_t+2);
+    translate([board_w/2+boss_l+0.5, 0, 0]) rotate([0,90,0]) cylinder(d=pin_d+0.15, h=x_right+up_t-(board_w/2+boss_l)+1);   // through the thrust ring too
     translate([x_right+up_t-0.6, 0, 0]) rotate([0,90,0]) cylinder(d1=pin_d+0.15, d2=pin_d+1.4, h=0.61);
   }
 }
@@ -352,10 +360,10 @@ module servo_strap() {
     translate([xb-0.4, -6]) square([0.4+0.01, 12]);                                           // pad: presses the servo 0.4 mm
     for (sg=[-1,1]) {
       z_in = strap_z0; z_out = strap_z0+strap_t;
-      translate([xb-strap_t, sg>0 ? z_in : -z_out]) square([x_left+2.5-(xb-strap_t), strap_t]);   // leg
+      translate([xb-strap_t, sg>0 ? z_in : -z_out]) square([x_left+hook_l-(xb-strap_t), strap_t]);   // leg
       // hook: ramp on the way in, flat face catches the inner face of the upright
-      polygon(sg>0 ? [[x_left+0.2, z_out-0.01],[x_left+0.2, z_out+1.2],[x_left+2.5, z_out-0.01]]
-                   : [[x_left+0.2, -z_out+0.01],[x_left+0.2, -z_out-1.2],[x_left+2.5, -z_out+0.01]]);
+      polygon(sg>0 ? [[x_left+0.25, z_out-0.01],[x_left+0.25, z_out+1.2],[x_left+hook_l, z_out-0.01]]
+                   : [[x_left+0.25, -z_out+0.01],[x_left+0.25, -z_out-1.2],[x_left+hook_l, -z_out+0.01]]);
     }
   }
 }
@@ -367,7 +375,7 @@ module foot_socket() {
   difference() {
     union() {
       translate([0,0,0]) linear_extrude(sock_h) offset(r=sock_wall+fit) square([up_t, 2*up_wb], center=true);
-      linear_extrude(2) offset(r=sock_wall+sock_fl) square([up_t, 2*up_wb], center=true);
+      linear_extrude(2) offset(r=sock_wall+fit) square([up_t, 2*up_wb+2*sock_fl], center=true);   // flange front and back only: clear of the tray
     }
     translate([0,0,-1]) linear_extrude(sock_h+2) offset(delta=fit) square([up_t, 2*up_wb], center=true);
     // notches so the cable channel (back edge, outer face) can leave at the bottom: both sides
@@ -377,7 +385,7 @@ module foot_socket() {
 
 // ================= small pins =================
 module axle_pin() {   // right pivot: pushed through the right upright into the board's right boss
-  L = (x_right+up_t) - (board_w/2-2);
+  L = (x_right+up_t) - (board_w/2 + 1);   // tip stops 1.25 mm short of the hole bottom
   cylinder(d=pin_d+6, h=1.6);                                     // head
   translate([0,0,1.6]) cylinder(d=pin_d, h=L-1);
   translate([0,0,1.6+L-1]) cylinder(d1=pin_d, d2=pin_d-1.6, h=1);
@@ -387,7 +395,7 @@ module axle_pin() {   // right pivot: pushed through the right upright into the 
 module lock_pin() {   // sensor bar: pushed front-to-back through the ear, above the bar's tongue
   difference() {
     union() {
-      cylinder(d=lock_d+3.5, h=1.5);
+      cylinder(d=lock_head, h=1.5);
       translate([0,0,1.5]) cylinder(d=lock_d, h=20.5);
       translate([0,0,22]) cylinder(d1=lock_d, d2=lock_d-1, h=0.8);
     }
@@ -484,7 +492,7 @@ if (part=="g_upl") upright_left();
 if (part=="g_upr") upright_right();
 if (part=="g_sock_l") translate([x_left-up_t/2, base_y, 0]) multmatrix(M_XZY) foot_socket();
 if (part=="g_sock_r") translate([x_right+up_t/2, base_y, 0]) multmatrix(M_XZY) foot_socket();
-if (part=="g_axle_pin") translate([x_right+up_t, 0, 0]) rotate([0,-90,0]) axle_pin();
+if (part=="g_axle_pin") translate([x_right+up_t+1.6, 0, 0]) rotate([0,-90,0]) axle_pin();   // head outside
 if (part=="g_bar") entry_bar();
 if (part=="g_sensors") for (c=[0:6], sg=[-1,1]) {
   zf0 = throat/2+sens_wall;   // branded face sits here, against the thin wall
@@ -496,7 +504,7 @@ if (part=="g_sensors") for (c=[0:6], sg=[-1,1]) {
     }
   }
 }
-if (part=="g_lock_pins") for (sg=[-1,1]) translate([sg*(bar_w/2+2.6), bar_y0+tongue_h+fit+lock_hole/2, -10-1.5]) lock_pin();
+if (part=="g_lock_pins") for (sg=[-1,1]) translate([sg*(bar_w/2+lock_x), bar_y0+tongue_h+fit+lock_hole/2, -10-1.5]) lock_pin();
 if (part=="g_base") translate([-150, base_y-9, base_d1]) cube([300, 9, base_d0-base_d1]);
 if (part=="g_breadboard") translate([bb_pos[0], base_y, bb_pos[1]]) difference() {
   cube(bb);

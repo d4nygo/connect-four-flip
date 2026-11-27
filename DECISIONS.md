@@ -4,6 +4,13 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-27 · Fit check fixes (Danny asked for a clearance and cable audit)
+
+- **(default) Uprights 10 mm thick** (was 8) so the cable channels can be 5 mm deep; servo side geometry unchanged.
+- **(default) Thrust ring on the right upright**: board side play 0.8 mm, so the horn can't walk out of its pocket.
+- **(default) 26–28 AWG stranded wire** recommended for the sensor rows and bundle (jumper wires fit but fill channels ~50%).
+- **(default) Print clips and servo strap in PETG** if available.
+
 ### 2026-11-26 · Screw-free stand (Danny)
 
 - **No screws anywhere** (Danny). Pegs + snap clips for the board halves, a snap strap for the servo, glued foot sockets for the uprights, a push-in axle pin, drop-in sensor bar with lock pins.

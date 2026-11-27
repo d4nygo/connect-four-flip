@@ -312,6 +312,7 @@ Designed around the ordered parts (LAFVIN ESP32 DevKit V1 kit, HOTUT 13 kg 180°
   - Sensor bar: end tongues drop into open-top slots in the ears; one `lock_pin` per side.
   - Sensors 12 mm above the bar bottom; leg channel under each pocket; 6.5 × 4 mm wire trench along both faces; 6 mm hole at x = 100 brings the back row forward; bundle exits through the right ear and upright onto a groove to the back-edge channel (now 6 × 4 mm).
   - ESP32 plugs straight into the breadboard (holder dropped); 4×AA holder area kept clear at the back right.
+- **v2.1 (27 Nov, fit check):** computer collision check of all 24 parts (standing and every 6° of the flip) found 5 clashes, all fixed: socket flanges through the tray (flange now front/back only), gate grip vs window (3 mm neck, 10 mm grip outside), axle pin too long / head inside upright, lock pin head vs upright (now Ø5.6), bar ends touching the ears (0.3 mm gap). Thrust ring on the right upright limits board side play to 0.8 mm (horn keeps ≥ 2 mm engagement). Uprights 10 mm thick, channels 6 × 5 mm, trench 8.5 × 4 with 45° top, Ø7 cross hole, deeper front trench end, 10 × 7.5 upright hole, splice bay 16 × 31 × 5 on the right upright. Smallest moving gap 0.8 mm (thrust ring), next 1.7 mm. Cable fill ≤ 50% with 1.4 mm jumpers; 26–28 AWG recommended.
 - **Test order:** sensor_test + one sensor (50 drops each way round) → servo end points → board with coins flipped by hand → full stand.
 
 ## Shopping list
