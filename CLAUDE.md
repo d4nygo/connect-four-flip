@@ -39,6 +39,6 @@ You are helping a 3-person university team build **Connect Four Flip**: a physic
 ## Don't
 
 - Don't power servos from the Arduino 5 V pin; always an external supply with common ground.
-- Don't put big binary files (videos, CAD exports) in git; link them from the docs instead.
+- Don't put big binary files (videos, CAD exports) in git; link them from the docs instead. Exception (Danny, 27 Nov 2026): the current print files in `cad/stl/` and `cad/print-runs/` and the review page in `docs/design-review/`; replace them when the model changes, don't add old versions.
 - No code has been written yet (team decision, 2026-10-07). When code is added, put Arduino code in `arduino/` and ProtoPie files in `gui/`, and update `docs/04-software.md`.
 - Don't claim hardware code works unless it was run on the real board; say "untested on hardware".

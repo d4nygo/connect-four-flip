@@ -11,6 +11,8 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 - **(default) Clips and servo strap in PLA** on run 5 with spares; PETG only if they crack (replaces the earlier PETG default).
 - Per-object infill: big parts 20 % gyroid, coins/gates/clips/strap/pins 100 %; lock pins get a 3 mm brim; no skirt. Plate files (3MF) are in the project files, not in git.
 - Design review file for the professors (single self-contained HTML) made for approval to build.
+- **Print files and the review page are kept in git** (Danny, 27 Nov): STLs in `cad/stl/`, plates in `cad/print-runs/`, review page in `docs/design-review/`. This is an exception to the "no big binaries" rule; videos and other exports still stay out.
+- **Open: red/yellow uprights** are a proposal, not yet confirmed by Danny. Grey uprights would need 2 more runs (coins on their own plates).
 
 ### 2026-11-27 · Fit check fixes (Danny asked for a clearance and cable audit)
 

@@ -30,7 +30,8 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [ ] todo · Check the bought parts: horn in the servo bag? sensor marking 3144 or 49E? ESP32 hole spacing (`esp_*` in the model)
 - [ ] todo · Measure the servo (flange to horn face) and its real 0°/180° pulse values; update `cad/flip_board.scad`
 - [ ] todo · Team OK on printed 24 mm coins (concept v0, 24 Nov)
-- [ ] todo · Send the design review file (project files `design-review/flip-board-design-review.html`) to the professor for build approval (Danny)
+- [ ] todo · Send the design review file (`docs/design-review/flip-board-design-review.html`) to the professor for build approval (Danny)
+- [ ] Uprights in red and yellow (saves 2 print runs) or grey (7 runs)? (Danny to confirm)
 - [x] Print plan: 5 runs + sensor test, plate 3MFs in project files `flip-board-cad/print-runs/` (Claude for Danny, 2026-11-27)
 - [x] Mechanical concept v0 + parametric model (`cad/flip_board.scad`) (Claude for Danny, 2026-11-24)
 - [x] Pattern made → board LEDs flash, app shows Flip or Skip; pattern picked at random by the system (Danny, 2026-11-04)
