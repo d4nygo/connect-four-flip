@@ -7,7 +7,7 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 ### 2026-11-27 · Players choose the flip pattern (Danny)
 
 - **The players pick the pattern on the app before the game** (Box, T, L, Flat L, Zigzag, or Random), as in Danny's app prototype. Replaces "picked at random by the system" (4 Nov). `PATTERN` now goes from the app to the ESP32.
-- Flip or Skip: the rules still have Skip; the prototype shows only Flip. Open, see TASKS.
+- **Skip stays** (Danny): the prototype's "Flip ready" screen now has Skip next to Flip. Skip passes the turn and keeps the game's one flip available; after a flip, no more flips. Prototype: `gui/Play_FLIP.html`.
 
 ### 2026-11-27 · Print plan: 5 runs (Danny asked for the fewest print runs)
 

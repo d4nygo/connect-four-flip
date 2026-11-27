@@ -31,7 +31,7 @@ Everyone owns `docs/02-game-rules.md` together: rule changes are agreed by all t
 - [ ] todo · Measure the servo (flange to horn face) and its real 0°/180° pulse values; update `cad/flip_board.scad`
 - [ ] todo · Team OK on printed 24 mm coins (concept v0, 24 Nov)
 - [ ] todo · Send the design review file (`docs/design-review/flip-board-design-review.html`) to the professor for build approval (Danny)
-- [ ] Skip after the pattern: the rules allow it, the app prototype shows only Flip. Keep Skip (add a button) or drop it? (Danny)
+- [x] App prototype (Danny): pattern chosen before the game, Flip or Skip when it's made (`gui/Play_FLIP.html`, 27 Nov)
 - [ ] Uprights in red and yellow (saves 2 print runs) or grey (7 runs)? (Danny to confirm)
 - [x] Print plan: 5 runs + sensor test, plate 3MFs in project files `flip-board-cad/print-runs/` (Claude for Danny, 2026-11-27)
 - [x] Mechanical concept v0 + parametric model (`cad/flip_board.scad`) (Claude for Danny, 2026-11-24)
