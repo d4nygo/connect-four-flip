@@ -1,0 +1,605 @@
+<meta charset="utf-8">
+<title>Flip Board Cable Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: bench manual. A big 3D viewer with its cable list beside it, then the breadboard map and the cable schedule. */
+:root{
+  --bg:#f5f6f4; --panel:#ffffff; --fg:#1c2124; --muted:#5b6469; --line:#d9ddda;
+  --accent:#0f6b5c; --accent-soft:#e2f0ec;
+  --v5:#c8372d; --gnd:#2a2f33; --sig:#2e63c4;
+  --warn:#9a6400; --warn-bg:#fbf0d9; --bad:#b3261e; --bad-bg:#fbe4e2;
+  --board:#1f2a2e; --board-fg:#e9efe9; --pin:#c9a64a; --bb:#f4f2ec; --bbhole:#9aa0a0;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121614; --panel:#1a1f1d; --fg:#e6ebe7; --muted:#9aa5a0; --line:#2e3633;
+  --accent:#5fc7b0; --accent-soft:#1c3530;
+  --v5:#ff6b5e; --gnd:#c9d1cd; --sig:#7aa7ff;
+  --warn:#f0b54a; --warn-bg:#33270f; --bad:#ff8a80; --bad-bg:#3a1714;
+  --board:#0c1113; --board-fg:#dfe7e1; --pin:#d8b65a; --bb:#2a2f2c; --bbhole:#59605c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121614; --panel:#1a1f1d; --fg:#e6ebe7; --muted:#9aa5a0; --line:#2e3633;
+  --accent:#5fc7b0; --accent-soft:#1c3530;
+  --v5:#ff6b5e; --gnd:#c9d1cd; --sig:#7aa7ff;
+  --warn:#f0b54a; --warn-bg:#33270f; --bad:#ff8a80; --bad-bg:#3a1714;
+  --board:#0c1113; --board-fg:#dfe7e1; --pin:#d8b65a; --bb:#2a2f2c; --bbhole:#59605c; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6}
+.wrap{max-width:1200px;margin:0 auto;padding-block:36px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,5vw,2.8rem);font-weight:800}
+h2{font-size:1.5rem;font-weight:700;margin-bottom:12px}
+h3{font-size:1.05rem;font-weight:700;margin:14px 0 6px}
+p{margin:0 0 12px;max-width:72ch}
+ul{margin:0 0 12px;padding-left:1.3em;max-width:72ch}
+li{margin-bottom:6px}
+code{font-family:var(--mono);font-size:.9em}
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.lede{font-size:1.1rem;color:var(--muted);max-width:68ch;margin-top:12px}
+.tag{display:inline-block;font-family:var(--mono);font-size:.75rem;padding:2px 8px;border-radius:4px;border:1px solid var(--line);color:var(--muted);margin-top:12px}
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.answer{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+.answer b{display:block;font-family:var(--display);font-size:1rem;margin-bottom:4px}
+.answer p{margin:0;font-size:.94rem}
+/* viewer */
+.viewer{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+@media (max-width:860px){.viewer{grid-template-columns:minmax(0,1fr)}}
+.viewer{height:clamp(440px,72vh,780px)}
+.stage{position:relative;height:100%;min-width:0}
+@media (max-width:860px){.viewer{height:auto}.stage{height:62vh;min-height:380px}}
+#view{display:block;width:100%;height:100%;touch-action:none}
+.bar3{position:absolute;left:10px;right:10px;top:10px;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.seg{display:flex;flex-wrap:wrap;gap:2px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:2px;pointer-events:auto}
+.seg button{font:500 .8rem var(--body);border:0;background:transparent;color:var(--fg);padding:5px 9px;border-radius:5px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
+.seg button:focus-visible,.wl button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+#status{position:absolute;left:12px;bottom:10px;font-family:var(--mono);font-size:.8rem;color:var(--muted);pointer-events:none}
+.lbl{position:absolute;transform:translate(-50%,-100%);font:500 11px var(--mono);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap;pointer-events:none}
+.lbl.off{display:none}
+.side{border-left:1px solid var(--line);display:flex;flex-direction:column;min-width:0;min-height:0}
+@media (max-width:860px){.side{border-left:0;border-top:1px solid var(--line);max-height:none}}
+.side header{padding:12px 14px;border-bottom:1px solid var(--line)}
+.side header b{font-family:var(--display)}
+.side header p{margin:2px 0 0;font-size:.82rem;color:var(--muted)}
+.wl{overflow:auto;flex:1;min-height:0;padding:6px 8px 12px}
+.wl h4{font:600 .7rem var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:12px 6px 4px}
+.wl button{display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;font:400 .84rem/1.35 var(--body);color:var(--fg);background:transparent;border:1px solid transparent;border-radius:6px;padding:6px;cursor:pointer}
+.wl button:hover{background:var(--bg)}
+.wl button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.sw{flex:none;width:14px;height:14px;border-radius:3px;margin-top:2px;border:1px solid rgba(128,128,128,.5)}
+.wl small{display:block;color:var(--muted);font-size:.76rem}
+.detail{border-top:1px solid var(--line);padding:10px 14px;font-size:.85rem;min-height:64px}
+.detail b{font-family:var(--display)}
+/* tables, svg */
+.scroll{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.scroll svg{display:block;min-width:760px;width:100%;height:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--bg)}
+td.pin{font-family:var(--mono);font-weight:600;white-space:nowrap}
+td .sw{display:inline-block;vertical-align:-2px;margin:0 6px 0 0}
+tr.sub td{background:var(--accent-soft);font-family:var(--mono);font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);padding:6px 11px}
+.note{border-left:3px solid var(--accent);background:var(--panel);padding:12px 16px;border-radius:0 6px 6px 0;max-width:80ch}
+.note.warn{border-color:var(--warn)}
+.note p:last-child,.note ul:last-child{margin-bottom:0}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+.two>div{min-width:0}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;max-width:80ch}.steps>li{counter-increment:s;position:relative;padding-left:44px;margin-bottom:18px}.steps>li::before{content:counter(s);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--bg);font:600 .82rem var(--mono);display:flex;align-items:center;justify-content:center}.steps h3{margin:2px 0 6px}.steps ul{margin-top:6px}
+.foot{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:16px}
+svg text{font-family:var(--mono)}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Connect Four Flip · cable map</div>
+  <h1>Where every cable runs</h1>
+  <p class="lede">The full 3D model with all the wiring in place. Turn it around, switch to x-ray to see cables inside the parts, or pull the parts apart to see each cable on its own. Click any cable to see where it starts and ends.</p>
+  <span class="tag">Built on the screw-free 3D model v2.1 · ESP32 on the breadboard, one free side · untested on hardware</span>
+</header>
+
+<section>
+  <h2>What changed for the breadboard</h2>
+  <div class="answers">
+    <div class="answer"><b>Everything plugs into the free side</b><p>From your photo, the side with <b>3V3, GND, D15 … D22, D23</b> has one free hole per pin. The VIN / D13 side is buried in the breadboard, so nothing connects there.</p></div>
+    <div class="answer"><b>New pin plan</b><p>Columns 0–6 on <b>D23, D22, D21, D19, D18, D5, D15</b>. Servo on <b>D4</b>. Nothing else: no LED strip, no buzzer, no resistors.</p></div>
+    <div class="answer"><b>Sensors take 5 V from the battery rail</b><p>VIN is on the buried side, so the sensors share the battery's + and − rails with the servo. The ESP32 still runs from USB. One wire joins its GND to the − rail.</p></div>
+    <div class="answer"><b>All cables reach the breadboard from the back</b><p>The back sensors' wires cross to the front through a hole near the bar's right end. Everything leaves through the right upright, gets joined on its outside face, and 9 wires go down its channel. The servo cable goes down the left one. Both leave the foot sockets through a notch and run across the base.</p></div>
+  </div>
+</section>
+
+<section aria-label="3D cable viewer">
+  <div class="viewer">
+    <div class="stage" id="stage">
+      <canvas id="view" aria-label="3D model of the flip board with all cables"></canvas>
+      <div class="bar3">
+        <div class="seg" role="group" aria-label="Look">
+          <button id="m-solid" aria-pressed="true">Solid</button>
+          <button id="m-xray" aria-pressed="false">X-ray</button>
+          <button id="m-exp" aria-pressed="false">Exploded</button>
+          <button id="m-wires" aria-pressed="false">Cables only</button>
+        </div>
+        <div class="seg" role="group" aria-label="Camera">
+          <button data-v="full">3/4</button>
+          <button data-v="front">Front</button>
+          <button data-v="back">Back</button>
+          <button data-v="left">Servo side</button>
+          <button data-v="right">Channel side</button>
+          <button data-v="top">Top</button>
+          <button data-v="bar">Sensor bar</button>
+          <button data-v="bb">Breadboard</button>
+        </div>
+        <div class="seg" role="group" aria-label="Labels"><button id="labels" aria-pressed="true">Labels</button></div>
+      </div>
+      <div id="status">Loading the 3D model…</div>
+    </div>
+    <aside class="side">
+      <header><b>Cables</b><p>Tap one to highlight it. Tap it again to show all.</p></header>
+      <div class="wl" id="wl"></div>
+      <div class="detail" id="detail"><b>All cables shown.</b><br><span style="color:var(--muted)">Drag to turn, scroll or pinch to zoom, right-drag to slide.</span></div>
+    </aside>
+  </div>
+</section>
+
+<section>
+  <h2>The breadboard, hole by hole</h2>
+  <p>Seen from above, USB plug on the left. Only the left half of the breadboard is shown; nothing goes on the right half. Each coloured line starts in the hole you plug that wire into.</p>
+  <p><b>Hole numbers on this page are counted along the breadboard from the ESP32's USB end: hole 1 is level with the 3V3 pin, hole 2 with GND, up to hole 15 with D23.</b> Your breadboard's printed numbers may run the other way, so count from the ESP32 instead of reading them.</p>
+  <div class="scroll"><svg id="bbmap" viewBox="0 0 860 690" role="img" aria-label="Breadboard top view: ESP32 at the left end, free pins in row j, power rails along the front edge, and where each wire plugs in."></svg></div>
+  <div class="note warn" style="margin-top:14px">
+    <p><b>The power rails are cut in the middle.</b> On your breadboard the red and blue lines stop halfway along. Keep every + and − connection on the left half, as drawn, or the battery won't reach anything.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Cable schedule</h2>
+  <p>Lengths are measured along the 3D path, plus some slack for bends. Cut each wire about 5 cm longer than listed and trim at the end.</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Cable</th><th>From</th><th>To (breadboard)</th><th>Route</th><th>Cut length</th></tr></thead>
+    <tbody id="sched">
+      
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<section>
+  <h2>Connect it, step by step</h2>
+  <p>Do the steps in this order. Each one ends with a check, so a mistake shows up straight away and not at the end. Keep the battery switch <b>off</b> and USB <b>unplugged</b> whenever you add or move a wire.</p>
+  <ol class="steps">
+    <li><h3>Gather everything</h3>
+      <ul>
+        <li>ESP32, breadboard, 14 A3144 sensors, servo with its horn, 4×AA holder with a switch and 4 AA batteries (rechargeable or normal, both work now).</li>
+        <li><b>Thin stranded wire, 28–30 AWG</b>, in 9 colours if you can: red, black, blue, green, yellow, purple, white, grey, cyan. About 8 m in total. A rainbow ribbon cable that you peel apart works well.</li>
+        <li>Male-to-male jumper wires from the kit (for the breadboard ends), heat-shrink tube (or electrical tape), a soldering iron if you can borrow one, a multimeter, a marker, small pieces of tape.</li>
+      </ul></li>
+    <li><h3>Put the ESP32 in the breadboard</h3>
+      <p>Exactly like your photo: USB end overhanging the left end, the <b>3V3 … D23 row towards you</b>. That row sits in row h and leaves row j free in front of each pin. The VIN … EN row is buried in row a.</p>
+      <p><b>Check:</b> plug in USB and upload Blink. The blue LED blinks. Unplug USB.</p></li>
+    <li><h3>Ground link (black jumper)</h3>
+      <p>Row j hole 2 (in front of <b>GND</b>) to the <b>blue − rail</b>, hole 2.</p></li>
+    <li><h3>Battery holder</h3>
+      <p>Switch <b>off</b>. Red lead to the <b>red + rail</b> at hole 30, black lead to the <b>blue − rail</b> at hole 29. Both are on the left half of the rails, left of the cut in the middle. If the leads are bare wire, twist each onto a male jumper and tape or heat-shrink it.</p>
+      <p><b>Check:</b> switch on, multimeter between + and − rail: 4.8–6.4 V. Switch off.</p></li>
+    
+    <li><h3>Servo, on the table first</h3>
+      <p>The servo plug has 3 holes. Push a male-to-male jumper into each: <b>orange → row j hole 5 (D4)</b>, <b>red → + rail hole 0</b> (the hole just left of the 3V3 pin), <b>brown → − rail hole 1</b>.</p>
+      <p><b>Check:</b> USB in, battery on, run the ESP32Servo "Sweep" example on pin 4 with small angles. The servo moves and the ESP32 does not restart. Then battery off, USB out, and fix the servo into the left upright.</p></li>
+    <li><h3>Prepare the sensor wires</h3>
+      <ul>
+        <li>For <b>each face</b> of the bar (front and back): one red and one black wire, 25 cm, and 7 signal wires, one per column, in the column colours: column 0 blue, 1 green, 2 yellow, 3 purple, 4 white, 5 grey, 6 cyan. Cut each signal wire to (distance from its column to the right end of the bar) + 5 cm: about 25, 22, 19, 16, 14, 11 and 8 cm.</li>
+        <li>For the <b>bundle</b>: 9 wires of 60 cm: red, black and the 7 column colours.</li>
+      </ul></li>
+    <li><h3>Fit and wire the front sensors</h3>
+      <ul>
+        <li>Each sensor goes in its pocket with the <b>printed, flat face towards the coin slot</b>. The 3D thread's guide shows how it sits.</li>
+        <li>The three legs hang straight down through the small leg channel under the sensor into the wire trench, then bend outwards into the trench. With the printed face towards the slot, the leg order is 1 (5 V), 2 (GND), 3 (signal) from left to right as seen from <i>inside</i> the slot. Mark leg 1 with the marker before you bend, so you don't lose track.</li>
+        <li>Lay the red and black wires along the wire trench at the bottom of the front face (about 8.5 mm tall, 4 mm deep), from column 0 to past the right end. At each column, strip 3 mm of insulation off the red wire and solder leg 1 to it. Do the same for leg 2 on the black wire. Trim the leg, then cover each joint with a bit of tape.</li>
+        <li>Solder each column's signal wire to that sensor's leg 3, cover it, and run it in the trench to the right end.</li>
+        <li><b>Check:</b> with the multimeter on beep, red wire to each leg 1, black to each leg 2, and no beep between red and black.</li>
+      </ul></li>
+    <li><h3>Back sensors</h3><p>Exactly the same on the back face, with its own red, black and 7 signals. Same column colours. At the right end, push all 9 back wires through the <b>7 mm hole at x = 99.5</b> (just left of the bar's right end) so they come out in the front trench, next to the front wires. Do this before soldering the last joints, it's easier with loose ends.</p></li>
+    
+    <li><h3>Splice point (outside face of the right upright)</h3>
+      <ul>
+        <li>All 18 wires leave the front trench at the right end, go through the slot in the right ear's front cheek and the hole through the right upright, and come out on its outside face. They land in the <b>splice bay</b>, a 5 mm deep pocket on the outside face that links the hole to the cable channel. Do the joints there.</li>
+        <li>Join, twist and solder, then heat-shrink each joint: <b>front red + back red + bundle red</b>, <b>front black + back black + bundle black</b>, and for each column <b>front signal + back signal + bundle wire of the same colour</b>. That makes 9 joints.</li>
+                <li>Slide one big piece of heat-shrink or tape over the whole bunch so nothing can touch.</li>
+      </ul></li>
+    <li><h3>Run the bundle</h3>
+      <p>The 9 wires go from the splice into the cable channel along the back edge of the right upright's outside face (6 mm wide, 5 mm deep). Press them in and add tape at the top and the bottom. At the bottom they leave through the notch in the foot socket, then run across the back of the base (tape every 5–10 cm) to the front of the breadboard.</p></li>
+    <li><h3>Plug the bundle into the breadboard</h3>
+      <p>Give every bundle wire a male jumper end (solder, or twist and heat-shrink), then plug it in:</p>
+      <ul>
+        <li>Blue (column 0) → row j hole 15 (<b>D23</b>) · green (1) → hole 14 (<b>D22</b>) · yellow (2) → hole 11 (<b>D21</b>) · purple (3) → hole 10 (<b>D19</b>) · white (4) → hole 9 (<b>D18</b>) · grey (5) → hole 8 (<b>D5</b>) · cyan (6) → hole 3 (<b>D15</b>)</li>
+                <li>Red → + rail hole 17 · black → − rail hole 18</li>
+      </ul></li>
+    <li><h3>Servo cable</h3><p>From the servo, into the left upright's channel, out through the foot socket's notch, across the base to the breadboard. The jumpers from step 6 stay as they are. If it doesn't reach, add three female-to-male jumpers as an extension.</p></li>
+    <li><h3>Final check before power</h3>
+      <ul>
+        <li>Multimeter on beep: <b>no beep between the + and − rails</b>. If it beeps, something is shorted; find it before going on.</li>
+        <li>Each row j hole beeps to the matching sensor's leg 3 on <i>both</i> faces.</li>
+        <li>Nothing is plugged into the buried VIN … EN side, and nothing is on the right half of the rails.</li>
+      </ul></li>
+    <li><h3>Power up and test</h3>
+      <p>USB in first, then battery on. Run the IDE's DigitalReadSerial example with <code>INPUT_PULLUP</code> on each column pin in turn: it prints 1, and 0 when a magnet coin drops past either sensor. Switch the battery off before you unplug USB or upload new code.</p></li>
+  </ol>
+</section>
+
+<section class="two">
+  <div>
+    <h2>Inside the entry bar</h2>
+    <p>Each column has a sensor in the front wall and one in the back wall. The legs go down a small leg channel into the wire trench at the bottom of the bar, front face and back face separately.</p>
+    <ul>
+      <li><b>Front face:</b> a red 5 V wire and a black GND wire run the whole length. Every front sensor's leg 1 joins the red, leg 2 the black. Each leg 3 (signal) gets its own thin wire to the right end.</li>
+      <li><b>Back face:</b> exactly the same, a separate red, black and 7 signals. They cross to the front trench through the 6 mm hole near the right end.</li>
+      <li><b>Splice point</b> (the splice bay, a 5 mm deep pocket on the right upright's outside face between the wire hole and the cable channel): front red + back red are joined, front black + back black are joined, and each column's front signal is joined to its back signal. That's the "two sensors share one wire" trick. Out of the splice come 9 wires.</li>
+    </ul>
+  </div>
+  <div>
+    <h2>Things to check</h2>
+    <ul>
+      <li><b>Which side is free?</b> I read your photo as the <b>3V3 … D23</b> side being free. If it's actually the VIN … D13 side, tell me and I'll swap the plan.</li>
+      <li><b>Thin wire for the bar.</b> The trench is 8.5 × 4 mm and the cross hole is 7 mm. Use 26–28 AWG stranded wire on the bar and down the channel.</li>
+      <li><b>Through the right upright.</b> 18 thin wires go through the upright's 10 × 7.5 mm hole into the splice bay. That fits thin wire comfortably; if it's still tight, splice inside the ear's cheek instead, so only 9 go through.</li>
+      <li><b>Servo lead:</b> the route is about 30 cm, and the servo's own cable is about 30 cm. If it's short, add three female-to-male jumpers.</li>
+      <li><b>Battery:</b> the sensors need at least 4.5 V and the servo at most 7.2 V. Four AAs fit: normal ones give about 6 V, rechargeable ones about 4.8–5.2 V. With rechargeables, recharge if coins start being missed.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Pins used</h2>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Pin (free side, from the USB end)</th><th>GPIO</th><th>Goes to</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="pin">3V3</td><td>–</td><td>Nothing</td><td></td></tr>
+      <tr><td class="pin">GND</td><td>–</td><td>− rail (short black jumper)</td><td>Common ground with the battery</td></tr>
+      <tr><td class="pin">D15</td><td>15</td><td>Column 6 (right)</td><td>Start-up pin, OK as a sensor input (see below)</td></tr>
+      <tr><td class="pin">D2</td><td>2</td><td>Nothing</td><td>Blue LED on the board</td></tr>
+      <tr><td class="pin">D4</td><td>4</td><td>Servo signal (orange)</td><td>Quiet at power-on</td></tr>
+      <tr><td class="pin">RX2</td><td>16</td><td>Nothing</td><td>Avoid (see below)</td></tr>
+      <tr><td class="pin">TX2</td><td>17</td><td>Nothing</td><td>Avoid (see below)</td></tr>
+      <tr><td class="pin">D5</td><td>5</td><td>Column 5</td><td>Start-up pin, OK as a sensor input (see below)</td></tr>
+      <tr><td class="pin">D18</td><td>18</td><td>Column 4</td><td></td></tr>
+      <tr><td class="pin">D19</td><td>19</td><td>Column 3</td><td></td></tr>
+      <tr><td class="pin">D21</td><td>21</td><td>Column 2</td><td></td></tr>
+      <tr><td class="pin">RX0 / TX0</td><td>3 / 1</td><td>Nothing</td><td>USB link to the PC</td></tr>
+      <tr><td class="pin">D22</td><td>22</td><td>Column 1</td><td></td></tr>
+      <tr><td class="pin">D23</td><td>23</td><td>Column 0 (left)</td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="margin-top:12px">Why D5 is fine now: a start-up pin only causes trouble if something holds it at the wrong level when the board powers on. Our sensors can only pull a wire <i>down</i>, and only while a magnet sits right in front of them. With no resistors on the board, nothing holds D5 up or down at power-on, so it behaves like a normal pin. Just don't switch on with a coin stuck in column 5. The same goes for <b>D15</b> (column 6): if it is pulled down at power-on, the board only skips printing its start-up messages. <b>Why not TX2/RX2 (GPIO 17/16):</b> on some ESP32 boards (WROVER modules) these two pins are wired to extra memory inside the module and must not be used. Ours is probably a WROOM, where they would work, but D15 is safe on every version, so we follow your friend's advice. <b>Why not D2:</b> the board's blue LED hangs on it and can pull the signal down, so a sensor might look "on" all the time.</p>
+</section>
+
+<footer class="foot">
+  Cables are drawn on top of the screw-free v2.1 3D model's parts in their real positions, with the ESP32 plugged into the breadboard as in your photo. Nothing here has been run on the real board yet.
+</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+// ================= geometry (from flip_board.scad v2; change here when the model changes) =================
+const PITCH=27.5, colx=c=>(c-3)*PITCH;
+const BAR={y0:89,top:115,z:9.5,end:105};
+const SPLICE=[117.75,93,-5];
+const TR={y:94.05,z:7.4,xh:99.5};                // wire trench centre (y), wire depth (z), cross-hole x
+const chanZ=y=>-(30-12*(y+115)/230)+5.5;      // centre of the upright cable channel (back edge, inset 5.5 mm)
+const XR=117.75, XL=-118.25;                     // channel x on the right / left upright outer faces
+const BASEY=-112.3;                            // just above the base board
+const BB={x0:-145,x1:20,z0:-129,z1:-74,top:-105};
+const bx=k=>-142.84+k*2.54;                    // breadboard column k
+const ROW={a:-114.3,b:-111.76,c:-109.22,d:-106.68,e:-104.14,f:-96.52,g:-93.98,h:-91.44,i:-88.9,j:-86.36};
+const RP=-77.46, RN=-80.0;                     // front rails: + outer, - inner
+const PINS=['3V3','GND','D15','D2','D4','RX2','TX2','D5','D18','D19','D21','RX0','TX0','D22','D23'];
+const PINS_B=['VIN','GND','D13','D12','D14','D27','D26','D25','D33','D32','D35','D34','VN','VP','EN'];
+const pk=n=>PINS.indexOf(n)+1;                 // breadboard column of a free-side pin
+const ESP={x0:-150,x1:-98.5,z0:-117.07,z1:-88.67};
+const SPLIT=-62.4;
+
+// ================= cables =================
+const C={red:'#d93a2f',black:'#26282b',blue:'#2f6fd1',green:'#2ea043',yellow:'#e3b400',purple:'#8a4fd1',white:'#e9e9e6',grey:'#8a9096',cyan:'#20b3c9',pink:'#e0569b',brown:'#7a4b2a',orange:'#ff8c1a',lime:'#93c83c',dred:'#9e1f1f',dgrey:'#55595e',usb:'#9aa0a6'};
+const SIGC=['blue','green','yellow','purple','white','grey','cyan'];
+const SIGPIN=['D23','D22','D21','D19','D18','D5','D15'];
+const W=[];   // {id,grp,name,color,from,to,route,cut,segs:[[pts]],r}
+const v=(x,y,z)=>[x,y,z];
+function exitToSplice(y,s,o){ // back wires cross at x=100; then out of the front trench, through the ear cheek + upright, groove on the outer face, splice
+  const yy=TR.y+(y-TR.y)*0.55, cross=s<0?[v(TR.xh,y,-TR.z),v(TR.xh,yy,-4),v(TR.xh,yy,4),v(TR.xh+1.5,y,TR.z)]:[];
+  return cross.concat([v(BAR.end+0.5,y,TR.z), v(112,yy,7), v(117.5,yy,7), v(117.5,yy,1), v(SPLICE[0],SPLICE[1]+o*0.25,SPLICE[2]+o*0.25)]);
+}
+function fan(o,tx,tz,last){ // from the base run to a breadboard hole
+  return [v(-58,BASEY,-62+o[2]), v(tx,BASEY,-66), v(tx,-100.5,-71), v(tx,-100.5,tz+(tz<-82?1.5:0)), v(tx,-104.6,tz)];
+}
+function bundle(o){ // splice -> right channel -> base -> towards the breadboard
+  const a=o[0],b=o[1],c=o[2];
+  return [v(SPLICE[0]+a,SPLICE[1]+b,SPLICE[2]+c), v(XR+a*0.5,80+b,chanZ(80)+c*0.5), v(XR+a*0.5,-100+b,chanZ(-100)+c*0.5), v(XR+a*0.5,-107+b,-24.5+c*0.5), v(125+a,-108+b,-24.5+c), v(125+a,BASEY+b,-30+c), v(125+a,BASEY+b,-62+c)];
+}
+let oi=0; const off=()=>{const i=oi++;return [((i*7)%5-2)*0.55,((i*3)%5-2)*0.55,((i*11)%5-2)*0.55];};
+function bundleWire(id,name,color,tx,tz,to,barSegs,extra){
+  const o=off();
+  const run=bundle(o).concat(fan(o,tx,tz));
+  W.push(Object.assign({id,grp:'bundle',name,color,to,segs:[run].concat(barSegs||[]),main:0,r:0.45},extra||{}));
+}
+// --- bar internals ---
+const busFront=[],busBack=[];
+function barLegs(c,s,kind){ // kind 0 red,1 black,2 signal
+  const xc=colx(c)+(kind-1)*1.27, zf=s*5.2, zg=s*TR.z;
+  const yEnd=[90.6,91.6,92.6+c*0.5][kind];
+  const leg=[v(xc,99.5,zf),v(xc,94.5,zf),v(xc,yEnd+0.4,zg),v(xc,yEnd,zg)];
+  if(kind<2) return [leg];
+  return [leg.concat([v(s<0?TR.xh:BAR.end,yEnd,zg)]).concat(exitToSplice(yEnd,s,c-3))];
+}
+function busSegs(kind){
+  const y=[90.6,91.6][kind], segs=[];
+  for(const s of [1,-1]){
+    segs.push([v(colx(0)-3,y,s*TR.z),v(s<0?TR.xh:BAR.end,y,s*TR.z)].concat(exitToSplice(y,s,kind?2:-2)));
+    for(let c=0;c<7;c++) segs.push(barLegs(c,s,kind)[0]);
+  }
+  return segs;
+}
+bundleWire('s5v','Sensor 5 V','red',bx(17),RP,'+ rail, hole 17',busSegs(0),{from:'Front + back red buses, joined at the splice',route:'Bar trench → (back: cross hole) → right upright → splice → right channel → socket notch → base',cut:'60 cm (+ bar 25 cm)'});
+bundleWire('sgnd','Sensor GND','black',bx(18),RN,'− rail, hole 18',busSegs(1),{from:'Front + back black buses, joined at the splice',route:'Bar trench → (back: cross hole) → right upright → splice → right channel → socket notch → base',cut:'60 cm (+ bar 25 cm)'});
+for(let c=0;c<7;c++){
+  const segs=barLegs(c,1,2).concat(barLegs(c,-1,2));
+  bundleWire('sig'+c,'Column '+c+' signal',SIGC[c],bx(pk(SIGPIN[c])),ROW.j,SIGPIN[c]+' (row j, hole '+pk(SIGPIN[c])+')',segs,{from:'Column '+c+': front + back sensor leg 3, joined at the splice',route:'Bar trench → (back: cross hole) → right upright → splice → right channel → socket notch → base',cut:'60 cm (+ bar '+Math.max(5,Math.round((BAR.end-colx(c))/10+3))+' cm, twice)',pin:SIGPIN[c]});
+}
+// servo cable
+function servoWire(id,name,color,dz,tx,tz,to){
+  const p=[v(-143.75,50,dz),v(-143.75,58,dz),v(-143.75,58,-15.5+dz),v(XL,58,chanZ(58)+dz*0.6),v(XL,-100,chanZ(-100)+dz*0.6),v(XL,-107,-24.5+dz*0.6),v(-128,-108,-24.5+dz),v(-128,BASEY,-30+dz),v(-128,BASEY,-64+dz),v(tx,BASEY,-68),v(tx,-100.5,-71),v(tx,-100.5,tz+(tz<-82?1.5:0)),v(tx,-104.6,tz)];
+  W.push({id,grp:'servo',name,color,from:'Servo cable',to,route:'Left upright channel → socket notch → base',cut:'30 cm (servo lead; extend with a jumper if short)',segs:[p],main:0,r:0.6,pin:id==='sv_sig'?'D4':null});
+}
+servoWire('sv_sig','Servo signal','orange',1.2,bx(pk('D4')),ROW.j,'D4 (row j, hole '+pk('D4')+')');
+servoWire('sv_5v','Servo +','red',0,bx(0),RP,'+ rail, hole 0');
+servoWire('sv_gnd','Servo −','brown',-1.2,bx(1),RN,'− rail, hole 1');
+// breadboard jumpers
+const hop=(x1,z1,x2,z2,h)=>[v(x1,-104.6,z1),v(x1,-104.6+h,z1+0.6),v(x2,-104.6+h,z2+0.6),v(x2,-104.6,z2)];
+W.push({id:'j_gnd',grp:'jump',name:'ESP32 GND to − rail',color:'black',from:'GND pin (row j, hole 2)',to:'− rail, hole 2',route:'Short jumper',cut:'jumper 5 cm',segs:[hop(bx(2),ROW.j,bx(2),RN,3.5)],main:0,r:0.6,pin:'GND'});
+// battery
+function batt(id,name,color,dz,tx,tz,to){
+  W.push({id,grp:'power',name,color,from:'4×AA battery holder (switch off while wiring)',to,route:'Across the base, in front of the breadboard',cut:'holder lead (15 cm), extend if short',
+    segs:[[v(28,-104,-78+dz),v(22,BASEY,-70+dz*0.4),v(tx,BASEY,-70+dz*0.4),v(tx,-100.5,-72),v(tx,-100.5,tz),v(tx,-104.6,tz)]],main:0,r:0.6});
+}
+batt('b_pos','Battery +','red',0,bx(30),RP,'+ rail, hole 30');
+batt('b_neg','Battery −','black',-4,bx(29),RN,'− rail, hole 29');
+W.push({id:'usb',grp:'power',name:'USB cable to the PC',color:'usb',from:'ESP32 micro-USB',to:'PC (ProtoPie Connect)',route:'Off the left end of the base',cut:'—',segs:[[v(-150.5,-99.4,-102.9),v(-162,-99.4,-102.9),v(-174,-108,-102.9),v(-200,-113,-102.9)]],main:0,r:1.6});
+
+const GROUPS=[['bundle','Sensor bundle (right channel)'],['servo','Servo cable (left channel)'],['jump','Breadboard jumper'],['power','Power']];
+
+// ================= cable list + schedule (static, from the data) =================
+const wl=document.getElementById('wl'), sched=document.getElementById('sched');
+function sw(c){return '<span class="sw" style="background:'+C[c]+'"></span>';}
+GROUPS.forEach(([g,t],gi)=>{
+  const h=document.createElement('h4');h.textContent=t;wl.appendChild(h);
+  if(gi>0){const tr=document.createElement('tr');tr.className='sub';tr.innerHTML='<td colspan="5">'+t+'</td>';sched.appendChild(tr);}
+  W.filter(w=>w.grp===g).forEach(w=>{
+    const b=document.createElement('button');b.type='button';b.dataset.id=w.id;b.setAttribute('aria-pressed','false');
+    b.innerHTML=sw(w.color)+'<span>'+w.name+'<small>→ '+w.to+'</small></span>';
+    wl.appendChild(b);w.btn=b;
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+sw(w.color)+w.name+'</td><td>'+w.from+'</td><td>'+w.to+'</td><td>'+w.route+'</td><td>'+w.cut+'</td>';
+    sched.appendChild(tr);
+  });
+});
+
+// ================= breadboard map (SVG) =================
+(function(){
+  const s=document.getElementById('bbmap'), K=8, ox=x=>(x+156)*K, oz=z=>(z+134)*K;
+  let h='';
+  const css=getComputedStyle(document.documentElement);
+  h+='<rect x="'+ox(-145)+'" y="'+oz(-129)+'" width="'+(90*K)+'" height="'+(55*K)+'" rx="6" fill="var(--bb)" stroke="var(--line)"/>';
+  h+='<path d="M'+ox(-55)+' '+oz(-129)+' l-8 40 l10 40 l-10 40 l10 40 l-8 60 l6 '+(55*K-220)+'" fill="none" stroke="var(--bg)" stroke-width="10"/>';
+  h+='<text x="'+(ox(-55)-6)+'" y="'+(oz(-129)+14)+'" text-anchor="end" font-size="11" fill="var(--muted)">right half not used &#8594;</text>';
+  // rails
+  [['+',RP,'var(--v5)',-76.1],['−',RN,'var(--sig)',-81.4]].forEach(([t,z,col,lz])=>{
+    h+='<line x1="'+ox(-144)+'" x2="'+ox(SPLIT-0.8)+'" y1="'+oz(lz)+'" y2="'+oz(lz)+'" stroke="'+col+'" stroke-width="2"/>';
+    h+='<line x1="'+ox(SPLIT+0.8)+'" x2="'+ox(-56)+'" y1="'+oz(lz)+'" y2="'+oz(lz)+'" stroke="'+col+'" stroke-width="2"/>';
+    h+='<text x="'+(ox(-145)-8)+'" y="'+(oz(z)+4)+'" text-anchor="end" font-size="13" font-weight="600" fill="'+col+'">'+t+'</text>';
+    for(let k=0;k<35;k++) if(k%6!==5) h+='<rect x="'+(ox(bx(k))-2.5)+'" y="'+(oz(z)-2.5)+'" width="5" height="5" fill="var(--bbhole)"/>';
+  });
+  h+='<line x1="'+ox(SPLIT)+'" x2="'+ox(SPLIT)+'" y1="'+(oz(-83))+'" y2="'+(oz(-73))+'" stroke="var(--bad)" stroke-width="2" stroke-dasharray="3 3"/>';
+  h+='<text x="'+(ox(SPLIT)+6)+'" y="'+(oz(-73)+14)+'" font-size="11" fill="var(--bad)">rails split here</text>';
+  for(const z of [-120.7,-123.24]) for(let k=0;k<35;k++) if(k%6!==5) h+='<rect x="'+(ox(bx(k))-2.5)+'" y="'+(oz(z)-2.5)+'" width="5" height="5" fill="var(--bbhole)" opacity=".6"/>';
+  // terminal holes + row letters
+  Object.entries(ROW).forEach(([r,z])=>{
+    h+='<text x="'+(ox(-145)-8)+'" y="'+(oz(z)+4)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+r+'</text>';
+    for(let k=0;k<35;k++) h+='<rect x="'+(ox(bx(k))-2.5)+'" y="'+(oz(z)-2.5)+'" width="5" height="5" fill="var(--bbhole)"/>';
+  });
+  for(const k of [0,1,5,10,15,20,25,30]) h+='<text x="'+ox(bx(k))+'" y="'+(oz(-129)-6)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+k+'</text>';
+  h+='<text x="'+ox(-145)+'" y="'+(oz(-129)-22)+'" font-size="11" fill="var(--muted)">hole numbers: counted from the USB end, hole 1 is level with the 3V3 pin</text>';
+  // ESP32
+  h+='<rect x="'+ox(ESP.x0)+'" y="'+oz(ESP.z0)+'" width="'+((ESP.x1-ESP.x0)*K)+'" height="'+((ESP.z1-ESP.z0)*K)+'" rx="5" fill="var(--board)"/>';
+  h+='<rect x="'+ox(-125)+'" y="'+oz(-112)+'" width="'+(25.5*K)+'" height="'+(18*K)+'" rx="2" fill="none" stroke="var(--board-fg)" stroke-opacity=".3"/>';
+  h+='<text x="'+ox(-111.5)+'" y="'+oz(-102)+'" text-anchor="middle" font-size="12" fill="var(--board-fg)">ESP32</text>';
+  h+='<rect x="'+ox(-152)+'" y="'+oz(-107)+'" width="'+(8*K)+'" height="'+(8*K)+'" rx="2" fill="var(--muted)"/>';
+  h+='<text x="'+ox(-153)+'" y="'+(oz(-108)-2)+'" font-size="10" fill="var(--muted)">USB</text>';
+  PINS.forEach((n,i)=>{const x=ox(bx(i+1));h+='<circle cx="'+x+'" cy="'+oz(ROW.h)+'" r="3.4" fill="var(--pin)"/><text transform="translate('+(x+3.5)+' '+(oz(ROW.h)-8)+') rotate(-90)" font-size="9.5" fill="var(--board-fg)">'+n+'</text>';});
+  PINS_B.forEach((n,i)=>{const x=ox(bx(i+1));h+='<circle cx="'+x+'" cy="'+oz(ROW.a)+'" r="3" fill="var(--pin)" opacity=".55"/><text transform="translate('+(x+3)+' '+(oz(ROW.a)+8)+') rotate(90)" font-size="8.5" fill="var(--board-fg)" opacity=".55">'+n+'</text>';});
+  h+='<text x="'+ox(-149)+'" y="'+(oz(ESP.z0)-8)+'" font-size="11" fill="var(--muted)">buried side (no free holes)</text>';
+  // wires: last point of each segment = the hole
+  const bottom=oz(-66);
+  W.forEach(w=>{
+    if(w.id==='usb') return;
+    const p=w.segs[0], end=p[p.length-1], x=ox(end[0]), y=oz(end[2]);
+    const col=C[w.color]==='#e9e9e6'?'#b9b9b4':C[w.color];
+    if(w.grp==='jump'){
+      const p0=p[0];const x0=ox(p0[0]),y0=oz(p0[2]);
+      h+='<path d="M'+x0+' '+y0+' C'+x0+' '+(y0+26)+' '+x+' '+(y+26)+' '+x+' '+y+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-linecap="round"/>';
+      h+='<circle cx="'+x0+'" cy="'+y0+'" r="4" fill="'+col+'" stroke="var(--panel)"/><circle cx="'+x+'" cy="'+y+'" r="4" fill="'+col+'" stroke="var(--panel)"/>';
+      return;
+    }
+    h+='<line x1="'+x+'" y1="'+y+'" x2="'+x+'" y2="'+bottom+'" stroke="'+col+'" stroke-width="3" stroke-linecap="round"/>';
+    h+='<circle cx="'+x+'" cy="'+y+'" r="4.2" fill="'+col+'" stroke="var(--panel)"/>';
+    const lab=w.name.replace(' signal','').replace('Sensor ','Bar ').replace('Battery ','Batt ');
+    h+='<text transform="translate('+(x+4)+' '+(bottom+6)+') rotate(60)" font-size="10.5" fill="var(--fg)">'+lab+'</text>';
+  });
+  h+='<text x="'+ox(-150)+'" y="'+(oz(-66)+92)+'" font-size="12" fill="var(--muted)">Wires leave towards the front, then run along the base: bundle to the right upright, servo cable to the left upright, battery to the right.</text>';
+  s.innerHTML=h;
+})();
+
+// ================= 3D =================
+const statusEl=document.getElementById('status');
+if(!window.THREE){statusEl.textContent='The 3D view could not load. The breadboard map and cable schedule below still work.';return;}
+const canvas=document.getElementById('view'), stage=document.getElementById('stage');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+renderer.sortObjects=true;
+const scene=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(32,4/3,1,6000);
+const controls=new THREE.OrbitControls(cam,canvas);controls.enableDamping=true;
+scene.add(new THREE.HemisphereLight(0xffffff,0x8090a0,0.8));
+const dl=new THREE.DirectionalLight(0xffffff,0.6);dl.position.set(300,500,400);scene.add(dl);
+const dl2=new THREE.DirectionalLight(0xffffff,0.3);dl2.position.set(-400,-50,-400);scene.add(dl2);
+function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
+window.addEventListener('resize',resize);
+
+const VIEWS={
+  full:[[380,210,520],[0,-20,-30]], front:[[0,10,640],[0,-10,0]], back:[[90,90,-600],[0,-20,-40]],
+  left:[[-520,60,60],[-110,-20,-30]], right:[[520,60,-60],[110,-20,-30]], top:[[0,640,0.1],[0,0,-30]],
+  bar:[[150,175,140],[40,97,0]], bb:[[-95,-20,-25],[-112,-104,-92]]};
+let fly=null;
+function setView(k,instant){const p=VIEWS[k];const to=[new THREE.Vector3(...p[0]),new THREE.Vector3(...p[1])];
+  if(instant){cam.position.copy(to[0]);controls.target.copy(to[1]);controls.update();return;}
+  fly={a:[cam.position.clone(),controls.target.clone()],b:to,t:0};}
+setView('full',true);
+document.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.v)));
+
+// ---- structure parts from the 3D model (STL, base64) ----
+const structure=[];   // meshes that x-ray / explode
+const COL={core:0x4a7bd1,gate:0xf3f3f3,red:0xd83b3b,yellow:0xf2c230,up:0x9aa3ad,bar:0x3b3b3b,base:0xc8a06a,tray:0xbfc6cc,mag:0x6b7480,servo:0x2c2c2c,horn:0xfafafa,sens:0x18c48f};
+// name, color, explode offset, is structure
+const PARTS=[
+ ['g_core_front',COL.core,[0,0,190],1],['g_core_back',COL.core,[0,0,150],1],['g_gate_top',COL.gate,[0,0,170],1],['g_gate_bot',COL.gate,[0,0,170],1],
+ ['g_red',COL.red,[0,0,170],1],['g_yellow',COL.yellow,[0,0,170],1],['g_magnets',COL.mag,[0,0,170],1],['g_horn',COL.horn,[0,0,170],1],
+ ['g_bar',COL.bar,[0,55,0],1],['g_upl',COL.up,[-60,0,0],1],['g_upr',COL.up,[60,0,0],1],['g_sock_l',COL.up,[-60,-25,0],1],['g_sock_r',COL.up,[60,-25,0],1],['g_strap',COL.up,[-85,0,0],1],['g_axle_pin',COL.horn,[95,0,0],1],
+ ['g_clips',COL.gate,[0,0,200],1],['g_lock_pins',COL.horn,[0,55,40],1],
+ ['g_base',COL.base,[0,-45,0],1],['g_tray',COL.tray,[0,-20,160],1],
+ ['g_servo',COL.servo,[0,0,0],0],['g_sensors',COL.sens,[0,0,0],0]];
+const loader=new THREE.STLLoader();
+function fetchGeo(name){return fetch(name+'.txt').then(r=>{if(!r.ok)throw new Error(name);return r.text();}).then(t=>{const b=atob(t.trim());const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);const g=loader.parse(u.buffer);g.computeVertexNormals();return g;});}
+function partMat(c){return new THREE.MeshStandardMaterial({color:c,roughness:.6,metalness:.05,transparent:true,opacity:1});}
+
+// ---- electronics drawn here ----
+const elec=new THREE.Group();scene.add(elec);
+function box(x0,x1,y0,y1,z0,z1,c,parent,mat){const m=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0),mat||partMat(c));m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);(parent||elec).add(m);return m;}
+// breadboard
+const bbMesh=box(BB.x0,BB.x1,-115,BB.top,BB.z0,BB.z1,0xf2f0ea);
+(function(){ // holes + rail stripes
+  const hg=new THREE.BoxGeometry(0.9,0.15,0.9), hm=new THREE.MeshBasicMaterial({color:0x6f7474});
+  const pos=[];for(let k=0;k<63;k++){for(const z of Object.values(ROW))pos.push([bx(k),z]);if(k%6!==5)for(const z of [RP,RN,-120.7,-123.24])pos.push([bx(k),z]);}
+  const im=new THREE.InstancedMesh(hg,hm,pos.length);const d=new THREE.Object3D();
+  pos.forEach((p,i)=>{d.position.set(p[0],BB.top+0.05,p[1]);d.updateMatrix();im.setMatrixAt(i,d.matrix);});elec.add(im);
+  const st=(z,c,x0,x1)=>box(x0,x1,BB.top,BB.top+0.08,z-0.35,z+0.35,c,elec,new THREE.MeshBasicMaterial({color:c}));
+  for(const [z,c] of [[-75.9,0xd93a2f],[-81.5,0x2f6fd1],[-119.2,0x2f6fd1],[-124.8,0xd93a2f]]){st(z,c,BB.x0+1,SPLIT-0.8);st(z,c,SPLIT+0.8,BB.x1-1);}
+})();
+// ESP32 (plugged in, USB to -x)
+const espY=BB.top+2.5;
+box(-141.6,-103.5,BB.top,espY,ROW.h-1.25,ROW.h+1.25,0x111111);box(-141.6,-103.5,BB.top,espY,ROW.a-1.25,ROW.a+1.25,0x111111);
+box(ESP.x0,ESP.x1,espY,espY+1.6,ESP.z0,ESP.z1,0x1d2a30);
+box(-125,-99.5,espY+1.6,espY+4.8,-111.9,-93.9,0xc9ccd0);
+box(-151,-144.5,espY+1.6,espY+4.6,-106.9,-98.9,0xb0b4b8);
+(function(){ // silkscreen labels on the board
+  const cv=document.createElement('canvas');cv.width=1030;cv.height=568;const g=cv.getContext('2d');
+  g.fillStyle='#1d2a30';g.fillRect(0,0,1030,568);g.fillStyle='#e9efe9';g.font='600 22px monospace';
+  const X=x=>(x-ESP.x0)*20, Z=z=>(z-ESP.z0)*20;
+  PINS.forEach((n,i)=>{const x=X(bx(i+1));g.fillStyle='#c9a64a';g.beginPath();g.arc(x,Z(ROW.h),14,0,7);g.fill();g.save();g.translate(x+8,Z(ROW.h)-24);g.rotate(-Math.PI/2);g.fillStyle='#ffffff';g.fillText(n,0,0);g.restore();});
+  PINS_B.forEach((n,i)=>{const x=X(bx(i+1));g.fillStyle='#8f7a3c';g.beginPath();g.arc(x,Z(ROW.a),12,0,7);g.fill();g.save();g.translate(x+7,Z(ROW.a)+24);g.rotate(Math.PI/2);g.fillStyle='#9fb0b0';g.font='18px monospace';g.fillText(n,0,0);g.restore();});
+  const t=new THREE.CanvasTexture(cv);t.anisotropy=4;
+  const pl=new THREE.Mesh(new THREE.PlaneGeometry(ESP.x1-ESP.x0,ESP.z1-ESP.z0),new THREE.MeshBasicMaterial({map:t}));
+  pl.rotation.x=-Math.PI/2;pl.position.set((ESP.x0+ESP.x1)/2,espY+1.62,(ESP.z0+ESP.z1)/2);elec.add(pl);
+})();
+// battery holder 4xAA
+box(28,90,-115,-104,-131,-73,0x2b2b2b);
+for(const z of [-123.75,-109.25,-94.75,-80.25]){const m=new THREE.Mesh(new THREE.CylinderGeometry(7,7,50,24),partMat(0x2f8a4e));m.rotation.z=Math.PI/2;m.position.set(59,-105,z);elec.add(m);}
+box(90,96,-112,-106,-104,-96,0x555555);
+// splice point
+(function(){const m=new THREE.Mesh(new THREE.CylinderGeometry(3.2,3.2,9,16),partMat(0x6b6f73));m.position.set(SPLICE[0],SPLICE[1],SPLICE[2]);elec.add(m);})();
+
+// ---- cables ----
+function rounded(pts,r){const out=[pts[0]];for(let i=1;i<pts.length-1;i++){const a=pts[i-1],b=pts[i],c=pts[i+1];
+  const ab=a.clone().sub(b),cb=c.clone().sub(b);const la=ab.length(),lc=cb.length();
+  const p1=b.clone().add(ab.normalize().multiplyScalar(Math.min(r,la/2.2)));const p2=b.clone().add(cb.normalize().multiplyScalar(Math.min(r,lc/2.2)));
+  out.push(p1,b.clone().lerp(p1.clone().add(p2).multiplyScalar(.5),.55),p2);}out.push(pts[pts.length-1]);return out;}
+const wireMeshes=[];
+W.forEach(w=>{
+  w.meshes=[];w.len=0;
+  const mat=new THREE.MeshStandardMaterial({color:C[w.color],roughness:.45,metalness:.05,transparent:true,opacity:1,emissive:0x000000});
+  w.mat=mat;
+  w.segs.forEach((seg,si)=>{
+    const pts=rounded(seg.map(p=>new THREE.Vector3(...p)),w.grp==='bundle'&&si>0?1.2:3.5);
+    const curve=new THREE.CatmullRomCurve3(pts,false,'centripetal');
+    const L=curve.getLength();if(si===0)w.len=L;
+    const g=new THREE.TubeGeometry(curve,Math.max(24,Math.round(L/2)),si>0&&w.grp==='bundle'?0.3:w.r,6,false);
+    const m=new THREE.Mesh(g,mat);m.userData.w=w;scene.add(m);w.meshes.push(m);wireMeshes.push(m);
+  });
+});
+
+// ---- labels ----
+const LBL=[['Entry bar &middot; 14 sensors',[0,121,0]],['Splice bay',[130,98,-4]],['Cable channel (right)',[120,-10,-24]],
+  ['Servo',[-150,35,0]],['Cable channel (left)',[-122,-10,-24]],['ESP32 (free side &rarr; front)',[-124,-93,-95]],['Breadboard',[-30,-104,-100]],
+  ['4&times;AA battery',[59,-98,-102]],['USB to PC',[-185,-106,-103]]].map(([t,p])=>{const d=document.createElement('div');d.className='lbl';d.innerHTML=t;stage.appendChild(d);return {d,p:new THREE.Vector3(...p)};});
+let showLabels=true;
+const lb=document.getElementById('labels');lb.addEventListener('click',()=>{showLabels=!showLabels;lb.setAttribute('aria-pressed',String(showLabels));});
+
+// ---- modes ----
+let mode='solid', expT=0, expTarget=0;
+const modeBtns={solid:'m-solid',xray:'m-xray',exp:'m-exp',wires:'m-wires'};
+function setMode(m){mode=m;Object.entries(modeBtns).forEach(([k,id])=>document.getElementById(id).setAttribute('aria-pressed',String(k===m)));
+  expTarget=m==='exp'?1:0;applyLook();}
+Object.entries(modeBtns).forEach(([k,id])=>document.getElementById(id).addEventListener('click',()=>setMode(k)));
+let selected=null;
+function applyLook(){
+  structure.forEach(m=>{const mt=m.material;m.visible=mode!=='wires';
+    if(mode==='xray'){mt.opacity=.13;mt.depthWrite=false;}else{mt.opacity=1;mt.depthWrite=true;}mt.needsUpdate=true;});
+  const ghostElec=mode==='xray'?0.55:1;
+  elec.traverse(o=>{if(o.isMesh&&o.material&&o.material.transparent!==undefined&&o!==bbMesh){}});
+  bbMesh.material.opacity=mode==='xray'?0.35:1;bbMesh.material.depthWrite=mode!=='xray';
+  W.forEach(w=>{const on=!selected||selected===w;w.mat.opacity=on?1:0.1;w.mat.depthWrite=on;w.mat.emissive.setHex(selected===w?0x333333:0);
+    w.meshes.forEach(m=>m.renderOrder=on?2:1);});
+}
+function select(w){
+  selected=(selected===w)?null:w;
+  W.forEach(x=>x.btn&&x.btn.setAttribute('aria-pressed',String(x===selected)));
+  const d=document.getElementById('detail');
+  if(!selected)d.innerHTML='<b>All cables shown.</b><br><span style="color:var(--muted)">Drag to turn, scroll or pinch to zoom, right-drag to slide.</span>';
+  else d.innerHTML='<b>'+w.name+'</b><br>From: '+w.from+'<br>To: '+w.to+'<br><span style="color:var(--muted)">'+w.route+' · cut '+w.cut+'</span>';
+  applyLook();
+}
+wl.addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(b)select(W.find(w=>w.id===b.dataset.id));});
+// click cables in 3D
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();let down=null;
+canvas.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];});
+canvas.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5)return;
+  const r=canvas.getBoundingClientRect();mouse.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  ray.setFromCamera(mouse,cam);ray.params.Mesh={};const hit=ray.intersectObjects(wireMeshes.filter(m=>m.material.opacity>0.5||!selected),false)[0];
+  if(hit){select(hit.object.userData.w);if(hit.object.userData.w.btn)hit.object.userData.w.btn.scrollIntoView({block:'nearest'});}});
+
+// ---- load ----
+Promise.all(PARTS.map(p=>fetchGeo(p[0]).then(g=>{const m=new THREE.Mesh(g,partMat(p[1]));m.userData.off=new THREE.Vector3(...p[2]);scene.add(m);if(p[3])structure.push(m);else elec.add(m);})))
+ .then(()=>{statusEl.textContent='';resize();applyLook();})
+ .catch(()=>{statusEl.textContent='Some model parts could not load; the cables are still shown. Reload to try again.';resize();});
+
+// ---- loop ----
+const tmp=new THREE.Vector3();
+function loop(){
+  requestAnimationFrame(loop);
+  if(fly){fly.t=Math.min(1,fly.t+0.04);const e=fly.t<.5?2*fly.t*fly.t:1-Math.pow(-2*fly.t+2,2)/2;cam.position.lerpVectors(fly.a[0],fly.b[0],e);controls.target.lerpVectors(fly.a[1],fly.b[1],e);if(fly.t>=1)fly=null;}
+  expT+=(expTarget-expT)*0.12;
+  structure.forEach(m=>m.position.copy(m.userData.off).multiplyScalar(expT));
+  controls.update();
+  if(canvas.width!==Math.round(canvas.clientWidth*renderer.getPixelRatio()))resize();
+  renderer.render(scene,cam);
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  LBL.forEach(l=>{tmp.copy(l.p).project(cam);const vis=showLabels&&tmp.z<1&&Math.abs(tmp.x)<1.05&&Math.abs(tmp.y)<1.05;
+    l.d.classList.toggle('off',!vis);if(vis){l.d.style.left=((tmp.x+1)/2*w)+'px';l.d.style.top=((1-tmp.y)/2*h)+'px';}});
+}
+resize();loop();
+})();
+</script>

@@ -264,7 +264,7 @@ This updates the proposal above. Where the two disagree, this section is newer. 
 - An ESP32 board costs about €5–10, is programmed in the same Arduino IDE, and has many analog inputs, plus Wi-Fi and Bluetooth built in (useful later for the phone-only idea).
 - It runs on **3.3 V, not 5 V**: power the Hall sensors from its 3V3 pin so their output never goes above 3.3 V. Servos still run from the external 5–6 V supply (their 3.3 V signal wire usually works; test one). The LED strip's data line usually works at 3.3 V too.
 - **Which board:** an **ESP32-S3 DevKit** has 10 analog pins on its first converter (GPIO1–GPIO10), enough for 7 sensors with room to spare. On a classic ESP32 DevKit only 6 of those pins are exposed, and the others stop working when Wi-Fi is on. Since we talk to ProtoPie Connect over USB, either board works, but the S3 is the safer pick.
-- Proposed ESP32-S3 pin plan (check the pin labels on the actual board):
+- ~~Proposed ESP32-S3 pin plan~~ superseded: we bought an ESP32 DevKit V1 and the A3144 sensors are digital, see "Wiring: ESP32 DevKit V1" below.
 
 | ESP32-S3 pin | Goes to |
 |---|---|
@@ -304,35 +304,68 @@ This updates the proposal above. Where the two disagree, this section is newer. 
 
 Total: roughly **€70–100** with the cheapest options, less if the lab lends parts. Split three ways that's €20–30 each.
 
-## Wiring (proposed pin plan)
+## Wiring: ESP32 DevKit V1 (parts we bought, plan from 26 Nov 2026)
 
-| Arduino pin | Goes to |
+Replaces the Arduino Uno table and the ESP32-S3 table above. Readable version with diagrams: the "Flip Board Wiring" page (https://claude.ai/artifact/7FGq1f9ve8C476ErB9Xvoh). Untested on hardware.
+
+**Key facts about the parts**
+- **A3144 is a digital Hall switch, not analog** ("Linearer" on the Amazon label is wrong). Output is on/off, so analog pins and ADC2-vs-Wi-Fi don't matter: any normal pin works. It reacts only to a **south pole** on its printed face. Supply 4.5–24 V, so it can't reliably run on 3.3 V.
+- Its output is **open collector** (a switch to GND). Power the sensor from 5 V and wire the output **straight to the GPIO with `INPUT_PULLUP`** (the ESP32's built-in ~45 kΩ pull-up to 3.3 V): the pin never sees more than 3.3 V. **No resistors, no level shifter** (Danny 26 Nov: we have no resistors). Two sensors (front and back wall of a column) share one wire: either one pulls it LOW.
+- Legs with the printed face towards you: **1 = 5 V, 2 = GND, 3 = OUT**. Printed face points into the coin slot.
+- HOTUT servo: standard MG996R-type servo despite the "Power Function Motor" sticker. Brown = GND, red = +5 V, orange = signal. Needs ~500–2500 µs pulses for 180° (Tinkercad's 1000–2000 µs gives ~90°).
+
+**v3 update (26 Nov 2026): one breadboard side, no LEDs or buzzer.** On our breadboard the DevKit V1 covers one row of holes, so only the pins on one side can be wired: the side that reads **3V3, GND, D15, D2, D4, RX2, TX2, D5, D18, D19, D21, RX0, TX0, D22, D23** (to confirm on the real board). VIN is on the blocked side, so the sensors now take 5 V from the battery rail. The LED strip and buzzer are removed from the plan (Danny, 26 Nov). 3D cable map with x-ray and exploded views, every cable and a step-by-step guide: "Flip Board Cable Map" (https://claude.ai/artifact/XdhrJwxmEo2scYcz342fZq).
+
+**Pin plan v3** (free side only)
+
+| ESP32 pin | Goes to |
 |---|---|
-| D2–D8 | IR receiver signal, column 0 (left) to column 6 (right) |
-| D9 | Flip servo signal |
-| D10 | Gate A servo signal (the end on top at power-on) |
-| D11 | Gate B servo signal |
-| D12 | WS2812B LED strip data, through a 330 Ω resistor |
-| A0 | Buzzer (+) |
-| A1, A2 | Limit switches (flip at 0°, flip at 180°), other leg to GND, use `INPUT_PULLUP` |
-| D13, A3–A5 | Spare. The colour upgrade's multiplexer would use 4 of them plus one analog pin. |
-| 5V / GND | IR sensors. The LED strip's power goes to the external 5 V supply (see "Board LEDs" below); only its data wire and GND go to the Arduino. |
+| D23, D22, D21, D19, D18, D5, D15 | Columns 0 (left) to 6 (right). Both sensors' OUT joined, straight to the pin, `INPUT_PULLUP` |
+| D4 | Flip servo signal (orange) |
+| GND (free side) | Short jumper to the breadboard − rail: common ground with the battery |
+| Not used | 3V3, D2 (blue onboard LED can pull the input down), RX2/TX2 (GPIO 16/17: wired to PSRAM on WROVER modules, avoided on a friend's advice, 27 Nov), RX0/TX0 (USB link to the PC) |
 
-**Bluetooth module (only if we add one later):** the Uno has no free pins with plain LEDs. Switch the column LEDs to a WS2812B strip (D12 only), then use A1 (Arduino RX ← module TX) and A2 (Arduino TX → module RX) with `SoftwareSerial`. The module's RX pin takes 3.3 V, so put a voltage divider (1 kΩ + 2 kΩ) between A2 and RX. Module VCC → 5 V, GND → GND. Untested on hardware.
+D5 and D15 are start-up (strapping) pins, but they are fine here (D15 low at power-on only hides the boot messages): open-collector sensors only pull it LOW while a magnet is in front, so just don't power on with a coin stuck in column 5 or 6. The Tinkercad pins (32, 33, 25, 26, 27, 14, 13) are on the blocked side, so the Tinkercad circuit needs updating to these pins.
 
-**Servo power:** servo red wires go to the **+6 V supply**, servo brown/black wires go to the **supply GND**, and **the supply GND must also connect to an Arduino GND pin** (common ground). Put the 1000 µF capacitor across the supply + and − (long leg to +). Never power the big servo from the Arduino 5 V pin.
+**Power v3: two supplies, one shared ground**
+- **USB from the PC** → ESP32 only (also the serial link to ProtoPie Connect).
+- **4 × AA battery pack** (with switch) → breadboard + and − rails → the servo (red/brown) **and** the sensor bar's 5 V and GND wires. NiMH ≈ 4.8–5.2 V, alkaline ≈ 6 V: both are inside the A3144 (4.5–24 V) and servo (4.8–7.2 V) ranges. Recharge if coins start being missed. Later for the demo: a 5 V 3–4 A adapter on the same rails.
+- **Battery − → ESP32 GND** through the rail jumper. The battery + never touches the ESP32. Use only the left half of the rails (the rails are split in the middle on 830-hole boards).
+- 1000 µF capacitor optional across the rails, stripe (−) to −, if the servo stutters.
+- Why: servo current spikes would reset the ESP32 on a shared supply; the shared ground lets the ESP32's signals be understood.
 
-**IR break-beams:** each pair has an emitter (2 wires: power) and a receiver (3 wires: power, GND, signal). Mount emitter and receiver facing each other across the column slot, just above the board. With `INPUT_PULLUP` the signal reads HIGH when clear and LOW when a coin blocks it.
+**Breadboard holes** (row j on the free side, counted from the ESP32's USB end: 1 = 3V3, 2 = GND, 3 = D15, 4 = D2, 5 = D4, 6 = RX2, 7 = TX2, 8 = D5, 9 = D18, 10 = D19, 11 = D21, 12 = RX0, 13 = TX0, 14 = D22, 15 = D23)
+
+| Wire | Goes to |
+|---|---|
+| Servo orange (signal) | row j hole 5 (D4) |
+| Servo red / brown | + rail hole 0 / − rail hole 1 |
+| ESP32 GND jumper | row j hole 2 → − rail hole 2 |
+| Columns 0–6 (blue, green, yellow, purple, white, grey, cyan) | row j holes 15 (D23), 14 (D22), 11 (D21), 10 (D19), 9 (D18), 8 (D5), 3 (D15) |
+| Sensor bundle red / black | + rail hole 17 / − rail hole 18 |
+| Battery red / black | + rail hole 30 / − rail hole 29 (left half of the rails) |
+
+Source of the 3D cable map page: `docs/wiring/cable-map.html` (the 3D part files it loads, `g_*.txt`, live in the published page and are not in git).
+
+**Cables (on the screw-free model v2.1):** each sensor row is soldered as a strip in the wire trench along the bottom of its face of the entry bar (5 V and GND bus wires plus one signal wire per sensor). The back row's 9 wires cross to the front trench through the 7 mm hole at x = 99.5. All 18 wires leave through the right ear's front cheek and the hole through the right upright, and are joined in the splice bay on its outer face (a 5 mm deep pocket linking the hole to the cable channel) (front + back per column, 5 V with 5 V, GND with GND). The resulting 9-wire bundle goes down the right upright's back-edge channel, out through the foot socket's notch and across the base to the breadboard. The servo cable goes down the left channel the same way (≈30 cm, may need a servo extension). Use 26–28 AWG stranded wire on the bar.
+
+**Still to buy:** 4 × AA holder with switch (~€3) + 4 AAs (NiMH and charger ~€10–15, or alkaline), multi-core/ribbon wire for the bundle (~€4), maybe a servo extension cable (~€2). Later: 5 V 3–4 A adapter (~€12). No resistors, capacitors, LED strip or second breadboard needed. Borrow a multimeter.
+
+**Test order:** Blink (data USB cable; CP2102/CH340 driver) → measure the battery rail (4.5–6.5 V) → one A3144 on D23 with DigitalReadSerial (`INPUT_PULLUP`), mark each magnet's south face → one column (two sensors on the same pin) → all 7 columns → servo on the battery rail with ESP32Servo Sweep, small angles first.
+
+**7 sensors instead of 14?** Wiring stays 7 signal pins either way. Only 7 sensors with one magnet per coin would need an omnipolar sensor (e.g. DRV5032, AH180; runs on 3.3 V). Decided with the 3D model.
 
 ## Board LEDs (pattern made, whose turn, flip warning)
 
+**Removed from the plan (Danny, 26 Nov 2026):** no LED strip and no buzzer; the app alone shows the pattern, turn and flip warning. Kept below for reference only.
+
 Danny (2026-11-04): when the pattern is made, the LEDs on the board flash while the app plays its animation.
 
-- **What:** one WS2812B ("NeoPixel") strip, 10–15 LEDs. Every LED can be any colour, and the whole strip needs **one data wire** (D12, already in the pin plan; no new pins).
+- **What:** one WS2812B ("NeoPixel") strip, 10–15 LEDs. Every LED can be any colour, and the whole strip needs **one data wire** (GPIO 18 on the ESP32; was D12 on the Uno plan).
 - **Where:** on the **fixed stand**, not the turning board: along the front of the entry bar, or around the base. Then no wires cross the flip. Light shining up through clear acrylic edges looks good.
 - **What it shows:** red or yellow glow = whose turn; fast rainbow/white flashing = pattern made, choose Flip or Skip; red flashing + beep = the board is about to turn; winner's colour = game over.
-- **Wiring:** strip 5V → external 5 V supply +; strip GND → supply − **and** Arduino GND; strip DIN → 330 Ω resistor → D12. A 1000 µF capacitor across the strip's 5V/GND (the servo one can be shared if it's close).
-- **Power:** each LED can draw up to 60 mA at full white. 15 LEDs at full white = 0.9 A, so keep brightness low in code (about 25%) and feed the strip from the external supply, not the Arduino's 5 V pin. Code library: Adafruit NeoPixel or FastLED.
+- **Wiring:** strip 5V → external 5 V supply +; strip GND → supply − **and** ESP32 GND; strip DIN → 330 Ω resistor → GPIO 18. A 1000 µF capacitor across the strip's 5V/GND (the servo one can be shared if it's close).
+- **Power:** each LED can draw up to 60 mA at full white. 15 LEDs at full white = 0.9 A, so keep brightness low in code (about 25%) and feed the strip from the external supply, not the ESP32's VIN pin. Code library: Adafruit NeoPixel or FastLED.
 
 ## Mechanical build order
 
