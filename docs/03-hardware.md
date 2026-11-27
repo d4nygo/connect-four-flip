@@ -334,6 +334,19 @@ D5 and D15 are start-up (strapping) pins, but they are fine here (D15 low at pow
 - 1000 µF capacitor optional across the rails, stripe (−) to −, if the servo stutters.
 - Why: servo current spikes would reset the ESP32 on a shared supply; the shared ground lets the ESP32's signals be understood.
 
+**Breadboard holes** (row j on the free side, counted from the ESP32's USB end: 1 = 3V3, 2 = GND, 3 = D15, 4 = D2, 5 = D4, 6 = RX2, 7 = TX2, 8 = D5, 9 = D18, 10 = D19, 11 = D21, 12 = RX0, 13 = TX0, 14 = D22, 15 = D23)
+
+| Wire | Goes to |
+|---|---|
+| Servo orange (signal) | row j hole 5 (D4) |
+| Servo red / brown | + rail hole 0 / − rail hole 1 |
+| ESP32 GND jumper | row j hole 2 → − rail hole 2 |
+| Columns 0–6 (blue, green, yellow, purple, white, grey, cyan) | row j holes 15 (D23), 14 (D22), 11 (D21), 10 (D19), 9 (D18), 8 (D5), 3 (D15) |
+| Sensor bundle red / black | + rail hole 17 / − rail hole 18 |
+| Battery red / black | + rail hole 30 / − rail hole 29 (left half of the rails) |
+
+Source of the 3D cable map page: `docs/wiring/cable-map.html` (the 3D part files it loads, `g_*.txt`, live in the published page and are not in git).
+
 **Cables (on the screw-free model v2.1):** each sensor row is soldered as a strip in the wire trench along the bottom of its face of the entry bar (5 V and GND bus wires plus one signal wire per sensor). The back row's 9 wires cross to the front trench through the 7 mm hole at x = 99.5. All 18 wires leave through the right ear's front cheek and the hole through the right upright, and are joined in the splice bay on its outer face (a 5 mm deep pocket linking the hole to the cable channel) (front + back per column, 5 V with 5 V, GND with GND). The resulting 9-wire bundle goes down the right upright's back-edge channel, out through the foot socket's notch and across the base to the breadboard. The servo cable goes down the left channel the same way (≈30 cm, may need a servo extension). Use 26–28 AWG stranded wire on the bar.
 
 **Still to buy:** 4 × AA holder with switch (~€3) + 4 AAs (NiMH and charger ~€10–15, or alkaline), multi-core/ribbon wire for the bundle (~€4), maybe a servo extension cable (~€2). Later: 5 V 3–4 A adapter (~€12). No resistors, capacitors, LED strip or second breadboard needed. Borrow a multimeter.
