@@ -4,6 +4,10 @@ Newest at the top. Each entry: date, decision, why, who. Marked **(default)** = 
 
 ---
 
+### 2026-11-27 · Column 6 moves from TX2 to D15 (Danny, friend's advice)
+
+- **Column 6 signal on D15 instead of TX2 (GPIO 17).** GPIO 16/17 are used for PSRAM on WROVER-type modules, so they're left free. D15 is a strapping pin but safe for an open-collector sensor with `INPUT_PULLUP` (pulled low at boot it only hides boot messages). D2 rejected: the onboard LED loads the pin. Untested on hardware.
+
 ### 2026-11-26 · Wiring v3: one breadboard side, no LEDs or buzzer (proposal, Claude for Danny)
 
 - **Only one side of the ESP32 can be wired** on our breadboard, so all pins move to the free side: columns 0–6 on D23, D22, D21, D19, D18, D5, TX2 (GPIO 17); servo on D4; free-side GND jumpered to the − rail. Replaces the GPIO 32…13 column pins below (Tinkercad to update). Free side to confirm on the real board.

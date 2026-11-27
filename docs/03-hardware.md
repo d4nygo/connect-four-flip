@@ -320,12 +320,12 @@ Replaces the Arduino Uno table and the ESP32-S3 table above. Readable version wi
 
 | ESP32 pin | Goes to |
 |---|---|
-| D23, D22, D21, D19, D18, D5, TX2 (GPIO 17) | Columns 0 (left) to 6 (right). Both sensors' OUT joined, straight to the pin, `INPUT_PULLUP` |
+| D23, D22, D21, D19, D18, D5, D15 | Columns 0 (left) to 6 (right). Both sensors' OUT joined, straight to the pin, `INPUT_PULLUP` |
 | D4 | Flip servo signal (orange) |
 | GND (free side) | Short jumper to the breadboard − rail: common ground with the battery |
-| Not used | 3V3, D15, D2 (blue onboard LED), RX2 (GPIO 16, spare), RX0/TX0 (USB link to the PC) |
+| Not used | 3V3, D2 (blue onboard LED can pull the input down), RX2/TX2 (GPIO 16/17: wired to PSRAM on WROVER modules, avoided on a friend's advice, 27 Nov), RX0/TX0 (USB link to the PC) |
 
-D5 is a start-up (strapping) pin, but it is fine here: open-collector sensors only pull it LOW while a magnet is in front, so just don't power on with a coin stuck in column 5. The Tinkercad pins (32, 33, 25, 26, 27, 14, 13) are on the blocked side, so the Tinkercad circuit needs updating to these pins.
+D5 and D15 are start-up (strapping) pins, but they are fine here (D15 low at power-on only hides the boot messages): open-collector sensors only pull it LOW while a magnet is in front, so just don't power on with a coin stuck in column 5 or 6. The Tinkercad pins (32, 33, 25, 26, 27, 14, 13) are on the blocked side, so the Tinkercad circuit needs updating to these pins.
 
 **Power v3: two supplies, one shared ground**
 - **USB from the PC** → ESP32 only (also the serial link to ProtoPie Connect).
